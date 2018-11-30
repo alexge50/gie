@@ -11,7 +11,7 @@ find_package(PythonLibs REQUIRED)
 
 include_directories(include/ ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS}) # TODO: add libraries to an 3rdparty directory
 
-add_library(gie STATIC ${LIBRARY_SOURCES})
+add_library(gie STATIC ${LIBRARY_SOURCES} include/gie/Graph.h)
 target_link_libraries(gie ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 
 # TESTS
