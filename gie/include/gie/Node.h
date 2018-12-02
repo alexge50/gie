@@ -10,13 +10,14 @@
 
 #include <vector>
 #include <memory>
+#include <cstddef>
+
+using NodeId = std::size_t;
 
 struct Node
 {
-    std::weak_ptr<DrawableNode> m_drawable;
-    std::weak_ptr<LogicNode> m_logic;
-
-    std::vector<std::weak_ptr<Node>> m_referencesTo;
+    DrawableNode m_drawable;
+    LogicNode m_logic;
 };
 
 
