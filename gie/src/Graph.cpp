@@ -36,3 +36,8 @@ void Graph::addConnection(NodeId user, NodeId used)
 {
     m_nodeUsageGraph.addEdge(user, used);
 }
+
+Node &Graph::getNode(NodeId id)
+{
+    return m_nodes[id];
+}

@@ -19,6 +19,7 @@ public:
 
     NodeId addNode(const Node &node);
     void removeNode(NodeId id);
+    Node &getNode(NodeId id);
 
 private:
     std::vector<Node> m_nodes;
