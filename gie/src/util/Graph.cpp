@@ -9,20 +9,22 @@
 
 void util::Graph::addEdge(NodeId from, NodeId to)
 {
-    Edge toInsert = {from, to, m_index[from]};
+    Edge toInsert = {from, to, m_index[from], 0};
 
-    Edge *place;
+    size_t place;
     if(m_free.empty())
     {
         place = m_free.top();
         m_free.pop();
 
-        *place = toInsert;
+        toInsert.index = place;
+        m_edges[place] = toInsert;
     }
     else
     {
         m_edges.push_back(toInsert);
-        place = &m_edges[m_edges.size() - 1];
+        place = m_edges.size() - 1;
+        m_edges.back().index = m_edges.size() - 1;
     }
 
     m_index[from] = place;
@@ -30,21 +32,21 @@ void util::Graph::addEdge(NodeId from, NodeId to)
 
 void util::Graph::removeEdge(NodeId from, NodeId to)
 {
-    Edge **source = nullptr;
+    size_t *source = nullptr;
 
     if(auto it = m_index.find(from); it != m_index.end())
-        source = &it->second;
+        source = &(it->second);
     else return;
 
-    while(*source != nullptr)
+    while(*source != 0)
     {
-        if((*source)->to == to)
+        if(m_edges[*source].to == to)
         {
             m_free.push(*source);
-            *source = (*source)->next;
+            *source = m_edges[*source].next;
         }
 
-        source = &((*source)->next);
+        source = &m_edges[*source].next;
     }
 }
 
@@ -57,13 +59,14 @@ void util::Graph::removeNode(util::Graph::NodeId node)
 const util::NeighboursProxy util::Graph::getNeighbours(util::Graph::NodeId sourceNode)
 {
     if(auto it = m_index.find(sourceNode); it != m_index.end())
-        return util::NeighboursProxy(it->second);
-    else return util::NeighboursProxy(nullptr);
+        return util::NeighboursProxy(&m_edges[it->second], &m_edges);
+    else return util::NeighboursProxy(nullptr, &m_edges);
 }
 
-util::NeighboursIterator::NeighboursIterator(util::Graph::Edge* pCurrent)
+util::NeighboursIterator::NeighboursIterator(Graph::Edge *pCurrent, std::vector<Graph::Edge> *edges)
 {
     m_current = pCurrent;
+    m_edges = edges;
 }
 
 bool util::NeighboursIterator::operator!=(const util::NeighboursIterator &other)
@@ -73,7 +76,7 @@ bool util::NeighboursIterator::operator!=(const util::NeighboursIterator &other)
 
 util::NeighboursIterator &util::NeighboursIterator::operator++()
 {
-    m_current = m_current->next;
+    m_current = &((*m_edges)[m_current->next]);
     return *this;
 }
 
@@ -87,17 +90,18 @@ util::Graph::NodeId util::NeighboursIterator::operator*() const
     return m_current->to;
 }
 
-util::NeighboursProxy::NeighboursProxy(util::Graph::Edge *begin)
+util::NeighboursProxy::NeighboursProxy(Graph::Edge *begin, std::vector<Graph::Edge> *edges)
 {
     m_begin = begin;
+    m_edges = edges;
 }
 
 util::NeighboursIterator util::NeighboursProxy::begin()
 {
-    return util::NeighboursIterator(m_begin);
+    return util::NeighboursIterator(m_begin, m_edges);
 }
 
 util::NeighboursIterator util::NeighboursProxy::end()
 {
-    return util::NeighboursIterator(nullptr);
+    return util::NeighboursIterator(nullptr, m_edges);
 }
