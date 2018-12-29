@@ -6,34 +6,15 @@
 
 #include <boost/python.hpp>
 
+#include <gie/execute/Execute.h>
 
 Program::Program()
 {
-    Py_Initialize();
 }
 
-void Program::run()
+std::optional<Value> Program::run()
 {
-    using namespace boost::python;
-
-    object main = import("__main__");
-    object global = main.attr("__dict__");
-    auto nodes = m_graph.getNodes();
-
-    for(auto nodeId: nodes)
-    {
-        auto node = m_graph.getNode(nodeId);
-        auto &logic = node.m_logic;
-
-        std::string function = logic.m_functionName + "()";
-        object result = eval(function.c_str(), global, global);
-
-        //TODO: arguments + dictionary with previous results.
-    }
-}
-
-std::optional<Value> Program::getResult() {
-    return std::optional<Value>();
+    return {};
 }
 
 NodeId Program::addNode(const Node &node)
@@ -43,7 +24,6 @@ NodeId Program::addNode(const Node &node)
 
 void Program::editNode(NodeId id, const Node &node)
 {
-    m_graph.getNode(id) = node;
 }
 
 void Program::removeNode(NodeId id)

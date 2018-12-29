@@ -14,8 +14,7 @@ class Program
 public:
     Program();
 
-    void run();
-    std::optional<Value> getResult();
+    std::optional<Value> run();
 
     NodeId addNode(const Node &node);
     void editNode(NodeId, const Node &node);

@@ -38,9 +38,9 @@ void Graph::addConnection(NodeId user, NodeId used)
     m_nodeUsageGraph.addEdge(user, used);
 }
 
-Node &Graph::getNode(NodeId id)
+std::tuple<Node&, Value&> Graph::getNode(NodeId id)
 {
-    return m_nodes[id].value();
+    return {m_nodes[id].value(), m_cache[id].value()};
 }
 
 std::vector<NodeId> Graph::getNodes()

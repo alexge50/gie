@@ -20,12 +20,13 @@ public:
 
     NodeId addNode(const Node &node);
     void removeNode(NodeId id);
-    Node &getNode(NodeId id);
+    std::tuple<Node&, Value&> getNode(NodeId id);
 
     std::vector<NodeId> getNodes();
 
 private:
     std::vector<std::optional<Node>> m_nodes;
+    std::vector<std::optional<Value>> m_cache;
     std::stack<NodeId> m_freePositions;
 
     void addConnection(NodeId user, NodeId used);
