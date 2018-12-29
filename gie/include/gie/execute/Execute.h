@@ -13,24 +13,9 @@
 
 #include <boost/python.hpp>
 
-std::optional<Value> executeNode(const PythonContext &context, Graph &graph, NodeId nodeId)
-{
-    using namespace boost::python;
+Value executeNode(const PythonContext &context, Graph &graph, NodeId nodeId);
+std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(Graph &graph);
 
-    auto [node, result] = graph.getNode(nodeId);
-    dict arguments;
-
-    for(const auto &[name, argument]: node.m_logic.m_argument)
-    {
-        if(std::holds_alternative<NodeId>(argument))
-            arguments[name.m_argumentName] = std::get<1>(graph.getNode(std::get<NodeId>(argument)));
-        else
-            arguments[name.m_argumentName] = std::get<Value>(argument).m_object;
-
-    }
-
-    result.m_object = call<object>(context.getFunction(node.m_logic.m_functionName).ptr(), arguments);
-}
-
+std::vector<Value> executeGraph(const PythonContext &context, Graph &graph);
 
 #endif //GIE_LIBRARY_EXECUTE_H
