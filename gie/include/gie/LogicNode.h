@@ -14,11 +14,12 @@
 #include <utility>
 #include <variant>
 
+using NodeId = std::size_t;
 
 struct LogicNode
 {
     std::string m_functionName;
-    std::vector<std::pair<Argument, std::variant<std::weak_ptr<LogicNode>, Value>>> m_argument;
+    std::vector<std::pair<Argument, std::variant<NodeId, Value>>> m_argument;
 };
 
 
