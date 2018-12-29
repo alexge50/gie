@@ -6,14 +6,13 @@
 #define GIE_LIBRARY_PROGRAM_H
 
 #include "Graph.h"
+#include "PythonContext.h"
 
 #include <optional>
 
 class Program
 {
 public:
-    Program();
-
     std::optional<Value> run();
 
     NodeId addNode(const Node &node);
@@ -22,6 +21,7 @@ public:
 
 private:
     Graph m_graph;
+    PythonContext m_pythonContext;
 };
 
 

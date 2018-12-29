@@ -8,10 +8,6 @@
 
 #include <gie/execute/Execute.h>
 
-Program::Program()
-{
-}
-
 std::optional<Value> Program::run()
 {
     return {};
