@@ -24,6 +24,11 @@ public:
 
     std::vector<NodeId> getNodes();
 
+    auto getCallee(NodeId id)
+    {
+        return m_nodeUsageGraph.getNeighbours(id);
+    }
+
 private:
     std::vector<std::optional<Node>> m_nodes;
     std::vector<std::optional<Value>> m_cache;

@@ -56,7 +56,7 @@ void util::Graph::removeNode(util::Graph::NodeId node)
         removeEdge(key, node);
 }
 
-const util::NeighboursProxy util::Graph::getNeighbours(util::Graph::NodeId sourceNode)
+util::NeighboursProxy util::Graph::getNeighbours(util::Graph::NodeId sourceNode)
 {
     if(auto it = m_index.find(sourceNode); it != m_index.end())
         return util::NeighboursProxy(&m_edges[it->second], &m_edges);
