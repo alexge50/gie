@@ -3,6 +3,8 @@
 //
 
 #include <gie/Node.h>
+#include <gie/Graph.h>
+#include <gie/Program.h>
 
 int main()
 {

@@ -10,6 +10,7 @@
 #include "util/Graph.h"
 
 #include <unordered_map>
+#include <optional>
 #include <vector>
 #include <stack>
 
@@ -19,9 +20,13 @@ public:
 
     NodeId addNode(const Node &node);
     void removeNode(NodeId id);
+    std::tuple<Node&, Value&> getNode(NodeId id);
+
+    std::vector<NodeId> getNodes();
 
 private:
-    std::vector<Node> m_nodes;
+    std::vector<std::optional<Node>> m_nodes;
+    std::vector<std::optional<Value>> m_cache;
     std::stack<NodeId> m_freePositions;
 
     void addConnection(NodeId user, NodeId used);
