@@ -4,7 +4,24 @@ project(gie_library VERSION 0.0.0 DESCRIPTION "GenerativeImageEditor library")
 
 set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB LIBRARY_SOURCES src/* src/util/*)
+set(LIBRARY_SOURCES
+        include/gie/Argument.h
+        include/gie/DrawableNode.h
+        include/gie/execute/Execute.h
+        include/gie/Graph.h
+        include/gie/LogicNode.h
+        include/gie/Node.h
+        include/gie/Program.h
+        include/gie/PythonContext.h
+        include/gie/util/Graph.h
+        include/gie/Value.h
+        src/util/Graph.cpp
+        src/Graph.cpp
+        src/Program.cpp
+        src/PythonContext.cpp
+        src/execute/Execute.cpp
+        )
+
 
 find_package(Boost COMPONENTS python3 REQUIRED)
 find_package(PythonLibs REQUIRED)
