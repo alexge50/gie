@@ -33,12 +33,13 @@ namespace util
         {
             NodeId from, to;
 
-            Edge* next;
+            size_t next;
+            size_t index;
         };
 
         std::vector<Edge> m_edges;
-        std::stack<Edge*> m_free;
-        std::unordered_map<NodeId, Edge*> m_index;
+        std::stack<size_t> m_free;
+        std::unordered_map<NodeId, size_t> m_index;
 
         friend NeighboursIterator;
         friend NeighboursProxy;
@@ -53,7 +54,7 @@ namespace util
     >
     {
     private:
-        explicit NeighboursIterator(Graph::Edge*);
+        NeighboursIterator(Graph::Edge *, std::vector<Graph::Edge> *);
     public:
         NeighboursIterator& operator++();
 
@@ -64,13 +65,14 @@ namespace util
 
     private:
         Graph::Edge *m_current;
+        std::vector<Graph::Edge> *m_edges;
         friend NeighboursProxy;
     };
 
     class NeighboursProxy
     {
     private:
-        explicit NeighboursProxy(Graph::Edge *);
+        NeighboursProxy(Graph::Edge *, std::vector<Graph::Edge> *);
 
     public:
         NeighboursProxy() = delete;
@@ -79,6 +81,7 @@ namespace util
         NeighboursIterator end();
     private:
         Graph::Edge *m_begin;
+        std::vector<Graph::Edge> *m_edges;
 
         friend Graph;
     };
