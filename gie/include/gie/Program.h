@@ -12,6 +12,8 @@
 class Program
 {
 public:
+    Program();
+
     void run();
     std::optional<Value> getResult();
 

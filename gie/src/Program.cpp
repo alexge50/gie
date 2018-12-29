@@ -4,9 +4,32 @@
 
 #include <gie/Program.h>
 
+#include <boost/python.hpp>
+
+
+Program::Program()
+{
+    Py_Initialize();
+}
+
 void Program::run()
 {
+    using namespace boost::python;
 
+    object main = import("__main__");
+    object global = main.attr("__dict__");
+    auto nodes = m_graph.getNodes();
+
+    for(auto nodeId: nodes)
+    {
+        auto node = m_graph.getNode(nodeId);
+        auto &logic = node.m_logic;
+
+        std::string function = logic.m_functionName + "()";
+        object result = eval(function.c_str(), global, global);
+
+        //TODO: arguments + dictionary with previous results.
+    }
 }
 
 std::optional<Value> Program::getResult() {
