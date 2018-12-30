@@ -44,7 +44,7 @@ static void topologicalSort(
     bool unused = true;
     visited[node] = true;
 
-    for(auto callee: graph.getCallee(node))
+    for(auto callee: graph.getCallees(node))
     {
         if(!visited[callee])
             topologicalSort(graph, callee, visited, stack);

@@ -24,9 +24,19 @@ public:
 
     std::vector<NodeId> getNodes();
 
-    auto getCallee(NodeId id)
+    auto getCallees(NodeId id)
     {
         return m_nodeUsageGraph.getNeighbours(id);
+    }
+
+    void removeCallee(NodeId id, NodeId target)
+    {
+        m_nodeUsageGraph.removeEdge(id, target);
+    }
+
+    void addCallee(NodeId id, NodeId target)
+    {
+        m_nodeUsageGraph.addEdge(id, target);
     }
 
 private:
