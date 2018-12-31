@@ -19,6 +19,7 @@ set(LIBRARY_SOURCES
         src/Graph.cpp
         src/Program.cpp
         src/PythonContext.cpp
+        src/execute/Execute.cpp
         )
 
 find_package(Boost COMPONENTS python3 REQUIRED)
