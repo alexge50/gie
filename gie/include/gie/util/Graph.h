@@ -26,7 +26,7 @@ namespace util
 
         void removeNode(NodeId node);
 
-        const NeighboursProxy getNeighbours(NodeId sourceNode);
+        NeighboursProxy getNeighbours(NodeId sourceNode);
 
     private:
         struct Edge
