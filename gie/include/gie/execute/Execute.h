@@ -6,16 +6,16 @@
 #define GIE_LIBRARY_EXECUTE_H
 
 #include <gie/Value.h>
-#include <gie/Graph.h>
+#include <gie/SceneGraph.h>
 #include <gie/Node.h>
 
 #include <gie/PythonContext.h>
 
 #include <boost/python.hpp>
 
-Value executeNode(const PythonContext &context, Graph &graph, NodeId nodeId);
-std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(Graph &graph);
+Value executeNode(const PythonContext &context, SceneGraph &graph, NodeId nodeId);
+std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(SceneGraph &graph);
 
-std::vector<Value> executeGraph(const PythonContext &context, Graph &graph);
+std::vector<Value> executeGraph(const PythonContext &context, SceneGraph &graph);
 
 #endif //GIE_LIBRARY_EXECUTE_H

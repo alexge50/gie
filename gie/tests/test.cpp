@@ -3,7 +3,6 @@
 //
 
 #include <gie/Node.h>
-#include <gie/Graph.h>
 #include <gie/Program.h>
 
 #include <boost/python.hpp>

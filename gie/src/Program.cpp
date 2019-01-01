@@ -16,12 +16,12 @@ std::optional<Value> Program::run()
 
 NodeId Program::addNode(const Node &node)
 {
-    auto id = m_graph.addNode(node);
+    auto id = m_graph.addNode({node, {}});
 
     for(auto &argument: node.m_logic.m_argument)
     {
         if(std::holds_alternative<NodeId>(argument.second))
-            m_graph.addCallee(std::get<NodeId>(argument.second), id);
+            m_graph.addEdge(std::get<NodeId>(argument.second), id);
     }
 
     return id;
@@ -29,7 +29,7 @@ NodeId Program::addNode(const Node &node)
 
 void Program::editNode(NodeId id, const Node &node)
 {
-    Node toEdit = std::get<0>(m_graph.getNode(id));
+    Node &toEdit = std::get<0>(m_graph.getNode(id));
     std::unordered_map<NodeId, bool> isCallee;
 
     for(auto &argument: node.m_logic.m_argument)
@@ -37,14 +37,14 @@ void Program::editNode(NodeId id, const Node &node)
         if(std::holds_alternative<NodeId>(argument.second))
         {
             isCallee[std::get<NodeId>(argument.second)] = true;
-            m_graph.addCallee(std::get<NodeId>(argument.second), id);
+            m_graph.addEdge(std::get<NodeId>(argument.second), id);
         }
     }
 
     for(auto &argument: toEdit.m_logic.m_argument)
     {
         if(std::holds_alternative<NodeId>(argument.second) && !isCallee[std::get<NodeId>(argument.second)])
-            m_graph.removeCallee(std::get<NodeId>(argument.second), id);
+            m_graph.removeEdge(std::get<NodeId>(argument.second), id);
     }
 
     toEdit = node;
