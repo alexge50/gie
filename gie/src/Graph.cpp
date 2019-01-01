@@ -11,6 +11,7 @@ NodeId Graph::addNode(const Node &node)
     if(m_freePositions.empty())
     {
         m_nodes.emplace_back(node);
+        m_cache.emplace_back(Value{});
         return m_nodes.size() - 1;
     }
     else
@@ -19,6 +20,7 @@ NodeId Graph::addNode(const Node &node)
         m_freePositions.pop();
 
         m_nodes[id] = node;
+        m_cache[id] = Value{};
         return id;
     }
 }
@@ -26,6 +28,7 @@ NodeId Graph::addNode(const Node &node)
 void Graph::removeNode(NodeId id)
 {
     m_nodes[id] = std::nullopt;
+    m_cache[id] = std::nullopt;
     if(id == m_nodes.size() - 1)
         m_nodes.pop_back();
     else m_freePositions.push(id);
