@@ -29,6 +29,10 @@ namespace util
         NodeId addNode(T &&nodeData);
         void removeNode(NodeId nodeId);
 
+        T& getNode(NodeId id);
+        std::vector<NodeId> getNodes();
+
+
         NeighboursProxy getNeighbours(NodeId sourceNode);
 
     public:
@@ -45,7 +49,7 @@ namespace util
         public:
             NeighboursIterator() = default;
             NeighboursIterator(const NeighboursIterator &) = default;
-            NeighboursIterator(NeighboursIterator &&) = default;
+            NeighboursIterator(NeighboursIterator &&) noexcept = default;
 
             NeighboursIterator& operator++();
 
