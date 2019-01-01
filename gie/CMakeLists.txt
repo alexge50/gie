@@ -8,14 +8,13 @@ set(LIBRARY_SOURCES
         include/gie/Argument.h
         include/gie/DrawableNode.h
         include/gie/execute/Execute.h
-        include/gie/Graph.h
+        include/gie/SceneGraph.h
         include/gie/LogicNode.h
         include/gie/Node.h
         include/gie/Program.h
         include/gie/PythonContext.h
         include/gie/util/Graph.h
         include/gie/Value.h
-        src/Graph.cpp
         src/Program.cpp
         src/PythonContext.cpp
         src/execute/Execute.cpp
