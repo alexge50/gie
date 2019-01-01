@@ -11,16 +11,23 @@
 #include <cassert>
 #include <vector>
 
+#include <iostream>
+
 int main()
 {
     Program program;
 
-    boost::python::object input{10};
-    NodeId castToString = program.addNode(Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"input", {"int"}}, std::variant<NodeId, Value>{Value{"int", input}})}}});
+    program.import("builtins");
+
+    boost::python::object input(10);
+    NodeId castToString = program.addNode(Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{Value{"int", input}})}}});
 
     auto result = program.run();
 
-    assert(boost::python::extract<int>(input) == boost::python::extract<int>(result.value().m_object));
+    std::cout << boost::python::extract<int>(input) << std::endl;
+    std::cout << std::string{boost::python::extract<std::string>(result.value().m_object)} << std::endl;
+
+    assert(std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});
 
     return 0;
 }

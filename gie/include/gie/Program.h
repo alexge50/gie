@@ -13,11 +13,17 @@
 class Program
 {
 public:
+    Program() = default;
+    Program(const Program &) = default;
+    Program(Program &&) = default;
+
     std::optional<Value> run();
 
     NodeId addNode(const Node &node);
     void editNode(NodeId, const Node &node);
     void removeNode(NodeId);
+
+    void import(const std::string &module);
 
 private:
     Graph m_graph;

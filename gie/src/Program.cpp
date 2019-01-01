@@ -54,3 +54,8 @@ void Program::removeNode(NodeId id)
 {
     m_graph.removeNode(id);
 }
+
+void Program::import(const std::string &module)
+{
+    m_pythonContext.importModule(module);
+}
