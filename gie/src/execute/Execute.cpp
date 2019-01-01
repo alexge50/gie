@@ -20,18 +20,20 @@ Value executeNode(const PythonContext &context, Graph &graph, NodeId nodeId)
     using namespace boost::python;
 
     auto [node, result] = graph.getNode(nodeId);
-    dict arguments;
+    list arguments;
 
     for(const auto &[name, argument]: node.m_logic.m_argument)
     {
         if(std::holds_alternative<NodeId>(argument))
-            arguments[name.m_argumentName] = std::get<1>(graph.getNode(std::get<NodeId>(argument)));
+            arguments.append(std::get<1>(graph.getNode(std::get<NodeId>(argument))));
         else
-            arguments[name.m_argumentName] = std::get<Value>(argument).m_object;
+            arguments.append(std::get<Value>(argument).m_object);
 
     }
 
-    auto r = call<object>(context.getFunction(node.m_logic.m_functionName).ptr(), arguments);
+    auto p = PyEval_CallObject(context.getFunction(node.m_logic.m_functionName).ptr(), tuple{arguments}.ptr());
+    object r{handle(borrowed(p))};
+
     return {"", r};
 }
 
