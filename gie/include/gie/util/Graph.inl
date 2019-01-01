@@ -96,7 +96,7 @@ void util::Graph<T>::removeNode(NodeId nodeId)
         m_nodes.pop_back();
     else m_freeNodePositions.push(nodeId);
 
-    for(const auto &[key, _]: m_index)
+    for(const auto &[key, [[maybe_unused]]_]: m_index)
         removeEdge(key, nodeId);
 }
 
