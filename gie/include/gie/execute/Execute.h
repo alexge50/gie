@@ -14,7 +14,7 @@
 #include <boost/python.hpp>
 
 Value executeNode(const PythonContext &context, SceneGraph &graph, NodeId nodeId);
-std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(SceneGraph &graph);
+std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const SceneGraph &graph);
 
 std::vector<Value> executeGraph(const PythonContext &context, SceneGraph &graph);
 

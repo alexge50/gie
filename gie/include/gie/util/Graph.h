@@ -19,6 +19,7 @@ namespace util
     private:
         struct Edge;
         class NeighboursProxy;
+        class ConstNeighboursProxy;
     public:
         using NodeId = std::size_t;
 
@@ -30,10 +31,12 @@ namespace util
         void removeNode(NodeId nodeId);
 
         T& getNode(NodeId id);
-        std::vector<NodeId> getNodes();
+        const T& getNode(NodeId id) const;
+        std::vector<NodeId> getNodes() const;
 
 
         NeighboursProxy getNeighbours(NodeId sourceNode);
+        const ConstNeighboursProxy getNeighbours(NodeId sourceNode) const;
 
     public:
         class NeighboursIterator: std::iterator<
@@ -64,6 +67,34 @@ namespace util
             friend NeighboursProxy;
         };
 
+        class ConstNeighboursIterator: std::iterator<
+                std::forward_iterator_tag,
+                Graph::NodeId,
+                std::size_t,
+                const Graph::NodeId *,
+                Graph::NodeId
+        >
+        {
+        private:
+            ConstNeighboursIterator(const Graph::Edge *, const std::vector<Edge> *);
+        public:
+            ConstNeighboursIterator() = default;
+            ConstNeighboursIterator(const ConstNeighboursIterator &) = default;
+            ConstNeighboursIterator(ConstNeighboursIterator &&) noexcept = default;
+
+            ConstNeighboursIterator& operator++();
+
+            bool operator==(const ConstNeighboursIterator &other);
+            bool operator!=(const ConstNeighboursIterator &other);
+
+            reference operator*() const;
+
+        private:
+            const Graph::Edge *m_current;
+            const std::vector<Graph::Edge> *m_edges;
+            friend ConstNeighboursProxy;
+        };
+
     private:
         class NeighboursProxy
         {
@@ -75,9 +106,28 @@ namespace util
 
             NeighboursIterator begin();
             NeighboursIterator end();
+
         private:
             Graph::Edge *m_begin;
             std::vector<Graph::Edge> *m_edges;
+
+            friend Graph;
+        };
+
+        class ConstNeighboursProxy
+        {
+        private:
+            ConstNeighboursProxy(const Edge *, const std::vector<Edge> *);
+
+        public:
+            ConstNeighboursProxy() = delete;
+
+            ConstNeighboursIterator begin() const;
+            ConstNeighboursIterator end() const;
+
+        private:
+            const Graph::Edge *m_begin;
+            const std::vector<Graph::Edge> *m_edges;
 
             friend Graph;
         };

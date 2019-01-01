@@ -40,7 +40,7 @@ Value executeNode(const PythonContext &context, SceneGraph &graph, NodeId nodeId
 }
 
 static void topologicalSort(
-        SceneGraph &graph,
+        const SceneGraph &graph,
         NodeId node,
         std::unordered_map<NodeId, bool> &visited,
         std::vector<std::pair<NodeId, bool>> &stack)
@@ -58,7 +58,7 @@ static void topologicalSort(
     stack.emplace_back(node, unused);
 }
 
-std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(SceneGraph &graph)
+std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const SceneGraph &graph)
 {
     std::vector<std::pair<NodeId, bool>> stack;
     std::unordered_map<NodeId, bool> visited;
