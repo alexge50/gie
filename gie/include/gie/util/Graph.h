@@ -13,20 +13,74 @@
 
 namespace util
 {
-    class NeighboursIterator;
-    class NeighboursProxy;
-
+    template<typename T>
     class Graph
     {
+    private:
+        struct Edge;
+        class NeighboursProxy;
     public:
         using NodeId = std::size_t;
 
         void addEdge(NodeId from, NodeId to);
         void removeEdge(NodeId from, NodeId to);
 
-        void removeNode(NodeId node);
+        NodeId addNode(const T &nodeData);
+        NodeId addNode(T &&nodeData);
+        void removeNode(NodeId nodeId);
 
         NeighboursProxy getNeighbours(NodeId sourceNode);
+
+    public:
+        class NeighboursIterator: std::iterator<
+                std::forward_iterator_tag,
+                Graph::NodeId,
+                std::size_t,
+                const Graph::NodeId *,
+                Graph::NodeId
+        >
+        {
+        private:
+            NeighboursIterator(Graph::Edge *, std::vector<Edge> *);
+        public:
+            NeighboursIterator() = default;
+            NeighboursIterator(const NeighboursIterator &) = default;
+            NeighboursIterator(NeighboursIterator &&) = default;
+
+            NeighboursIterator& operator++();
+
+            bool operator==(const NeighboursIterator &other);
+            bool operator!=(const NeighboursIterator &other);
+
+            reference operator*() const;
+
+        private:
+            Graph::Edge *m_current;
+            std::vector<Graph::Edge> *m_edges;
+            friend NeighboursProxy;
+        };
+
+    private:
+        class NeighboursProxy
+        {
+        private:
+            NeighboursProxy(Edge *, std::vector<Edge> *);
+
+        public:
+            NeighboursProxy() = delete;
+
+            NeighboursIterator begin();
+            NeighboursIterator end();
+        private:
+            Graph::Edge *m_begin;
+            std::vector<Graph::Edge> *m_edges;
+
+            friend Graph;
+        };
+
+    private:
+        std::vector<std::optional<T>> m_nodes;
+        std::stack<NodeId> m_freeNodePositions;
 
     private:
         struct Edge
@@ -38,55 +92,15 @@ namespace util
         };
 
         std::vector<Edge> m_edges;
-        std::stack<size_t> m_free;
+        std::stack<size_t> m_freeEdgePositions;
         std::unordered_map<NodeId, size_t> m_index;
 
         friend NeighboursIterator;
         friend NeighboursProxy;
+
     };
-
-    class NeighboursIterator: std::iterator<
-            std::forward_iterator_tag,
-            Graph::NodeId,
-            std::size_t,
-            const Graph::NodeId *,
-            Graph::NodeId
-    >
-    {
-    private:
-        NeighboursIterator(Graph::Edge *, std::vector<Graph::Edge> *);
-    public:
-        NeighboursIterator& operator++();
-
-        bool operator==(const NeighboursIterator &other);
-        bool operator!=(const NeighboursIterator &other);
-
-        reference operator*() const;
-
-    private:
-        Graph::Edge *m_current;
-        std::vector<Graph::Edge> *m_edges;
-        friend NeighboursProxy;
-    };
-
-    class NeighboursProxy
-    {
-    private:
-        NeighboursProxy(Graph::Edge *, std::vector<Graph::Edge> *);
-
-    public:
-        NeighboursProxy() = delete;
-
-        NeighboursIterator begin();
-        NeighboursIterator end();
-    private:
-        Graph::Edge *m_begin;
-        std::vector<Graph::Edge> *m_edges;
-
-        friend Graph;
-    };
-
 };
 
+#include "Graph.inl"
 
 #endif //GIE_LIBRARY_UTIL_GRAPH_H

@@ -15,7 +15,6 @@ set(LIBRARY_SOURCES
         include/gie/PythonContext.h
         include/gie/util/Graph.h
         include/gie/Value.h
-        src/util/Graph.cpp
         src/Graph.cpp
         src/Program.cpp
         src/PythonContext.cpp
