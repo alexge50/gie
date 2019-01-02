@@ -13,7 +13,7 @@ void util::Graph<T>::addEdge(NodeId from, NodeId to)
     Edge toInsert = {from, to, m_index[from], 0};
 
     size_t place;
-    if(m_freeEdgePositions.empty())
+    if(!m_freeEdgePositions.empty())
     {
         place = m_freeEdgePositions.top();
         m_freeEdgePositions.pop();
