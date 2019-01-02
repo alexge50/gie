@@ -121,7 +121,7 @@ std::vector<typename util::Graph<T>::NodeId> util::Graph<T>::getNodes() const
         if(m_nodes[i].has_value())
             nodes.emplace_back(i);
 
-    return std::move(nodes);
+    return nodes;
 }
 
 template<typename T>
