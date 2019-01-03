@@ -28,6 +28,8 @@ namespace util
 
         NodeId addNode(const T &nodeData);
         NodeId addNode(T &&nodeData);
+        template<typename... Args>
+        NodeId emplaceNode(Args&&... args);
         void removeNode(NodeId nodeId);
 
         T& getNode(NodeId id);

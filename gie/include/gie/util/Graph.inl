@@ -89,6 +89,25 @@ NodeId util::Graph<T>::addNode(T &&nodeData)
 }
 
 template<typename T>
+template<typename... Args>
+typename util::Graph<T>::NodeId util::Graph<T>::emplaceNode(Args&&... args)
+{
+    if(m_freeNodePositions.empty())
+    {
+        m_nodes.emplace_back(T{args...});
+        return m_nodes.size() - 1;
+    }
+    else
+    {
+        NodeId id = m_freeNodePositions.top();
+        m_freeNodePositions.pop();
+
+        m_nodes[id] = T{args...};
+        return id;
+    }
+}
+
+template<typename T>
 void util::Graph<T>::removeNode(NodeId nodeId)
 {
     m_nodes[nodeId] = std::nullopt;
