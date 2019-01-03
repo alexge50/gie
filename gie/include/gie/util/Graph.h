@@ -21,6 +21,10 @@ namespace util
         class NeighboursProxy;
         class ConstNeighboursProxy;
     public:
+        using value_type = T;
+        using size_type = std::size_t;
+        using reference = value_type&;
+    public:
         using NodeId = std::size_t;
 
         void addEdge(NodeId from, NodeId to);
