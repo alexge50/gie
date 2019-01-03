@@ -54,7 +54,7 @@ namespace util
         >
         {
         private:
-            NeighboursIterator(Graph::Edge *, std::vector<Edge> *);
+            NeighboursIterator(Graph::Edge *, std::vector<Edge> &);
         public:
             NeighboursIterator() = default;
             NeighboursIterator(const NeighboursIterator &) = default;
@@ -69,7 +69,8 @@ namespace util
 
         private:
             Graph::Edge *m_current;
-            std::vector<Graph::Edge> *m_edges;
+            std::vector<Graph::Edge> &m_edges;
+
             friend NeighboursProxy;
         };
 
@@ -82,7 +83,7 @@ namespace util
         >
         {
         private:
-            ConstNeighboursIterator(const Graph::Edge *, const std::vector<Edge> *);
+            ConstNeighboursIterator(const Graph::Edge *, const std::vector<Edge> &);
         public:
             ConstNeighboursIterator() = default;
             ConstNeighboursIterator(const ConstNeighboursIterator &) = default;
@@ -97,7 +98,8 @@ namespace util
 
         private:
             const Graph::Edge *m_current;
-            const std::vector<Graph::Edge> *m_edges;
+            const std::vector<Graph::Edge> &m_edges;
+
             friend ConstNeighboursProxy;
         };
 
@@ -105,7 +107,7 @@ namespace util
         class NeighboursProxy
         {
         private:
-            NeighboursProxy(Edge *, std::vector<Edge> *);
+            NeighboursProxy(Edge *, std::vector<Edge> &);
 
         public:
             NeighboursProxy() = delete;
@@ -115,7 +117,7 @@ namespace util
 
         private:
             Graph::Edge *m_begin;
-            std::vector<Graph::Edge> *m_edges;
+            std::vector<Graph::Edge> &m_edges;
 
             friend Graph;
         };
@@ -123,7 +125,7 @@ namespace util
         class ConstNeighboursProxy
         {
         private:
-            ConstNeighboursProxy(const Edge *, const std::vector<Edge> *);
+            ConstNeighboursProxy(const Edge *, const std::vector<Edge> &);
 
         public:
             ConstNeighboursProxy() = delete;
@@ -133,7 +135,7 @@ namespace util
 
         private:
             const Graph::Edge *m_begin;
-            const std::vector<Graph::Edge> *m_edges;
+            const std::vector<Graph::Edge> &m_edges;
 
             friend Graph;
         };

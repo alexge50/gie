@@ -147,23 +147,23 @@ template<typename T>
 typename util::Graph<T>::NeighboursProxy util::Graph<T>::getNeighbours(NodeId sourceNode)
 {
     if(auto it = m_index.find(sourceNode); it != m_index.end())
-        return util::Graph<T>::NeighboursProxy(&m_edges[it->second], &m_edges);
-    else return util::Graph<T>::NeighboursProxy(nullptr, &m_edges);
+        return util::Graph<T>::NeighboursProxy(&m_edges[it->second], m_edges);
+    else return util::Graph<T>::NeighboursProxy(nullptr, m_edges);
 }
 
 template<typename T>
 const typename util::Graph<T>::ConstNeighboursProxy util::Graph<T>::getNeighbours(NodeId sourceNode) const
 {
     if(auto it = m_index.find(sourceNode); it != m_index.end())
-        return util::Graph<T>::ConstNeighboursProxy(&m_edges[it->second], &m_edges);
-    else return util::Graph<T>::ConstNeighboursProxy(nullptr, &m_edges);
+        return util::Graph<T>::ConstNeighboursProxy(&m_edges[it->second], m_edges);
+    else return util::Graph<T>::ConstNeighboursProxy(nullptr, m_edges);
 }
 
 template<typename T>
-util::Graph<T>::NeighboursIterator::NeighboursIterator(util::Graph<T>::Edge *pCurrent, std::vector<util::Graph<T>::Edge> *edges)
+util::Graph<T>::NeighboursIterator::NeighboursIterator(util::Graph<T>::Edge *pCurrent, std::vector<util::Graph<T>::Edge> &edges):
+    m_current(pCurrent),
+    m_edges(edges)
 {
-    m_current = pCurrent;
-    m_edges = edges;
 }
 
 template<typename T>
@@ -192,16 +192,16 @@ unsigned long util::Graph<T>::NeighboursIterator::operator*() const
 }
 
 template<typename T>
-util::Graph<T>::ConstNeighboursIterator::ConstNeighboursIterator(const util::Graph<T>::Edge *pCurrent, const std::vector<util::Graph<T>::Edge> *edges)
+util::Graph<T>::ConstNeighboursIterator::ConstNeighboursIterator(const util::Graph<T>::Edge *pCurrent, const std::vector<util::Graph<T>::Edge> &edges):
+    m_current(pCurrent),
+    m_edges(std::ref(edges))
 {
-    m_current = pCurrent;
-    m_edges = edges;
 }
 
 template<typename T>
 typename util::Graph<T>::ConstNeighboursIterator &util::Graph<T>::ConstNeighboursIterator::operator++()
 {
-    m_current = &((*m_edges)[m_current->next]);
+    m_current = &(m_edges[m_current->next]);
     return *this;
 }
 
@@ -224,10 +224,10 @@ unsigned long util::Graph<T>::ConstNeighboursIterator::operator*() const
 }
 
 template<typename T>
-util::Graph<T>::NeighboursProxy::NeighboursProxy(util::Graph<T>::Edge *begin, std::vector<util::Graph<T>::Edge> *edges)
+util::Graph<T>::NeighboursProxy::NeighboursProxy(util::Graph<T>::Edge *begin, std::vector<util::Graph<T>::Edge> &edges):
+    m_begin(begin),
+    m_edges(edges)
 {
-    m_begin = begin;
-    m_edges = edges;
 }
 
 template<typename T>
@@ -243,10 +243,10 @@ typename util::Graph<T>::NeighboursIterator util::Graph<T>::NeighboursProxy::end
 }
 
 template<typename T>
-util::Graph<T>::ConstNeighboursProxy::ConstNeighboursProxy(const util::Graph<T>::Edge *begin, const std::vector<util::Graph<T>::Edge> *edges)
+util::Graph<T>::ConstNeighboursProxy::ConstNeighboursProxy(const util::Graph<T>::Edge *begin, const std::vector<util::Graph<T>::Edge> &edges):
+    m_begin(begin),
+    m_edges(edges)
 {
-    m_begin = begin;
-    m_edges = edges;
 }
 
 template<typename T>
