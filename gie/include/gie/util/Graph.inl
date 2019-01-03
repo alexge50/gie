@@ -96,7 +96,7 @@ void util::Graph<T>::removeNode(NodeId nodeId)
         m_nodes.pop_back();
     else m_freeNodePositions.push(nodeId);
 
-    for(const auto &[key, [[maybe_unused]]_]: m_index)
+    for([[maybe_unused]]const auto &[key, _]: m_index)
         removeEdge(key, nodeId);
 }
 
@@ -117,7 +117,7 @@ std::vector<typename util::Graph<T>::NodeId> util::Graph<T>::getNodes() const
 {
     std::vector<util::Graph<T>::NodeId> nodes;
 
-    for(int i = 0; i < m_nodes.size(); i++)
+    for(unsigned int i = 0; i < m_nodes.size(); i++)
         if(m_nodes[i].has_value())
             nodes.emplace_back(i);
 

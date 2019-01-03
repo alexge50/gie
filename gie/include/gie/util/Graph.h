@@ -153,7 +153,7 @@ namespace util
         friend NeighboursProxy;
 
     };
-};
+}
 
 #include "Graph.inl"
 

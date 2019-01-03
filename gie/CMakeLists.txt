@@ -28,6 +28,7 @@ include_directories(include/ ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS}) # TODO
 
 add_library(gie STATIC ${LIBRARY_SOURCES})
 target_link_libraries(gie ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+target_compile_options(gie PRIVATE -Wall -Wextra -pedantic -Werror)
 
 # TESTS
 add_executable(gie_test tests/test.cpp)
