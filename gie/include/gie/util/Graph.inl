@@ -53,7 +53,7 @@ void util::Graph<T>::removeEdge(NodeId from, NodeId to)
 }
 
 template<typename T>
-NodeId util::Graph<T>::addNode(const T &nodeData)
+typename util::Graph<T>::NodeId util::Graph<T>::addNode(const T &nodeData)
 {
     if(m_freeNodePositions.empty())
     {
@@ -71,7 +71,7 @@ NodeId util::Graph<T>::addNode(const T &nodeData)
 }
 
 template<typename T>
-NodeId util::Graph<T>::addNode(T &&nodeData)
+typename util::Graph<T>::NodeId util::Graph<T>::addNode(T &&nodeData)
 {
     if(m_freeNodePositions.empty())
     {
