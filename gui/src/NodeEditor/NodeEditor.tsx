@@ -13,6 +13,10 @@ require("storm-react-diagrams2/src/sass/main.scss");
 import {NodeFactory} from "./Node/NodeFactory";
 import {Node} from "./Node/Node";
 
+import './NodeEditor.css'
+import {PortFactory} from "./Node/PortFactory";
+import {NodePortModel} from "./Node/PortModel";
+
 export class NodeEditor extends React.Component<any, any>{
     engine: DiagramEngine;
     model: DiagramModel;
@@ -26,6 +30,7 @@ export class NodeEditor extends React.Component<any, any>{
         this.engine.installDefaultFactories();
         this.engine.setDiagramModel(this.model);
         this.engine.registerNodeFactory(new NodeFactory());
+        this.engine.registerPortFactory(new PortFactory('Node', config => new NodePortModel('', '', 'input')))
     }
 
     componentDidMount() {
@@ -46,7 +51,7 @@ export class NodeEditor extends React.Component<any, any>{
     }
 
     render() {
-        return <DiagramWidget className="srd-demo-canvas" diagramEngine={this.engine} />;
+        return <DiagramWidget className="node-editor" diagramEngine={this.engine} />;
     }
 }
 
