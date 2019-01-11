@@ -43,11 +43,39 @@ export class NodeEditor extends React.Component<any, any>{
         node2.setPosition(400, 100);
 
         let node3 = new Node([{name: '1', type: 'Number'}, {name: '2', type: 'Number'}], 'Number');
+        let node4 = new Node([{name: 'a', type: 'Image'}, {name: 'b', type: 'Image'}], 'Number');
 
         let link1 = port1.link(port2);
         (link1 as DefaultLinkModel).addLabel("Hello World!");
 
-        this.model.addAll(node1, node2, node3, link1);
+        this.model.addAll(node1, node2, node3, node4, link1);
+
+        let model = this.model;
+        this.model.addListener({
+           linksUpdated: event => {
+               let link = event.link;
+               event.link.addListener({
+                  sourcePortChanged: event => {
+                      try {
+                          console.log(event);
+                          if((link.sourcePort as NodePortModel).valueType != (link.targetPort as NodePortModel).valueType &&
+                              (link.sourcePort as NodePortModel).position != (link.targetPort as NodePortModel).position)
+                              model.removeLink(link);
+                      }
+                      catch(e) { }
+                  },
+                  targetPortChanged: event => {
+                      try {
+                          console.log(event);
+                          if((link.sourcePort as NodePortModel).valueType != (link.targetPort as NodePortModel).valueType &&
+                              (link.sourcePort as NodePortModel).position != (link.targetPort as NodePortModel).position)
+                              model.removeLink(link);
+                      }
+                      catch(e) { }
+                  }
+               });
+           }
+        });
     }
 
     render() {
