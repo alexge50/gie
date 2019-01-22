@@ -1,0 +1,12 @@
+.floating-menu
+{
+    z-index: 100;
+    position: absolute;
+
+    width: 50px;
+    height: 100px;
+
+    background-color: #2d2d2d;
+
+    padding: 0;
+}

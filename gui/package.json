@@ -10,6 +10,7 @@
     "node-sass": "^4.11.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
+    "react-key-handler": "^1.2.0-beta.3",
     "react-scripts": "2.1.2",
     "storm-react-diagrams2": "^1.0.5",
     "typescript": "3.2.2"
