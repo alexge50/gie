@@ -5,7 +5,7 @@
 #include <gie/execute/Execute.h>
 
 #include <gie/Value.h>
-#include <gie/Graph.h>
+#include <gie/SceneGraph.h>
 #include <gie/Node.h>
 
 #include <gie/PythonContext.h>
@@ -15,11 +15,11 @@
 #include <algorithm>
 #include <utility>
 
-Value executeNode(const PythonContext &context, Graph &graph, NodeId nodeId)
+Value executeNode(const PythonContext &context, SceneGraph &graph, NodeId nodeId)
 {
     using namespace boost::python;
 
-    auto [node, result] = graph.getNode(nodeId);
+    auto &[node, result] = graph.getNode(nodeId);
     list arguments;
 
     for(const auto &[name, argument]: node.m_logic.m_argument)
@@ -34,11 +34,13 @@ Value executeNode(const PythonContext &context, Graph &graph, NodeId nodeId)
     auto p = PyEval_CallObject(context.getFunction(node.m_logic.m_functionName).ptr(), tuple{arguments}.ptr());
     object r{handle(borrowed(p))};
 
+    result.m_object = r;
+
     return {"", r};
 }
 
 static void topologicalSort(
-        Graph &graph,
+        const SceneGraph &graph,
         NodeId node,
         std::unordered_map<NodeId, bool> &visited,
         std::vector<std::pair<NodeId, bool>> &stack)
@@ -46,7 +48,7 @@ static void topologicalSort(
     bool unused = true;
     visited[node] = true;
 
-    for(auto callee: graph.getCallees(node))
+    for(auto callee: graph.getNeighbours(node))
     {
         if(!visited[callee])
             topologicalSort(graph, callee, visited, stack);
@@ -56,7 +58,7 @@ static void topologicalSort(
     stack.emplace_back(node, unused);
 }
 
-std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(Graph &graph)
+std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const SceneGraph &graph)
 {
     std::vector<std::pair<NodeId, bool>> stack;
     std::unordered_map<NodeId, bool> visited;
@@ -74,7 +76,7 @@ std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(Graph &graph)
     return std::move(stack);
 }
 
-std::vector<Value> executeGraph(const PythonContext &context, Graph &graph)
+std::vector<Value> executeGraph(const PythonContext &context, SceneGraph &graph)
 {
     std::vector<Value> result;
     auto runtimeOrder = calculateRuntimeOrder(graph);
