@@ -73,7 +73,7 @@ std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const SceneGraph &gra
 
     std::reverse(stack.begin(), stack.end());
 
-    return std::move(stack);
+    return stack;
 }
 
 std::vector<Value> executeGraph(const PythonContext &context, SceneGraph &graph)
@@ -89,5 +89,5 @@ std::vector<Value> executeGraph(const PythonContext &context, SceneGraph &graph)
             result.push_back(r);
     }
 
-    return std::move(result);
+    return result;
 }
