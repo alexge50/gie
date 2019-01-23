@@ -3,9 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/jest": "23.3.12",
+    "@types/node": "10.12.18",
+    "@types/react": "16.7.18",
+    "@types/react-dom": "16.0.11",
+    "node-sass": "^4.11.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
-    "react-scripts": "2.1.2"
+    "react-key-handler": "^1.2.0-beta.3",
+    "react-scripts": "2.1.2",
+    "storm-react-diagrams2": "^1.0.5",
+    "typescript": "3.2.2"
   },
   "main": "main.js",
   "homepage": "./",
@@ -16,7 +24,7 @@
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron .",
-    "dev" : "nf start"
+    "dev": "nf start"
   },
   "eslintConfig": {
     "extends": "react-app"
