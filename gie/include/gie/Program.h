@@ -5,7 +5,7 @@
 #ifndef GIE_LIBRARY_PROGRAM_H
 #define GIE_LIBRARY_PROGRAM_H
 
-#include "Graph.h"
+#include "SceneGraph.h"
 #include "PythonContext.h"
 
 #include <optional>
@@ -26,7 +26,7 @@ public:
     void import(const std::string &module);
 
 private:
-    Graph m_graph;
+    SceneGraph m_graph;
     PythonContext m_pythonContext;
 };
 
