@@ -35,6 +35,7 @@ export class NodeEditorProps {
 export class NodeEditor extends React.Component<any, NodeEditorState>{
     engine: DiagramEngine;
     model: DiagramModel;
+    nodeTypes: any;
 
     constructor() {
         super({}, 'NodeEditor');
@@ -53,6 +54,11 @@ export class NodeEditor extends React.Component<any, NodeEditorState>{
             menuY: 0,
             mouseX: 0,
             mouseY: 0};
+
+        this.nodeTypes = {
+            'Image Add': {'arguments': [{name: 'a', type: 'Image'}, {name: 'b', type: 'Image'}], 'result': 'Number'},
+            'Number Add': {'arguments': [{name: '1', type: 'Number'}, {name: '2', type: 'Number'}], 'result': 'Number'},
+        };
     }
 
     componentDidMount() {
@@ -111,10 +117,15 @@ export class NodeEditor extends React.Component<any, NodeEditorState>{
     }
 
     onMouseDown(event) {
-        let state: NodeEditorState = this.state;
-        state.showMenu = false;
+        setTimeout(() => {
+            let state: NodeEditorState = this.state;
+            state.showMenu = false;
+            this.setState(state)
+        }, 100);
+    }
 
-        this.setState(state);
+    createNode(name) {
+        this.model.addNode(new Node(this.nodeTypes[name]['arguments'], this.nodeTypes[name]['result']))
     }
 
     render() {
@@ -129,7 +140,12 @@ export class NodeEditor extends React.Component<any, NodeEditorState>{
                 <DiagramWidget className="node-editor" diagramEngine={this.engine} />
 
                 {this.state.showMenu && (
-                    <FloatingMenu x={this.state.menuX} y={this.state.menuY}/>
+                    <FloatingMenu
+                        x={this.state.menuX}
+                        y={this.state.menuY}
+                        options={Object.keys(this.nodeTypes)}
+                        callback={this.createNode.bind(this)}
+                    />
                 )}
 
             </div>
