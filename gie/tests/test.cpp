@@ -2,6 +2,8 @@
 // Created by alex on 11/17/18.
 //
 
+#include <catch2/catch.hpp>
+
 #include <gie/Node.h>
 #include <gie/Program.h>
 
@@ -12,21 +14,31 @@
 
 #include <iostream>
 
-int main()
+TEST_CASE("GIE API tests", "[program]")
 {
     Program program;
+    NodeId castToString, castToInt;
 
     program.import("builtins");
 
     boost::python::object input(10);
-    NodeId castToString = program.addNode(Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{Value{"int", input}})}}});
 
-    auto result = program.run();
+    SECTION("single node")
+    {
 
-    std::cout << boost::python::extract<int>(input) << std::endl;
-    std::cout << std::string{boost::python::extract<std::string>(result.value().m_object)} << std::endl;
+        castToString = program.addNode(Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{Value{"int", input}})}}});
 
-    assert(std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});
+        auto result = program.run();
 
-    return 0;
+        REQUIRE(std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});
+    }
+
+    SECTION("two nodes")
+    {
+        castToInt = program.addNode(Node{{}, {"int", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"str"}}, std::variant<NodeId, Value>{castToString})}}});
+
+        auto result = program.run();
+
+        REQUIRE(boost::python::extract<int>(input) == boost::python::extract<int>(result.value().m_object));
+    }
 }
