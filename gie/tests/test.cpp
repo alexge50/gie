@@ -1,7 +1,7 @@
 //
 // Created by alex on 11/17/18.
 //
-
+#define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
 #include <gie/Node.h>
@@ -39,6 +39,7 @@ TEST_CASE("GIE API tests", "[program]")
 
         auto result = program.run();
 
+        std::cout << boost::python::extract<int>(result.value().m_object);
         REQUIRE(boost::python::extract<int>(input) == boost::python::extract<int>(result.value().m_object));
     }
 }

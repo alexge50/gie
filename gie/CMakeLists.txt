@@ -31,5 +31,8 @@ target_link_libraries(gie ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 target_compile_options(gie PRIVATE -Wall -Wextra -pedantic -Werror)
 
 # TESTS
+find_package(Catch2 REQUIRED)
+
 add_executable(gie_test tests/test.cpp)
 target_link_libraries(gie_test gie)
+target_compile_options(gie_test PRIVATE -fstandalone-debug)
