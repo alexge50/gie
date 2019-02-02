@@ -48,13 +48,13 @@ namespace util
         class NeighboursIterator: std::iterator<
                 std::forward_iterator_tag,
                 Graph::NodeId,
-                std::size_t,
+                long int,
                 const Graph::NodeId *,
                 Graph::NodeId
         >
         {
         private:
-            NeighboursIterator(Graph::Edge *, std::vector<Edge> &);
+            NeighboursIterator(long int current, std::vector<Edge> &);
         public:
             NeighboursIterator() = default;
             NeighboursIterator(const NeighboursIterator &) = default;
@@ -68,7 +68,7 @@ namespace util
             reference operator*() const;
 
         private:
-            Graph::Edge *m_current;
+            long int m_current;
             std::vector<Graph::Edge> &m_edges;
 
             friend NeighboursProxy;
@@ -77,13 +77,13 @@ namespace util
         class ConstNeighboursIterator: std::iterator<
                 std::forward_iterator_tag,
                 Graph::NodeId,
-                std::size_t,
+                long int,
                 const Graph::NodeId *,
                 Graph::NodeId
         >
         {
         private:
-            ConstNeighboursIterator(const Graph::Edge *, const std::vector<Edge> &);
+            ConstNeighboursIterator(long int current, const std::vector<Edge> &);
         public:
             ConstNeighboursIterator() = default;
             ConstNeighboursIterator(const ConstNeighboursIterator &) = default;
@@ -97,7 +97,7 @@ namespace util
             reference operator*() const;
 
         private:
-            const Graph::Edge *m_current;
+            long int m_current;
             const std::vector<Graph::Edge> &m_edges;
 
             friend ConstNeighboursProxy;
@@ -149,13 +149,13 @@ namespace util
         {
             NodeId from, to;
 
-            size_t next;
+            long int next;
             size_t index;
         };
 
         std::vector<Edge> m_edges;
         std::stack<size_t> m_freeEdgePositions;
-        std::unordered_map<NodeId, size_t> m_index;
+        std::unordered_map<NodeId, long int> m_index;
 
         friend NeighboursIterator;
         friend NeighboursProxy;
