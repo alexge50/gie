@@ -25,7 +25,7 @@ Value executeNode(const PythonContext &context, SceneGraph &graph, NodeId nodeId
     for(const auto &[name, argument]: node.m_logic.m_argument)
     {
         if(std::holds_alternative<NodeId>(argument))
-            arguments.append(std::get<1>(graph.getNode(std::get<NodeId>(argument))));
+            arguments.append(object{std::get<1>(graph.getNode(std::get<NodeId>(argument))).m_object});
         else
             arguments.append(std::get<Value>(argument).m_object);
 
