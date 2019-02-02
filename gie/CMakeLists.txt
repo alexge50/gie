@@ -36,3 +36,6 @@ find_package(Catch2 REQUIRED)
 add_executable(gie_test tests/test.cpp)
 target_link_libraries(gie_test gie)
 target_compile_options(gie_test PRIVATE -fstandalone-debug)
+
+add_executable(gie_dev_test tests/dev_test.cpp)
+target_link_libraries(gie_dev_test gie)
