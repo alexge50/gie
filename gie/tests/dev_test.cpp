@@ -38,4 +38,13 @@ int main()
 
         std::cout << (boost::python::extract<int>(input) == boost::python::extract<int>(result.value().m_object)) << std::endl;
     }
+
+    {
+        program.removeNode(castToInt);
+        auto result = program.run();
+        std::cout << (std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});
+
+        program.removeNode(castToString);
+        auto result2 = program.run();
+    }
 }
