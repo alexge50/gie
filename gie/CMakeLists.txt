@@ -35,7 +35,12 @@ find_package(Catch2 REQUIRED)
 
 add_executable(gie_test tests/test.cpp)
 target_link_libraries(gie_test gie)
-target_compile_options(gie_test PRIVATE -fstandalone-debug)
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(gie_test PRIVATE -fcompare-debug)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(gie_test PRIVATE -fstandalone-debug)
+endif()
 
 add_executable(gie_dev_test tests/dev_test.cpp)
 target_link_libraries(gie_dev_test gie)
