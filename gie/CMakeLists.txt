@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(LIBRARY_SOURCES
         include/gie/Argument.h
         include/gie/DrawableNode.h
-        include/gie/execute/Execute.h
-        include/gie/SceneGraph.h
+        include/gie/ScriptGraph/Execute.h
+        include/gie/ScriptGraph/ScriptGraph.h
         include/gie/LogicNode.h
         include/gie/Node.h
         include/gie/Program.h
@@ -17,11 +17,11 @@ set(LIBRARY_SOURCES
         include/gie/Value.h
         src/Program.cpp
         src/PythonContext.cpp
-        src/execute/Execute.cpp
-        )
+        src/ScriptGraph/Execute.cpp
+        src/ScriptGraph/ScriptGraph.cpp)
 
 
-find_package(Boost COMPONENTS python3 REQUIRED)
+find_package(Boost COMPONENTS python3 graph REQUIRED)
 find_package(PythonLibs REQUIRED)
 
 include_directories(include/ ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS}) # TODO: add libraries to an 3rdparty directory

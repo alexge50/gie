@@ -2,8 +2,9 @@
 // Created by alex on 12/3/18.
 //
 
+#include <gie/ScriptGraph/ScriptGraph.h>
 #include <gie/Program.h>
-#include <gie/execute/Execute.h>
+#include <gie/ScriptGraph/Execute.h>
 
 #include <boost/python.hpp>
 
@@ -16,43 +17,17 @@ std::optional<Value> Program::run()
 
 NodeId Program::addNode(const Node &node)
 {
-    auto id = m_graph.addNode({node, {}});
-
-    for(auto &argument: node.m_logic.m_argument)
-    {
-        if(std::holds_alternative<NodeId>(argument.second))
-            m_graph.addEdge(std::get<NodeId>(argument.second), id);
-    }
-
-    return id;
+    return ::addNode(m_graph, node);
 }
 
 void Program::editNode(NodeId id, const Node &node)
 {
-    Node &toEdit = std::get<0>(m_graph.getNode(id));
-    std::unordered_map<NodeId, bool> isCallee;
-
-    for(auto &argument: node.m_logic.m_argument)
-    {
-        if(std::holds_alternative<NodeId>(argument.second))
-        {
-            isCallee[std::get<NodeId>(argument.second)] = true;
-            m_graph.addEdge(std::get<NodeId>(argument.second), id);
-        }
-    }
-
-    for(auto &argument: toEdit.m_logic.m_argument)
-    {
-        if(std::holds_alternative<NodeId>(argument.second) && !isCallee[std::get<NodeId>(argument.second)])
-            m_graph.removeEdge(std::get<NodeId>(argument.second), id);
-    }
-
-    toEdit = node;
+    return ::editNode(m_graph, id, node);
 }
 
 void Program::removeNode(NodeId id)
 {
-    m_graph.removeNode(id);
+    return ::removeNode(m_graph, id);
 }
 
 void Program::import(const std::string &module)
