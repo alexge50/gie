@@ -19,9 +19,15 @@ static long lookup(ScriptGraph& graph, NodeId id)
     return it == graph.nodes.end() ? -1 : std::distance(graph.nodes.end(), it);
 }
 
+NodeCachePair getNode(ScriptGraph& graph, NodeId id)
+{
+    auto r = lookup(graph, id);
+    return {graph.nodes[r].first, graph.cache[r].first};
+}
+
 NodeId addNode(ScriptGraph& graph, const Node& node)
 {
-    NodeId id = graph.nodes.back().second + 1;
+    NodeId id = graph.nodes.empty() ? 0 : graph.nodes.back().second + 1;
 
     graph.nodes.emplace_back(node, id);
     graph.cache.emplace_back(std::nullopt, id);
