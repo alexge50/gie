@@ -13,9 +13,9 @@
 
 #include <boost/python.hpp>
 
-Value executeNode(const PythonContext &context, SceneGraph &graph, NodeId nodeId);
-std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const SceneGraph &graph);
+Value executeNode(const PythonContext& context, ScriptGraph& graph, NodeId nodeId);
+std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const ScriptGraph::graph& graph);
 
-std::vector<Value> executeGraph(const PythonContext &context, SceneGraph &graph);
+std::vector<Value> executeGraph(const PythonContext &context, ScriptGraph& graph);
 
 #endif //GIE_LIBRARY_EXECUTE_H

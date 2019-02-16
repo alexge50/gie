@@ -15,32 +15,31 @@
 #include <algorithm>
 #include <utility>
 
-Value executeNode(const PythonContext &context, SceneGraph &graph, NodeId nodeId)
+Value executeNode(const PythonContext &context, ScriptGraph &graph, NodeId nodeId)
 {
     using namespace boost::python;
 
-    auto &[node, result] = graph.getNode(nodeId);
+    auto node_ = getNode(graph, nodeId);
     list arguments;
 
-    for(const auto &[name, argument]: node.m_logic.m_argument)
+    for(const auto &[name, argument]: node_.node.m_logic.m_argument)
     {
         if(std::holds_alternative<NodeId>(argument))
-            arguments.append(object{std::get<1>(graph.getNode(std::get<NodeId>(argument))).m_object});
+            arguments.append(object{getNode(graph, std::get<NodeId>(argument)).cache->m_object});
         else
             arguments.append(std::get<Value>(argument).m_object);
-
     }
 
-    auto p = PyEval_CallObject(context.getFunction(node.m_logic.m_functionName).ptr(), tuple{arguments}.ptr());
+    auto p = PyEval_CallObject(context.getFunction(node_.node.m_logic.m_functionName).ptr(), tuple{arguments}.ptr());
     object r{handle(borrowed(p))};
 
-    result.m_object = r;
+    node_.cache = {"123", r};
 
     return {"", r};
 }
 
 static void topologicalSort(
-        const SceneGraph &graph,
+        const ScriptGraph::graph &structure,
         NodeId node,
         std::unordered_map<NodeId, bool> &visited,
         std::vector<std::pair<NodeId, bool>> &stack)
@@ -48,27 +47,25 @@ static void topologicalSort(
     bool unused = true;
     visited[node] = true;
 
-    for(auto callee: graph.getNeighbours(node))
+    for(auto [it, end] = boost::vertices(structure); it != end; it++)
     {
-        if(!visited[callee])
-            topologicalSort(graph, callee, visited, stack);
-        unused = false;
+        if(!visited[*it])
+            topologicalSort(structure, *it, visited, stack);
+        unused = unused && (node == *it);
     }
 
     stack.emplace_back(node, unused);
 }
 
-std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const SceneGraph &graph)
+std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const ScriptGraph::graph& structure)
 {
     std::vector<std::pair<NodeId, bool>> stack;
     std::unordered_map<NodeId, bool> visited;
 
-    auto nodes = graph.getNodes();
-
-    for(auto node: nodes)
+    for(auto [it, end] = boost::vertices(structure); it != end; it++)
     {
-        if(!visited[node])
-            topologicalSort(graph, node, visited, stack);
+        if(!visited[*it])
+            topologicalSort(structure, *it, visited, stack);
     }
 
     std::reverse(stack.begin(), stack.end());
@@ -76,15 +73,15 @@ std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const SceneGraph &gra
     return stack;
 }
 
-std::vector<Value> executeGraph(const PythonContext &context, SceneGraph &graph)
+std::vector<Value> executeGraph(const PythonContext &context, ScriptGraph &graph)
 {
     std::vector<Value> result;
-    auto runtimeOrder = calculateRuntimeOrder(graph);
+    auto runtimeOrder = calculateRuntimeOrder(graph.structure);
 
     for(auto [node, unused]: runtimeOrder)
     {
         auto r = executeNode(context, graph, node);
-        std::get<1>(graph.getNode(node)) = r;
+        getNode(graph, node).cache = r;
         if(unused)
             result.push_back(r);
     }

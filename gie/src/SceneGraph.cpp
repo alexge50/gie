@@ -16,7 +16,7 @@ static long lookup(ScriptGraph& graph, NodeId id)
         return node.second < id;
     });
 
-    return it == graph.nodes.end() ? -1 : std::distance(graph.nodes.end(), it);
+    return it == graph.nodes.end() ? -1 : std::distance(graph.nodes.begin(), it);
 }
 
 NodeCachePair getNode(ScriptGraph& graph, NodeId id)
@@ -31,6 +31,8 @@ NodeId addNode(ScriptGraph& graph, const Node& node)
 
     graph.nodes.emplace_back(node, id);
     graph.cache.emplace_back(std::nullopt, id);
+
+    boost::add_edge(id, id, graph.structure);
 
     for(auto &argument: node.m_logic.m_argument)
     {
