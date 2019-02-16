@@ -5,7 +5,7 @@
 #ifndef GIE_LIBRARY_PROGRAM_H
 #define GIE_LIBRARY_PROGRAM_H
 
-#include "SceneGraph.h"
+#include "gie/ScriptGraph/ScriptGraph.h"
 #include "PythonContext.h"
 
 #include <optional>

@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(LIBRARY_SOURCES
         include/gie/Argument.h
         include/gie/DrawableNode.h
-        include/gie/execute/Execute.h
-        include/gie/SceneGraph.h
+        include/gie/ScriptGraph/Execute.h
+        include/gie/ScriptGraph/ScriptGraph.h
         include/gie/LogicNode.h
         include/gie/Node.h
         include/gie/Program.h
@@ -17,8 +17,8 @@ set(LIBRARY_SOURCES
         include/gie/Value.h
         src/Program.cpp
         src/PythonContext.cpp
-        src/execute/Execute.cpp
-        src/SceneGraph.cpp)
+        src/ScriptGraph/Execute.cpp
+        src/ScriptGraph/ScriptGraph.cpp)
 
 
 find_package(Boost COMPONENTS python3 graph REQUIRED)

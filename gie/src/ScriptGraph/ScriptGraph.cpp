@@ -2,7 +2,7 @@
 // Created by alex on 2/16/19.
 //
 
-#include <gie/SceneGraph.h>
+#include <gie/ScriptGraph/ScriptGraph.h>
 
 #include <optional>
 #include <functional>

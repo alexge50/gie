@@ -2,9 +2,9 @@
 // Created by alex on 12/3/18.
 //
 
-#include <gie/SceneGraph.h>
+#include <gie/ScriptGraph/ScriptGraph.h>
 #include <gie/Program.h>
-#include <gie/execute/Execute.h>
+#include <gie/ScriptGraph/Execute.h>
 
 #include <boost/python.hpp>
 

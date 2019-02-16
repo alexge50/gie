@@ -6,7 +6,7 @@
 #define GIE_LIBRARY_EXECUTE_H
 
 #include <gie/Value.h>
-#include <gie/SceneGraph.h>
+#include <gie/ScriptGraph/ScriptGraph.h>
 #include <gie/Node.h>
 
 #include <gie/PythonContext.h>

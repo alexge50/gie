@@ -2,10 +2,10 @@
 // Created by alex on 12/29/18.
 //
 
-#include <gie/execute/Execute.h>
+#include <gie/ScriptGraph/Execute.h>
 
 #include <gie/Value.h>
-#include <gie/SceneGraph.h>
+#include <gie/ScriptGraph/ScriptGraph.h>
 #include <gie/Node.h>
 
 #include <gie/PythonContext.h>
