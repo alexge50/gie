@@ -9,7 +9,25 @@
 #include "util/Graph.h"
 
 #include <utility>
+#include <optional>
+
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/directed_graph.hpp>
 
 using SceneGraph = util::Graph<std::pair<Node, Value>>;
+
+struct ScriptGraph
+{
+    std::vector<std::pair<Node, NodeId>> nodes;
+    std::vector<std::pair<std::optional<Value>, NodeId>> cache;
+    //util::Graph<NodeId> structure;
+
+    using graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS>;
+    graph structure;
+};
+
+NodeId addNode(ScriptGraph&, const Node&);
+void editNode(ScriptGraph&, NodeId, const Node&);
+void removeNode(ScriptGraph&, NodeId);
 
 #endif //GIE_LIBRARY_SCENEGRAPH_H
