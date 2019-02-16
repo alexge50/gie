@@ -26,7 +26,7 @@ public:
     void import(const std::string &module);
 
 private:
-    SceneGraph m_graph;
+    ScriptGraph m_graph;
     PythonContext m_pythonContext;
 };
 
