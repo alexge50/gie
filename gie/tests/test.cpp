@@ -48,6 +48,7 @@ TEST_CASE("GIE API tests", "[program]")
 
             program.removeNode(castToString);
             auto result2 = program.run();
+            REQUIRE(!result2.has_value());
         }
     }
 
