@@ -14,7 +14,10 @@
 
 std::optional<Value> Program::run()
 {
-    return executeGraph(m_pythonContext, m_graph)[0];
+    auto result = executeGraph(m_pythonContext, m_graph);
+    if(!result.empty())
+        return result[0];
+    return std::nullopt;
 }
 
 NodeId Program::addNode(const Node &node)
