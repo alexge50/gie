@@ -10,6 +10,8 @@
 
 #include <utility>
 
+#include <iostream>
+
 std::optional<Value> Program::run()
 {
     return executeGraph(m_pythonContext, m_graph)[0];

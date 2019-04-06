@@ -50,8 +50,11 @@ static void topologicalSort(
     for(auto [it, end] = boost::vertices(structure); it != end; it++)
     {
         if(!visited[*it])
+        {
             topologicalSort(structure, *it, visited, stack);
-        unused = unused && (node == *it);
+            unused = false;
+        }
+
     }
 
     stack.emplace_back(node, unused);
