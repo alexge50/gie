@@ -52,4 +52,49 @@ TEST_CASE("GIE API tests", "[program]")
         }
     }
 
+    SECTION("many nodes")
+    {
+        std::vector<NodeId> castToString;
+        std::vector<NodeId> castToInt;
+
+        castToString.push_back(program.addNode(Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{Value{"int", input}})}}}));
+        castToInt.push_back(program.addNode(Node{{}, {"int", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"str"}}, std::variant<NodeId, Value>{castToString.back()})}}}));
+        for(int i = 0; i < 100; i ++)
+        {
+            castToString.push_back(program.addNode(Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{castToInt.back()})}}}));
+            castToInt.push_back(program.addNode(Node{{}, {"int", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"str"}}, std::variant<NodeId, Value>{castToString.back()})}}}));
+        }
+
+        SECTION("run")
+        {
+            auto result = program.run();
+            REQUIRE(boost::python::extract<int>(input) == boost::python::extract<int>(result.value().m_object));
+        }
+
+        SECTION("removing nodes in the middle")
+        {
+            auto stringId = castToString[50];
+            auto intId = castToInt[50];
+
+            program.removeNode(stringId);
+            program.removeNode(intId);
+
+            program.editNode(castToString[51], Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{castToInt[49]})}}});
+
+            auto result = program.run();
+            REQUIRE(std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});
+        }
+
+        SECTION("removing all nodes")
+        {
+            for(auto i: castToString)
+                program.removeNode(i);
+            for(auto i: castToInt)
+                program.removeNode(i);
+
+            auto result = program.run();
+            REQUIRE(!result.has_value());
+        }
+    }
+
 }
