@@ -5,8 +5,9 @@
 #ifndef GIE_LIBRARY_NODE_H
 #define GIE_LIBRARY_NODE_H
 
-#include "DrawableNode.h"
-#include "LogicNode.h"
+#include "NodeDrawable.h"
+#include "NodeLogic.h"
+#include "NodeMetadata.h"
 
 #include <vector>
 #include <memory>
@@ -16,8 +17,9 @@ using NodeId = std::size_t;
 
 struct Node
 {
-    DrawableNode m_drawable;
-    LogicNode m_logic;
+    NodeDrawable m_drawable;
+    NodeLogic m_logic;
+    NodeMetadata m_metadata;
 };
 
 

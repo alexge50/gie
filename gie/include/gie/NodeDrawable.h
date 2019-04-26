@@ -6,7 +6,7 @@
 #define GIE_LIBRARY_DRAWABLENODE_H
 
 
-struct DrawableNode
+struct NodeDrawable
 {
 
 };

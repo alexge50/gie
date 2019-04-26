@@ -6,16 +6,12 @@
 #define GIE_LIBRARY_ARGUMENT_H
 
 #include <string>
+#include <gie/Type.h>
 
-struct ArgumentType
-{
-    std::string m_typename;
-};
-
-struct Argument
+struct ArgumentMetadata
 {
     std::string m_argumentName;
-    ArgumentType m_argumentType;
+    Type m_argumentType;
 };
 
 

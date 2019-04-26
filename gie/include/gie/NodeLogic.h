@@ -15,12 +15,11 @@
 #include <variant>
 
 using NodeId = std::size_t;
+using ArgumentValue = std::variant<NodeId, Value>;
 
-struct LogicNode
+struct NodeLogic
 {
-    std::string m_functionName;
-    std::vector<std::pair<Argument, std::variant<NodeId, Value>>> m_argument;
+    std::vector<ArgumentValue> m_argument;
 };
-
 
 #endif //GIE_LIBRARY_LOGICNODE_H

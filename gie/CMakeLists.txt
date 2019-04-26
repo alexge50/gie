@@ -6,10 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(LIBRARY_SOURCES
         include/gie/Argument.h
-        include/gie/DrawableNode.h
+        include/gie/NodeDrawable.h
         include/gie/ScriptGraph/Execute.h
         include/gie/ScriptGraph/ScriptGraph.h
-        include/gie/LogicNode.h
+        include/gie/NodeLogic.h
         include/gie/Node.h
         include/gie/Program.h
         include/gie/PythonContext.h
