@@ -13,18 +13,27 @@ PythonContext::PythonContext()
 
     Py_Initialize();
 
-    object main = import("__main__");
-    object global = main.attr("__dict__");
+    main = import("__main__");
+    global = main.attr("__dict__");
 }
 
-void PythonContext::importModule(const std::string &name)
+boost::python::object PythonContext::module(const std::string& name)
 {
-    importedModules.push_back(boost::python::import(name.c_str()));
+    if(auto it = importedModules.find(name); it != importedModules.end())
+        return it->second;
+
+    auto module = boost::python::import(name.c_str());
+    importedModules.insert({
+        name,
+        module
+    });
+
+    return module;
 }
 
 boost::python::object PythonContext::getFunction(const std::string &name) const
 {
-    for(auto &module: importedModules)
+    for([[maybe_unused]] auto& [_, module]: importedModules)
     {
         if(module.attr("__dict__").contains(name.c_str()))
             return module.attr("__dict__")[name.c_str()];

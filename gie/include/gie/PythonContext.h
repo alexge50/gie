@@ -6,20 +6,22 @@
 #define GIE_LIBRARY_PYTHONCONTEXT_H
 
 #include <boost/python.hpp>
+#include <unordered_map>
+#include <string>
 
 class PythonContext
 {
 public:
     PythonContext();
 
-    void importModule(const std::string &);
+    boost::python::object module(const std::string &);
     boost::python::object getFunction(const std::string &) const;
 
 private:
     boost::python::object main;
     boost::python::object global;
 
-    std::vector<boost::python::object> importedModules;
+    std::unordered_map<std::string, boost::python::object> importedModules;
 };
 
 #endif //GIE_LIBRARY_PYTHONCONTEXT_H
