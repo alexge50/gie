@@ -9,12 +9,14 @@
 #include <gie/Type.h>
 #include <vector>
 #include <string>
+#include <boost/python.hpp>
 
 struct NodeMetadata
 {
-    std::string m_functionName;
+    boost::python::object m_function;
     std::vector<ArgumentMetadata> m_arguments;
     Type m_returnType;
+    std::string m_functionName;
 };
 
 #endif //GIE_LIBRARY_NODEMETADATA_H
