@@ -6,6 +6,7 @@
 
 #include <gie/Node.h>
 #include <gie/Program.h>
+#include <gie/NodeUtil.h>
 
 #include <boost/python.hpp>
 
@@ -26,14 +27,15 @@ TEST_CASE("GIE API tests", "[program]")
     SECTION("a couple of nodes")
     {
         NodeId castToString, castToInt;
-        castToString = program.addNode(Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{Value{"int", input}})}}});
+        castToString = program.addNode(makeNode(program.context(), "str", {ArgumentValue{Value{input}}}));
         SECTION("1 node run")
         {
             auto result = program.run();
             REQUIRE(std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});
         }
 
-        castToInt = program.addNode(Node{{}, {"int", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"str"}}, std::variant<NodeId, Value>{castToString})}}});
+        castToInt = program.addNode(makeNode(program.context(), "int", {castToString}));
+
         SECTION("2 nodes run")
         {
             auto result = program.run();
@@ -57,12 +59,12 @@ TEST_CASE("GIE API tests", "[program]")
         std::vector<NodeId> castToString;
         std::vector<NodeId> castToInt;
 
-        castToString.push_back(program.addNode(Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{Value{"int", input}})}}}));
-        castToInt.push_back(program.addNode(Node{{}, {"int", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"str"}}, std::variant<NodeId, Value>{castToString.back()})}}}));
+        castToString.push_back(program.addNode(makeNode(program.context(), "str", {ArgumentValue{Value{input}}})));
+        castToInt.push_back(program.addNode(makeNode(program.context(), "int", {castToString.back()})));
         for(int i = 0; i < 100; i ++)
         {
-            castToString.push_back(program.addNode(Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{castToInt.back()})}}}));
-            castToInt.push_back(program.addNode(Node{{}, {"int", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"str"}}, std::variant<NodeId, Value>{castToString.back()})}}}));
+            castToString.push_back(program.addNode(makeNode(program.context(), "str", {castToInt.back()})));
+            castToInt.push_back(program.addNode(makeNode(program.context(), "int", {castToString.back()})));
         }
 
         SECTION("run")
@@ -79,7 +81,7 @@ TEST_CASE("GIE API tests", "[program]")
             program.removeNode(stringId);
             program.removeNode(intId);
 
-            program.editNode(castToString[51], Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{castToInt[49]})}}});
+            program.editNode(castToString[51], makeNode(program.context(), "str", {castToInt[49]}));
 
             auto result = program.run();
             REQUIRE(std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});

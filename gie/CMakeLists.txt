@@ -18,7 +18,7 @@ set(LIBRARY_SOURCES
         src/Program.cpp
         src/PythonContext.cpp
         src/ScriptGraph/Execute.cpp
-        src/ScriptGraph/ScriptGraph.cpp include/gie/NodeUtil.h src/NodeUtil.cpp)
+        src/ScriptGraph/ScriptGraph.cpp include/gie/NodeUtil.h src/NodeUtil.cpp include/gie/Function.h)
 
 
 find_package(Boost COMPONENTS python3 graph REQUIRED)

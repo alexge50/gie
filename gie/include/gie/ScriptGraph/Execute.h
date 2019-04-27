@@ -13,7 +13,7 @@
 
 #include <boost/python.hpp>
 
-Value executeNode(const PythonContext& context, ScriptGraph& graph, NodeId nodeId);
+Value executeNode(ScriptGraph& graph, NodeId nodeId);
 std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const ScriptGraph::graph& graph);
 
 std::vector<Value> executeGraph(const PythonContext &context, ScriptGraph& graph);

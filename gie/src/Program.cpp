@@ -37,5 +37,5 @@ void Program::removeNode(NodeId id)
 
 void Program::import(const std::string &module)
 {
-    m_pythonContext.importModule(module);
+    m_pythonContext.module(module);
 }

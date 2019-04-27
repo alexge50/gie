@@ -5,13 +5,18 @@
 #ifndef GIE_LIBRARY_VALUE_H
 #define GIE_LIBRARY_VALUE_H
 
-#include <string>
+#include <gie/Type.h>
 
+#include <string>
 #include <boost/python.hpp>
 
 struct Value
 {
-    std::string m_typeName;
+public:
+    Value() {}
+    explicit Value(boost::python::object object): m_object(std::move(object)) {}
+
+    Type m_typeName;
     boost::python::object m_object;
 };
 

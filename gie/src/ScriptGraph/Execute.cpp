@@ -15,14 +15,14 @@
 #include <algorithm>
 #include <utility>
 
-Value executeNode(const PythonContext &context, ScriptGraph &graph, NodeId nodeId)
+Value executeNode(ScriptGraph &graph, NodeId nodeId)
 {
     using namespace boost::python;
 
     auto node_ = getNode(graph, nodeId);
     list arguments;
 
-    for(const auto &[name, argument]: node_.node.m_logic.m_argument)
+    for(const auto &argument: node_.node.m_logic.m_argument)
     {
         if(std::holds_alternative<NodeId>(argument))
             arguments.append(object{getNode(graph, std::get<NodeId>(argument)).cache->m_object});
@@ -30,12 +30,12 @@ Value executeNode(const PythonContext &context, ScriptGraph &graph, NodeId nodeI
             arguments.append(std::get<Value>(argument).m_object);
     }
 
-    auto p = PyEval_CallObject(context.getFunction(node_.node.m_logic.m_functionName).ptr(), tuple{arguments}.ptr());
+    auto p = PyEval_CallObject(node_.node.m_metadata.m_function.ptr(), tuple{arguments}.ptr());
     object r{handle(borrowed(p))};
 
-    node_.cache = {"123", r};
+    node_.cache = Value{r};
 
-    return {"", r};
+    return Value{r};
 }
 
 static void topologicalSort(
@@ -76,14 +76,14 @@ std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const ScriptGraph::gr
     return stack;
 }
 
-std::vector<Value> executeGraph(const PythonContext &context, ScriptGraph &graph)
+std::vector<Value> executeGraph(ScriptGraph &graph)
 {
     std::vector<Value> result;
     auto runtimeOrder = calculateRuntimeOrder(graph.structure);
 
     for(auto [node, unused]: runtimeOrder)
     {
-        auto r = executeNode(context, graph, node);
+        auto r = executeNode(graph, node);
         getNode(graph, node).cache = r;
         if(unused)
             result.push_back(r);

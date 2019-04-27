@@ -8,7 +8,6 @@
 #include <functional>
 #include <type_traits>
 
-
 static long lookup(ScriptGraph& graph, NodeId id)
 {
     auto it = std::lower_bound(graph.nodes.begin(), graph.nodes.end(), id, [](auto node, auto id)
@@ -36,11 +35,11 @@ NodeId addNode(ScriptGraph& graph, const Node& node)
 
     for(auto &argument: node.m_logic.m_argument)
     {
-        if(std::holds_alternative<NodeId>(argument.second))
+        if(std::holds_alternative<NodeId>(argument))
         {
-            auto callee = std::get<NodeId>(argument.second);
+            auto callee = std::get<NodeId>(argument);
             if(lookup(graph, callee) != -1)
-                boost::add_edge(std::get<NodeId>(argument.second), id, graph.structure);
+                boost::add_edge(std::get<NodeId>(argument), id, graph.structure);
         }
     }
 
@@ -59,10 +58,10 @@ void editNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id, [[m
         boost::remove_vertex(id, graph.structure);
 
         for (auto &argument: node.m_logic.m_argument) {
-            if (std::holds_alternative<NodeId>(argument.second)) {
-                auto callee = std::get<NodeId>(argument.second);
+            if (std::holds_alternative<NodeId>(argument)) {
+                auto callee = std::get<NodeId>(argument);
                 if (lookup(graph, callee) != -1)
-                    boost::add_edge(std::get<NodeId>(argument.second), id, graph.structure);
+                    boost::add_edge(std::get<NodeId>(argument), id, graph.structure);
             }
         }
     }

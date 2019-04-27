@@ -25,6 +25,9 @@ public:
 
     void import(const std::string &module);
 
+    auto& context() { return m_pythonContext; }
+    const auto& context() const { return m_pythonContext; }
+
 private:
     ScriptGraph m_graph;
     PythonContext m_pythonContext;

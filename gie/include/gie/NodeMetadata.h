@@ -7,6 +7,7 @@
 
 #include <gie/Argument.h>
 #include <gie/Type.h>
+
 #include <vector>
 #include <string>
 #include <boost/python.hpp>

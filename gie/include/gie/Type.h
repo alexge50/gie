@@ -16,8 +16,6 @@ public:
     explicit Type(std::string name):
         m_hash{Hasher(name)},
         m_name{std::move(name)}{}
-    Type(const Type&) = default;
-    Type(Type&&) = default;
 
     bool operator==(const Type& other)
     {
