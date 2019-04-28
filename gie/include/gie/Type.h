@@ -34,4 +34,6 @@ private:
     std::string m_name;
 };
 
+inline std::hash<std::string> Type::Hasher;
+
 #endif //GIE_LIBRARY_TYPE_H

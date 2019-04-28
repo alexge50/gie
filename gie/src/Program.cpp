@@ -14,7 +14,7 @@
 
 std::optional<Value> Program::run()
 {
-    auto result = executeGraph(m_pythonContext, m_graph);
+    auto result = executeGraph(m_graph);
     if(!result.empty())
         return result[0];
     return std::nullopt;

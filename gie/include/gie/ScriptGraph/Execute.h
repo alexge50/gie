@@ -16,6 +16,6 @@
 Value executeNode(ScriptGraph& graph, NodeId nodeId);
 std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const ScriptGraph::graph& graph);
 
-std::vector<Value> executeGraph(const PythonContext &context, ScriptGraph& graph);
+std::vector<Value> executeGraph(ScriptGraph& graph);
 
 #endif //GIE_LIBRARY_EXECUTE_H

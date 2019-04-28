@@ -4,7 +4,14 @@
 
 #include <gie/NodeUtil.h>
 
-static std::vector<ArgumentMetadata> fetchArguments(PythonContext& context, const boost::python::object& callable)
+#include <iostream>
+
+static bool hasattr(boost::python::object object, const char* name)//TODO: move to python utils
+{
+    return static_cast<bool>(PyObject_HasAttrString(object.ptr(), name));
+}
+
+static std::vector<ArgumentMetadata> fetchArguments(PythonContext& context, boost::python::object callable)
 {
     using namespace boost::python;
 
@@ -31,14 +38,16 @@ static std::vector<ArgumentMetadata> fetchArguments(PythonContext& context, cons
     return arguments;
 }
 
-static Type fetchReturnType(PythonContext& context, const boost::python::object& callable)
+static Type fetchReturnType(PythonContext& context, boost::python::object callable)
 {
     using namespace boost::python;
 
     auto inspect = context.module("inspect");
     auto signature = inspect.attr("signature")(callable);
 
-    return Type{extract<std::string>(signature.attr("return_annotation").attr("__name__"))};
+    if(hasattr(signature, "return_annotation"))
+        return Type{extract<std::string>(signature.attr("return_annotation").attr("__name__"))};
+    else return Type{""};
 }
 
 NodeMetadata fetchMetadata(PythonContext& context, std::string name)
