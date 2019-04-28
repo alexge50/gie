@@ -18,7 +18,9 @@ set(LIBRARY_SOURCES
         src/Program.cpp
         src/PythonContext.cpp
         src/ScriptGraph/Execute.cpp
-        src/ScriptGraph/ScriptGraph.cpp include/gie/NodeUtil.h src/NodeUtil.cpp include/gie/Function.h)
+        src/ScriptGraph/ScriptGraph.cpp
+        include/gie/NodeUtil.h
+        src/NodeUtil.cpp)
 
 
 find_package(Boost COMPONENTS python3 graph REQUIRED)
@@ -35,6 +37,8 @@ find_package(Catch2 REQUIRED)
 
 add_executable(gie_test tests/test.cpp)
 target_link_libraries(gie_test gie)
+
+file(INSTALL tests/test_modules DESTINATION ./)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(gie_test PRIVATE -fcompare-debug)
