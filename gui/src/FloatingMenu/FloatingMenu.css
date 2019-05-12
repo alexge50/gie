@@ -10,3 +10,10 @@
 
     padding: 0;
 }
+
+.trigger-zone
+{
+    z-index: -1;
+    position: relative;
+    float: left;
+}
