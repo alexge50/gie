@@ -3,8 +3,9 @@ import ReactDOM from 'react-dom';
 import logo from './logo.svg';
 import './App.css';
 
-import {NodeEditor} from './NodeEditor/NodeEditor';
-import GoldenLayout from "golden-layout";
+import {NodeEditor, NodeEditorProps} from './NodeEditor/NodeEditor';
+import GoldenLayout, {ContentItem} from "golden-layout";
+import 'jquery';
 import 'golden-layout/src/css/goldenlayout-base.css';
 import 'golden-layout/src/css/goldenlayout-dark-theme.css';
 
@@ -12,8 +13,11 @@ import 'golden-layout/src/css/goldenlayout-dark-theme.css';
 (window as any).ReactDOM = ReactDOM;
 
 class App extends Component {
-    componentDidMount() {
-        let myLayout = new GoldenLayout({
+    layout: GoldenLayout;
+    root: any;
+
+    componentWillMount() {
+        this.layout = new GoldenLayout({
             content: [{
                 type: 'row',
                 content:[{
@@ -21,28 +25,46 @@ class App extends Component {
                     content:[{
                         type:'react-component',
                         component: 'NodeEditor',
+                        id: 'NodeEditor',
                         props: {}
                     }]
                 }]
             }]
         });
 
-        myLayout.registerComponent( 'NodeEditor', NodeEditor);
+        this.layout.registerComponent( 'NodeEditor', NodeEditor);
 
-        myLayout.init();
+        this.layout.on('initialised', x => {
+            let nodeTypes = {
+                'Image Add': {'arguments': [{name: 'a', type: 'Image'}, {name: 'b', type: 'Image'}], 'result': 'Number'},
+                'Number Add': {'arguments': [{name: '1', type: 'Number'}, {name: '2', type: 'Number'}], 'result': 'Number'},
+            };
+
+            let node = this.layout.root.getItemsById('NodeEditor')[0]
+
+            node.parent.replaceChild(
+                node,
+                {
+                type:'react-component',
+                component: 'NodeEditor',
+                id: 'NodeEditor',
+                props: {
+                    nodeTypes: nodeTypes,
+                    nodeAddedCallback: null,
+                    nodeRemovedCallback: null,
+                    nodeChangedCallback: null
+                }
+            });
+        });
+
+        this.layout.init();
     }
 
-    /*
-    <div className="App">
-            <NodeEditor/>
-        </div>
-     */
-
     render() {
-      return (
+        return (
           <div className='goldenLayout' />
-      );
-  }
+        );
+    }
 }
 
 export default App;

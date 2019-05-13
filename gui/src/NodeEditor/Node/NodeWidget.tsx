@@ -23,12 +23,13 @@ export class NodeWidget extends React.Component<NodeWidgetProps, NodeWidgetState
         let inputPorts = [];
         let outputPorts = [];
         let props = this.props;
+        let i = 0;
         Object.values(this.props.node.getPorts()).forEach(function(port) {
             let position = (port as NodePortModel).position;
             if(position == 'output') {
-                outputPorts.push(<NodePortWidget label={(port as NodePortModel).label} name={(port as NodePortModel).name} valueType={(port as NodePortModel).valueType}  node={props.node} position={position}/>);
+                outputPorts.push(<NodePortWidget key={i++} label={(port as NodePortModel).label} name={(port as NodePortModel).name} valueType={(port as NodePortModel).valueType}  node={props.node} position={position}/>);
             } else {
-                inputPorts.push(<NodePortWidget label={(port as NodePortModel).label} name={(port as NodePortModel).name} valueType={(port as NodePortModel).valueType}  node={props.node} position={position}/>);
+                inputPorts.push(<NodePortWidget key={i++} label={(port as NodePortModel).label} name={(port as NodePortModel).name} valueType={(port as NodePortModel).valueType}  node={props.node} position={position}/>);
             }
         });
 

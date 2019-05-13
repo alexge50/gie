@@ -10,8 +10,6 @@ import * as React from "react";
 
 import KeyHandler, {KEYPRESS} from 'react-key-handler';
 
-require("storm-react-diagrams2/src/sass/main.scss");
-
 import {NodeFactory} from "./Node/NodeFactory";
 import {Node} from "./Node/Node";
 
@@ -20,16 +18,19 @@ import {PortFactory} from "./Node/PortFactory";
 import {NodePortModel} from "./Node/PortModel";
 import FloatingMenu from "../FloatingMenu/FloatingMenu";
 
+require("storm-react-diagrams2/src/sass/main.scss");
+
+
 export class NodeEditorState {
     showMenu: boolean;
-    menuX: number;
-    menuY: number;
-
-    mouseX: number;
-    mouseY: number;
 }
 
 export class NodeEditorProps {
+    nodeTypes: any;
+
+    nodeAddedCallback: any;
+    nodeRemovedCallback: any;
+    nodeChangedCallback: any;
 }
 
 export class NodeEditor extends React.Component<any, NodeEditorState>{
@@ -37,8 +38,8 @@ export class NodeEditor extends React.Component<any, NodeEditorState>{
     model: DiagramModel;
     nodeTypes: any;
 
-    constructor() {
-        super({}, 'NodeEditor');
+    constructor(props) {
+        super(props, 'NodeEditor');
 
         this.engine = new DiagramEngine();
         this.model = new DiagramModel();
@@ -46,28 +47,18 @@ export class NodeEditor extends React.Component<any, NodeEditorState>{
         this.engine.installDefaultFactories();
         this.engine.setDiagramModel(this.model);
         this.engine.registerNodeFactory(new NodeFactory());
-        this.engine.registerPortFactory(new PortFactory('Node', config => new NodePortModel('', '', 'input')))
+        this.engine.registerPortFactory(new PortFactory('Node', config => new NodePortModel('', '', 'input')));
 
         this.state = {
             showMenu : false,
-            menuX: 0,
-            menuY: 0,
-            mouseX: 0,
-            mouseY: 0};
-
-        this.nodeTypes = {
-            'Image Add': {'arguments': [{name: 'a', type: 'Image'}, {name: 'b', type: 'Image'}], 'result': 'Number'},
-            'Number Add': {'arguments': [{name: '1', type: 'Number'}, {name: '2', type: 'Number'}], 'result': 'Number'},
         };
+
+        if(props.nodeTypes != null)
+            this.nodeTypes = props.nodeTypes;
+        else this.nodeTypes = [];
     }
 
     componentDidMount() {
-
-        let node1 = new Node([{name: '1', type: 'Number'}, {name: '2', type: 'Number'}], 'Number');
-        let node2 = new Node([{name: 'a', type: 'Image'}, {name: 'b', type: 'Image'}], 'Number');
-
-        this.model.addAll(node1, node2);
-
         let model = this.model;
         this.model.addListener({
            linksUpdated: event => {
@@ -97,24 +88,14 @@ export class NodeEditor extends React.Component<any, NodeEditorState>{
     }
 
     onKeyDown(event) {
-        if(event.keyCode == 32 && ! this.state.showMenu)
+        if(event.keyCode === 32)
         {
             let state: NodeEditorState = this.state;
-            state.showMenu = true;
-            state.menuX = state.mouseX;
-            state.menuY = state.mouseY;
+            state.showMenu = !state.showMenu;
 
             this.setState(state);
         }
     };
-
-    onMouseMove(event) {
-        let state: NodeEditorState = this.state;
-        state.mouseX = event.clientX;
-        state.mouseY = event.clientY;
-
-        this.setState(state);
-    }
 
     onMouseDown(event) {
         setTimeout(() => {
@@ -132,21 +113,17 @@ export class NodeEditor extends React.Component<any, NodeEditorState>{
         return (
             <div
                 className={'node-editor'}
-                onMouseMove={this.onMouseMove.bind(this)}
                 onKeyDown={this.onKeyDown.bind(this)}
                 onMouseDown={this.onMouseDown.bind(this)}
-                tabIndex={0}
+                tabIndex={0 }
             >
                 <DiagramWidget className="node-editor" diagramEngine={this.engine} />
 
-                {this.state.showMenu && (
                     <FloatingMenu
-                        x={this.state.menuX}
-                        y={this.state.menuY}
+                        triggered={this.state.showMenu}
                         options={Object.keys(this.nodeTypes)}
                         callback={this.createNode.bind(this)}
                     />
-                )}
 
             </div>
         );
