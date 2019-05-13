@@ -21,5 +21,6 @@
   },
   "include": [
     "src"
-  ]
+  ],
+  "types": ["jquery"]
 }
