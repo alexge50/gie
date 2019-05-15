@@ -12,4 +12,12 @@ export class Node extends NodeModel {
 
         node.addPort(new NodePortModel('Result', result, 'output'))
     }
+
+    getInPorts() {
+        return Object.values(this.ports).filter(p => (p as NodePortModel).position == 'input');
+    }
+
+    getOutPorts() {
+        return Object.values(this.ports).filter(p => (p as NodePortModel).position == 'output');
+    }
 }
