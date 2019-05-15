@@ -4,7 +4,7 @@ import {
     DefaultNodeModel,
     LinkModel,
     DiagramWidget,
-    DefaultLinkModel
+    DefaultLinkModel, PortModel
 } from "storm-react-diagrams2";
 import * as React from "react";
 
@@ -33,10 +33,34 @@ export class NodeEditorProps {
     nodeChangedCallback: any;
 }
 
-export class NodeEditor extends React.Component<any, NodeEditorState>{
+export class NodeData {
+    id: string;
+    input: [string, string];
+}
+
+function convertToNodeData(node) {
+    let f = p => {
+        let l = Object.values((p as PortModel).getLinks())[0];
+
+        if(l == undefined)
+            return undefined;
+
+        if(l.targetPort != p)
+            return l.targetPort.getNode().id;
+        return l.sourcePort.getNode().id;
+    };
+
+    return {
+        id: node.id,
+        input: node.getInPorts().map(port => ([port.label, f(port)]))
+    };
+}
+
+export class NodeEditor extends React.Component<NodeEditorProps, NodeEditorState>{
     engine: DiagramEngine;
     model: DiagramModel;
     nodeTypes: any;
+    badLink = new Set<string>();
 
     constructor(props) {
         super(props, 'NodeEditor');
@@ -60,29 +84,52 @@ export class NodeEditor extends React.Component<any, NodeEditorState>{
 
     componentDidMount() {
         let model = this.model;
+
+        let notifyNodeChanged = link => {
+            let f = port => {
+                if((port as NodePortModel).position == 'input')
+                    this.props.nodeChangedCallback(convertToNodeData(port.parent));
+            };
+
+            f(link.sourcePort);
+            f(link.targetPort);
+        };
+
         this.model.addListener({
            linksUpdated: event => {
                let link = event.link;
+
+               let f = event => {
+                   try {
+                       if((link.sourcePort as NodePortModel).valueType != (link.targetPort as NodePortModel).valueType &&
+                           (link.sourcePort as NodePortModel).position != (link.targetPort as NodePortModel).position) {
+                           model.removeLink(link);
+                           this.badLink.add(link.id);
+                       } else {
+                           notifyNodeChanged(link);
+                       }
+                   }
+                   catch(e) { }
+               };
+
                event.link.addListener({
-                  sourcePortChanged: event => {
-                      try {
-                          console.log(event);
-                          if((link.sourcePort as NodePortModel).valueType != (link.targetPort as NodePortModel).valueType &&
-                              (link.sourcePort as NodePortModel).position != (link.targetPort as NodePortModel).position)
-                              model.removeLink(link);
-                      }
-                      catch(e) { }
-                  },
-                  targetPortChanged: event => {
-                      try {
-                          console.log(event);
-                          if((link.sourcePort as NodePortModel).valueType != (link.targetPort as NodePortModel).valueType &&
-                              (link.sourcePort as NodePortModel).position != (link.targetPort as NodePortModel).position)
-                              model.removeLink(link);
-                      }
-                      catch(e) { }
-                  }
+                   sourcePortChanged: f,
+                   targetPortChanged: f
                });
+
+               if(!event.isCreated) {
+                   if(!this.badLink.has(link.id))
+                       notifyNodeChanged(link);
+                   else this.badLink.delete(link.id);
+               }
+           }
+        });
+
+        this.model.addListener({
+           nodesUpdated: event => {
+               if(event.isCreated)
+                   this.props.nodeAddedCallback(convertToNodeData(event.node));
+               else this.props.nodeRemovedCallback(convertToNodeData(event.node));
            }
         });
     }
