@@ -2,3 +2,5 @@
 **/.idea
 **/node_modules
 **/cmake-build-debug/
+**/build
+**/build_gie
