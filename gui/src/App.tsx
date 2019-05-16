@@ -5,9 +5,13 @@ import './App.css';
 
 import {NodeEditor, NodeEditorProps} from './NodeEditor/NodeEditor';
 import GoldenLayout, {ContentItem} from "golden-layout";
-import 'jquery';
+import jQuery from 'jquery';
 import 'golden-layout/src/css/goldenlayout-base.css';
 import 'golden-layout/src/css/goldenlayout-dark-theme.css';
+
+//import {HelloWorld} from '../build/Release/gie_nodejs.node';
+
+import 'gie';
 
 (window as any).React = React;
 (window as any).ReactDOM = ReactDOM;
@@ -40,7 +44,7 @@ class App extends Component {
                 'Number Add': {'arguments': [{name: '1', type: 'Number'}, {name: '2', type: 'Number'}], 'result': 'Number'},
             };
 
-            let node = this.layout.root.getItemsById('NodeEditor')[0]
+            let node = this.layout.root.getItemsById('NodeEditor')[0];
 
             node.parent.replaceChild(
                 node,
@@ -50,9 +54,9 @@ class App extends Component {
                 id: 'NodeEditor',
                 props: {
                     nodeTypes: nodeTypes,
-                    nodeAddedCallback: null,
-                    nodeRemovedCallback: null,
-                    nodeChangedCallback: null
+                    nodeAddedCallback: this.onNodeAdded.bind(this),
+                    nodeRemovedCallback: this.onNodeRemoved.bind(this),
+                    nodeChangedCallback: this.onNodeChanged.bind(this)
                 }
             });
         });
@@ -60,9 +64,24 @@ class App extends Component {
         this.layout.init();
     }
 
+    onNodeAdded(node) {
+        console.log('node added');
+        console.log(node);
+    }
+
+    onNodeRemoved(node) {
+        console.log('node removed');
+        console.log(node);
+    }
+
+    onNodeChanged(node) {
+        console.log('node changed');
+        console.log(node);
+    }
+
     render() {
         return (
-          <div className='goldenLayout' />
+          <div className='App' />
         );
     }
 }
