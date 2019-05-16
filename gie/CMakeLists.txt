@@ -31,6 +31,14 @@ include_directories(include/ ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS}) # TODO
 add_library(gie STATIC ${LIBRARY_SOURCES})
 target_link_libraries(gie ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 target_compile_options(gie PRIVATE -Wall -Wextra -pedantic -Werror)
+target_include_directories(gie PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/{include_dir}> /
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+install (TARGETS gie
+        LIBRARY DESTINATION lib)
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
+        DESTINATION include)
 
 # TESTS
 find_package(Catch2 REQUIRED)
@@ -46,5 +54,5 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_compile_options(gie_test PRIVATE -fstandalone-debug)
 endif()
 
-add_executable(gie_dev_test tests/dev_test.cpp)
-target_link_libraries(gie_dev_test gie)
+# add_executable(gie_dev_test tests/dev_test.cpp)
+# target_link_libraries(gie_dev_test gie)
