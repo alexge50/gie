@@ -6,7 +6,6 @@
 #define GIE_LIBRARY_SCENEGRAPH_H
 
 #include <gie/Node.h>
-#include <gie/util/Graph.h>
 
 #include <utility>
 #include <optional>

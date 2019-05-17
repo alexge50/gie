@@ -13,7 +13,6 @@ set(LIBRARY_SOURCES
         include/gie/Node.h
         include/gie/Program.h
         include/gie/PythonContext.h
-        include/gie/util/Graph.h
         include/gie/Value.h
         src/Program.cpp
         src/PythonContext.cpp
