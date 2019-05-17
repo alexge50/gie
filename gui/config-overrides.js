@@ -22,15 +22,8 @@ module.exports = (config, env) => {
 
     config.target = "electron-renderer";
 
-    config.plugins.push(new ElectronNativePlugin({
-            forceRebuild: false,
-            outputPath: "./bin",
-            userModules:
-                [
-                    "./gie"
-                ]
-        }
-    ));
+    config.plugins.push(new ElectronNativePlugin());
+    config.plugins.push(new webpack.IgnorePlugin(/node-gyp/));
 
     config.module.rules.push({
         test: /\.js$/,
@@ -40,7 +33,7 @@ module.exports = (config, env) => {
                 {
                     loader: "electron-native-loader",
                     options: {
-                        outputPath: "./bin"
+                        outputPath: "./bin/linux-x64-69"
                     }
                 }
             ]
@@ -49,8 +42,7 @@ module.exports = (config, env) => {
     config.module.rules.push({
             test: /\.node$/,
             use: "electron-native-loader"
-        }
-    );
+    });
 
     config.resolve.alias["gie"] = "build/Release/gie.node";
 

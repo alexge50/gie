@@ -2,7 +2,7 @@
     "targets": [{
         "target_name": "gie",
         "sources": [
-            "main.cpp"
+            "gie/main.cpp"
         ],
         "include_dirs": ["../build_gie/include", "<!@(node -p \"require('node-addon-api').include\")"],
         "libraries": ["../build_gie/lib/libgie.a"],

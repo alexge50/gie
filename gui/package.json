@@ -18,7 +18,8 @@
     "storm-react-diagrams2": "^1.0.5",
     "typescript": "3.2.2",
     "nan": "^2.13.2",
-    "webpack": "4.29.6"
+    "webpack": "4.29.6",
+    "bindings": "^1.5.0"
   },
   "main": "main.js",
   "homepage": "./",
