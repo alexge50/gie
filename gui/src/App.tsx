@@ -9,9 +9,7 @@ import jQuery from 'jquery';
 import 'golden-layout/src/css/goldenlayout-base.css';
 import 'golden-layout/src/css/goldenlayout-dark-theme.css';
 
-//import {HelloWorld} from '../build/Release/gie_nodejs.node';
-
-import 'gie';
+const {ipcRender} = (window as any).require('electron');
 
 (window as any).React = React;
 (window as any).ReactDOM = ReactDOM;
@@ -65,16 +63,19 @@ class App extends Component {
     }
 
     onNodeAdded(node) {
+        ipcRender.send('add-node', node);
         console.log('node added');
         console.log(node);
     }
 
     onNodeRemoved(node) {
+        ipcRender.send('remove-node', node);
         console.log('node removed');
         console.log(node);
     }
 
     onNodeChanged(node) {
+        ipcRender.send('change-node', node);
         console.log('node changed');
         console.log(node);
     }
