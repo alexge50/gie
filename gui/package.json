@@ -31,7 +31,7 @@
     "electron": "electron .",
     "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron .",
     "dev": "nf start",
-    "compile": "autogypi && node-gyp rebuild && cp build/Release/nbind.node dist/gie.node && electron-rebuild -f -w dist/gie.node"
+    "compile-linux": "autogypi && node-gyp configure build && cp build/Release/nbind.node dist/gie.node && electron-rebuild -f -w dist/gie.node && cp bin/linux-x64-69/gui.node dist/gie.node"
   },
   "eslintConfig": {
     "extends": "react-app"
