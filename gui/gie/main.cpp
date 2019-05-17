@@ -2,31 +2,21 @@
 // Created by alex on 5/15/19.
 //
 
-#include <node.h>
+#include <string>
+#include <iostream>
 
-namespace demo
-{
+#include "nbind/nbind.h"
 
-    using v8::FunctionCallbackInfo;
-    using v8::Isolate;
-    using v8::Local;
-    using v8::NewStringType;
-    using v8::Object;
-    using v8::String;
-    using v8::Value;
-
-    void Method(const FunctionCallbackInfo<Value>& args)
-    {
-        Isolate* isolate = args.GetIsolate();
-        args.GetReturnValue().Set(String::NewFromUtf8(
-                isolate, "world", NewStringType::kNormal).ToLocalChecked());
+struct Greeter {
+    static void sayHello(
+            std::string name
+    ) {
+        std::cout
+                << "Hello, "
+                << name << "!\n";
     }
+};
 
-    void Initialize(Local<Object> exports)
-    {
-        NODE_SET_METHOD(exports, "hello", Method);
-    }
-
-    NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize)
-
-}  // namespace demo
+NBIND_CLASS(Greeter) {
+        method(sayHello);
+}

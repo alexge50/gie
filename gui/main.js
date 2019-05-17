@@ -1,12 +1,10 @@
 const { app, BrowserWindow } = require('electron');
 var path = require('path');
 var fs = require('fs');
-var helloworld = require('./dist/gui');
 
 let win;
 
 function createWindow () {
-    console.log(helloworld.hello());
     win = new BrowserWindow({ width: 800, height: 600 });
 
     const startUrl = process.env.ELECTRON_START_URL || url.format({

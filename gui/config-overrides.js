@@ -33,7 +33,7 @@ module.exports = (config, env) => {
                 {
                     loader: "electron-native-loader",
                     options: {
-                        outputPath: "./bin/linux-x64-69"
+                        outputPath: "./dist"
                     }
                 }
             ]

@@ -31,7 +31,7 @@
     "electron": "electron .",
     "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron .",
     "dev": "nf start",
-    "compile": "node-gyp rebuild"
+    "compile": "autogypi && node-gyp rebuild && cp build/Release/nbind.node dist/gie.node && electron-rebuild -f -w dist/gie.node"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -52,6 +52,8 @@
     "electron-native-plugin": "^0.3.0",
     "electron-native-loader": "^0.3.0",
     "electron-native-patch-loader": "^0.3.0",
-    "node-gyp": "^4.0.0"
+    "node-gyp": "^4.0.0",
+    "nbind": "^0.3.15",
+    "autogypi": "^0.2.2"
   }
 }

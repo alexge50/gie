@@ -4,6 +4,9 @@
         "sources": [
             "gie/main.cpp"
         ],
+        "includes": [
+        	"auto.gypi"
+        ],
         "include_dirs": ["../build_gie/include", "<!@(node -p \"require('node-addon-api').include\")"],
         "libraries": ["../build_gie/lib/libgie.a"],
         "dependencies": ["<!(node -p \"require('node-addon-api').gyp\")"],
@@ -17,5 +20,8 @@
                     ],
                     "action": ["python", "build_gie.py"]
                 }]
-    }]
+    }],
+	"includes": [
+		"auto-top.gypi"
+	]
 }
