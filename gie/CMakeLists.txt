@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.9)
 project(gie_library VERSION 0.0.0 DESCRIPTION "GenerativeImageEditor library")
 
 set(CMAKE_CXX_STANDARD 17)
+include(GNUInstallDirs)
 
 set(LIBRARY_SOURCES
         include/gie/Argument.h
@@ -25,23 +26,20 @@ set(LIBRARY_SOURCES
 find_package(Boost COMPONENTS python3 graph REQUIRED)
 find_package(PythonLibs REQUIRED)
 
-include_directories(include/ ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS}) # TODO: add libraries to an 3rdparty directory
-
 add_library(gie STATIC ${LIBRARY_SOURCES})
-target_link_libraries(gie ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(gie PUBLIC ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 target_compile_options(gie PRIVATE -Wall -Wextra -pedantic -Werror)
 target_include_directories(gie PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/{include_dir}> /
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_include_directories(gie PUBLIC ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS})
 
-install (TARGETS gie
-        LIBRARY DESTINATION lib)
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
-        DESTINATION include)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/)
 install(
         TARGETS gie
         EXPORT gie-config
-        ARCHIVE DESTINATION .)
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(
         EXPORT gie-config
         NAMESPACE gie::
