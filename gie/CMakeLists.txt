@@ -38,6 +38,15 @@ install (TARGETS gie
         LIBRARY DESTINATION lib)
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
         DESTINATION include)
+install(
+        TARGETS gie
+        EXPORT gie-config
+        ARCHIVE DESTINATION .)
+install(
+        EXPORT gie-config
+        NAMESPACE gie::
+        DESTINATION lib/cmake/gie)
+
 
 # TESTS
 find_package(Catch2 REQUIRED)
