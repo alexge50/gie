@@ -4,7 +4,7 @@
         "sources": [
             "gie/main.cpp"
         ],
-        "cflags_cc": ["-std=c++17"],
+        "cflags_cc": ["-std=c++17", "-fPIC"],
         'cflags_cc!': [ "-fno-rtti", "-std=c++11", "-fno-exceptions" ],
         "include_dirs": ["build_gie/include", "<!@(node -p \"require('node-addon-api').include\")", "/usr/include/python3.7m"],
         "libraries": ["../build_gie/lib/libgie.a"],
