@@ -9,7 +9,7 @@
 
 void GieDataModelRegistry::registerModel(const NodeMetadata& metadata, const QString& category)
 {
-    RegistryItemCreator creator = [metadata](){ return std::make_unique<GieNodeDataModel>(); };
+    RegistryItemCreator creator = [metadata](){ return std::make_unique<GieNodeDataModel>(metadata); };
 
     const QString name = metadata.m_functionName.c_str();
 
