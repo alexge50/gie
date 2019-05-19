@@ -29,6 +29,8 @@ public:
         return !(*this == other);
     }
 
+    const std::string& name() const { return m_name; }
+
 private:
     std::size_t m_hash;
     std::string m_name;
