@@ -21,7 +21,10 @@ set(SOURCE
         src/editor.h
         src/editor.cpp
         src/gie/GieDataModelRegistry.cpp
-        src/gie/GieDataModelRegistry.h src/gie/GieNodeDataModel.cpp src/gie/GieNodeDataModel.h)
+        src/gie/GieDataModelRegistry.h
+        src/gie/GieNodeDataModel.cpp
+        src/gie/GieNodeDataModel.h
+        src/gie/StringData.h src/gie/NumberData.h src/gie/TypeData.h)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
@@ -29,3 +32,5 @@ add_executable(gui ${SOURCE})
 target_link_libraries(gui Qt5::Widgets gie::gie NodeEditor::nodes)
 target_include_directories(gui PRIVATE gie::gie NodeEditor::nodes)
 target_compile_definitions(gui PRIVATE NODE_EDITOR_SHARED)
+
+file(INSTALL modules DESTINATION ./)
