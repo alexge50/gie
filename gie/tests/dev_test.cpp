@@ -4,6 +4,7 @@
 
 #include <gie/Node.h>
 #include <gie/Program.h>
+#include <gie/NodeUtil.h>
 
 #include <boost/python.hpp>
 
@@ -27,5 +28,8 @@ int main()
     program.import("test_modules.basic");
 
     for(const auto& s: program.context().importedSymbols())
+    {
         std::cout << s << std::endl;
+        auto x = fetchMetadata(program.context(), s);
+    }
 }

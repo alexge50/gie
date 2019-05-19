@@ -15,7 +15,7 @@ static std::vector<ArgumentMetadata> fetchArguments(PythonContext& context, boos
 {
     using namespace boost::python;
 
-    auto inspect = context.module("inspect");
+    auto inspect = context.module("inspect", false);
     auto signature = inspect.attr("signature")(callable);
 
     std::vector<object> parameters{
@@ -42,7 +42,7 @@ static Type fetchReturnType(PythonContext& context, boost::python::object callab
 {
     using namespace boost::python;
 
-    auto inspect = context.module("inspect");
+    auto inspect = context.module("inspect", false);
     auto signature = inspect.attr("signature")(callable);
 
     if(hasattr(signature, "return_annotation"))

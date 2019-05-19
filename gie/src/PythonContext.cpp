@@ -34,7 +34,11 @@ boost::python::object PythonContext::module(const std::string& name, bool expose
         {
             auto o = boost::python::extract<boost::python::object>(list[i][1])();
             if(PyCallable_Check(o.ptr()))
-                m_importedSymbols.push_back(boost::python::extract<std::string>(o.attr("__name__")));
+            {
+                auto extractor = boost::python::extract<std::string>(o.attr("__name__"));
+                if(extractor.check())
+                    m_importedSymbols.push_back(extractor());
+            }
         }
     }
 
