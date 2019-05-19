@@ -14,14 +14,17 @@ class PythonContext
 public:
     PythonContext();
 
-    boost::python::object module(const std::string &);
+    boost::python::object module(const std::string &, bool exposeSymbols = true);
     boost::python::object getFunction(const std::string &) const;
 
-private:
-    boost::python::object main;
-    boost::python::object global;
+    const std::vector<std::string>& importedSymbols() const { return m_importedSymbols; }
 
-    std::unordered_map<std::string, boost::python::object> importedModules;
+private:
+    boost::python::object m_main;
+    boost::python::object m_global;
+
+    std::unordered_map<std::string, boost::python::object> m_importedModules;
+    std::vector<std::string> m_importedSymbols;
 };
 
 #endif //GIE_LIBRARY_PYTHONCONTEXT_H

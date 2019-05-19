@@ -16,35 +16,16 @@ int main()
 {
 
     Program program;
-    NodeId castToString, castToInt;
 
-    program.import("builtins");
+    program.context().module("builtins", false);
 
-    boost::python::object input(10);
+    auto sys = program.context().module("sys", false);
+    auto os = program.context().module("os", false);
 
-    {
-        castToString = program.addNode(Node{{}, {"str", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"int"}}, std::variant<NodeId, Value>{Value{"int", input}})}}});
+    sys.attr("path").attr("insert")(1, os.attr("getcwd")());
 
-        auto result = program.run();
+    program.import("test_modules.basic");
 
-        std::cout << (std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)}) << std::endl;
-    }
-
-
-    {
-        castToInt = program.addNode(Node{{}, {"int", std::vector<std::pair<Argument, std::variant<NodeId, Value>>>{std::make_pair(Argument{"", {"str"}}, std::variant<NodeId, Value>{castToString})}}});
-
-        auto result = program.run();
-
-        std::cout << (boost::python::extract<int>(input) == boost::python::extract<int>(result.value().m_object)) << std::endl;
-    }
-
-    {
-        program.removeNode(castToInt);
-        auto result = program.run();
-        std::cout << (std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});
-
-        program.removeNode(castToString);
-        auto result2 = program.run();
-    }
+    for(const auto& s: program.context().importedSymbols())
+        std::cout << s << std::endl;
 }
