@@ -15,7 +15,7 @@ unsigned int GieNodeDataModel::nPorts(QtNodes::PortType portType) const
 QtNodes::NodeDataType GieNodeDataModel::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
     if(portType == QtNodes::PortType::In)
-        return getTypeData(m_metadata.m_arguments[portIndex]);
+        return getTypeData(m_metadata.m_arguments[portIndex].m_argumentType);
     return getTypeData(m_metadata.m_returnType);
 }
 
@@ -27,6 +27,18 @@ QString GieNodeDataModel::caption() const
 QString GieNodeDataModel::name() const
 {
     return QString::fromStdString(m_metadata.m_functionName);
+}
+
+bool GieNodeDataModel::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+    return true;
+}
+
+QString GieNodeDataModel::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+    if(portType == QtNodes::PortType::In)
+        return QString::fromStdString(m_metadata.m_arguments[portIndex].m_argumentName);
+    return QString("result");
 }
 
 std::shared_ptr<QtNodes::NodeData> GieNodeDataModel::outData(QtNodes::PortIndex port)

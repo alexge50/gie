@@ -31,27 +31,19 @@ Value extractGieValue(const QtNodes::NodeData& nodeData)
 std::shared_ptr<QtNodes::NodeData> extractNodeData(const Value& value)
 {
     if(auto x = boost::python::extract<double>{value.m_object}; x.check())
-        return std::make_shared<NumberData>("", x());
+        return std::make_shared<NumberData>(x());
 
     if(auto x = boost::python::extract<std::string>{value.m_object}; x.check())
-        return std::make_shared<StringData>("", x());
+        return std::make_shared<StringData>(x());
 
     return nullptr;
-}
-
-QtNodes::NodeDataType getTypeData(const ArgumentMetadata& value)
-{
-    static std::unordered_map<std::string, QString> typeMap = {{"str", "string"}, {"float", "double"}};
-
-    return {typeMap[value.m_argumentType.name()], QString::fromStdString(value.m_argumentName)};
 }
 
 QtNodes::NodeDataType getTypeData(const Type& type)
 {
     static std::unordered_map<std::string, QString> typeMap = {{"str", "string"}, {"float", "double"}};
 
-    return {typeMap[type.name()], QString::fromStdString(type.name())};
+    return {typeMap[type.name()], typeMap[type.name()]};
 }
-
 
 #endif //GUI_TYPEDATA_H

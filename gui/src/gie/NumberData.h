@@ -10,15 +10,15 @@
 class NumberData: public QtNodes::NodeData
 {
 public:
-    explicit NumberData(QString name): m_name{std::move(name)} {}
-    NumberData(QString name, double data): m_name{std::move(name)}, m_data{data} {}
+    explicit NumberData() = default;
+    NumberData(double data): m_data{data} {}
 
     NumberData(const NumberData&) = default;
     NumberData(NumberData&&) = default;
 
     QtNodes::NodeDataType type() const override
     {
-        return {"double", m_name};
+        return {"double", "double"};
     }
 
     double number() const
@@ -33,7 +33,6 @@ public:
 
 
 private:
-    QString m_name;
     double m_data;
 };
 
