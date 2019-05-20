@@ -15,9 +15,11 @@
 
 #include <memory>
 
-Value extractGieValue(const QtNodes::NodeData& nodeData)
+Value extractGieValue(const std::shared_ptr<QtNodes::NodeData>& nodeData)
 {
-    const auto& type = nodeData.type().id;
+    if(!nodeData) return Value{};
+
+    const auto& type = nodeData->type().id;
 
     if(type == "double")
         return Value{boost::python::object(reinterpret_cast<const NumberData*>(&nodeData)->number())};

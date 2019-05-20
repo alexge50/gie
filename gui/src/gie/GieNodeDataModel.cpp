@@ -2,6 +2,11 @@
 // Created by alex on 5/19/19.
 //
 
+#include <gie/NodeMetadata.h>
+#include <gie/Argument.h>
+#include <gie/ScriptGraph/Execute.h>
+#undef B0
+
 #include "GieNodeDataModel.h"
 #include "TypeData.h"
 
@@ -43,12 +48,16 @@ QString GieNodeDataModel::portCaption(QtNodes::PortType portType, QtNodes::PortI
 
 std::shared_ptr<QtNodes::NodeData> GieNodeDataModel::outData(QtNodes::PortIndex port)
 {
-    return std::shared_ptr<QtNodes::NodeData>();
+    auto result = executeNode({{}, m_logic, m_metadata});
+
+    if(result.has_value())
+        return std::shared_ptr<QtNodes::NodeData>(extractNodeData(result.value()));
+    else return std::shared_ptr<QtNodes::NodeData>();
 }
 
 void GieNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> data, QtNodes::PortIndex port)
 {
-
+    m_logic.m_argument[port] = extractGieValue(data);
 }
 
 QtNodes::NodeValidationState GieNodeDataModel::validationState() const
