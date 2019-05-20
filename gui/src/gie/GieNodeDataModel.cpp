@@ -41,10 +41,10 @@ void GieNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> data, QtNode
 
 QtNodes::NodeValidationState GieNodeDataModel::validationState() const
 {
-    return NodeDataModel::validationState();
+    return modelValidationState;
 }
 
 QString GieNodeDataModel::validationMessage() const
 {
-    return NodeDataModel::validationMessage();
+    return modelValidationError;
 }
