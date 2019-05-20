@@ -35,6 +35,11 @@ void Program::removeNode(NodeId id)
     return ::removeNode(m_graph, id);
 }
 
+const Node& Program::getNode(NodeId id) const
+{
+    return ::getNode(m_graph, id).node;
+}
+
 void Program::import(const std::string &module)
 {
     m_pythonContext.module(module);

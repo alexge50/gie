@@ -6,6 +6,7 @@
 #define GIE_LIBRARY_PROGRAM_H
 
 #include "gie/ScriptGraph/ScriptGraph.h"
+#include "gie/Node.h"
 #include "PythonContext.h"
 
 #include <optional>
@@ -22,6 +23,7 @@ public:
     NodeId addNode(const Node &node);
     void editNode(NodeId, const Node &node);
     void removeNode(NodeId);
+    const Node& getNode(NodeId id) const;
 
     void import(const std::string &module);
 

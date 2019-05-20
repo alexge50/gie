@@ -28,7 +28,14 @@ struct NodeCachePair
     std::optional<Value>& cache;
 };
 
+struct ConstNodeCachePair
+{
+    const Node& node;
+    const std::optional<Value>& cache;
+};
+
 NodeCachePair getNode(ScriptGraph&, NodeId);
+ConstNodeCachePair getNode(const ScriptGraph&, NodeId);
 
 NodeId addNode(ScriptGraph&, const Node&);
 void editNode(ScriptGraph&, NodeId, const Node&);
