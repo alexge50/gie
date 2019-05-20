@@ -24,9 +24,15 @@ set(SOURCE
         src/gie/GieDataModelRegistry.h
         src/gie/GieNodeDataModel.cpp
         src/gie/GieNodeDataModel.h
-        src/gie/StringData.h src/gie/NumberData.h src/gie/TypeData.h)
+        src/gie/StringData.h
+        src/gie/NumberData.h
+        src/gie/TypeData.h
+        src/gie/SourceNodeDataModel/StringSourceDataModel.cpp
+        src/gie/SourceNodeDataModel/StringSourceDataModel.h src/gie/SourceNodeDataModel/NumberSourceDataModel.cpp src/gie/SourceNodeDataModel/NumberSourceDataModel.h)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+
+add_definitions(-DQT_NO_KEYWORDS)
 
 add_executable(gui ${SOURCE})
 target_link_libraries(gui Qt5::Widgets gie::gie NodeEditor::nodes)

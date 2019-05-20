@@ -12,6 +12,7 @@ class StringData: public QtNodes::NodeData
 public:
     explicit StringData() = default;
     StringData(std::string data): m_data{std::move(data)} {}
+    StringData(const QString& data): m_data(data.toUtf8().constData()) {}
 
     StringData(const StringData&) = default;
     StringData(StringData&&) = default;

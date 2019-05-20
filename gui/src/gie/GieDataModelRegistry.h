@@ -12,6 +12,8 @@
 
 #include <nodes/DataModelRegistry>
 
+#include "SourceNodeDataModel/NumberSourceDataModel.h"
+#include "SourceNodeDataModel/StringSourceDataModel.h"
 
 class GieDataModelRegistry: public QtNodes::DataModelRegistry
 {
@@ -33,6 +35,9 @@ static std::shared_ptr<QtNodes::DataModelRegistry> registerDataModels(Program& p
 
     for(const auto& name: program.context().importedSymbols())
         registry->registerModel(fetchMetadata(program.context(), name), "operators");
+
+    static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<StringSourceDataModel>("source");
+    static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<NumberSourceDataModel>("source");
 
     return registry;
 }

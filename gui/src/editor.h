@@ -18,7 +18,7 @@ class Editor: public QWidget
 public:
     explicit Editor(Program&, QWidget* parent = nullptr);
 
-private slots:
+private Q_SLOTS:
     void onConnectionCreated(const QtNodes::Connection& c);
     void onConnectionDeleted(const QtNodes::Connection& c);
 
