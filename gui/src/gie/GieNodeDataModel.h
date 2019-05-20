@@ -51,6 +51,8 @@ public:
 
     QString validationMessage() const override;
 
+    auto nodeId() const { return m_nodeId; }
+
 private:
     Program& m_program;
     NodeId m_nodeId;
