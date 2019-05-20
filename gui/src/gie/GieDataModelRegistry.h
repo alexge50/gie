@@ -16,13 +16,18 @@
 class GieDataModelRegistry: public QtNodes::DataModelRegistry
 {
 public:
+    GieDataModelRegistry(Program& program): m_program{program} {}
+
     void registerModel(const NodeMetadata&, const QString& category);
+
+private:
+    Program& m_program;
 };
 
 [[maybe_unused]]
 static std::shared_ptr<QtNodes::DataModelRegistry> registerDataModels(Program& program)
 {
-    std::shared_ptr<GieDataModelRegistry> registry(new GieDataModelRegistry, [](auto p){
+    std::shared_ptr<GieDataModelRegistry> registry(new GieDataModelRegistry(program), [](auto p){
         delete reinterpret_cast<GieDataModelRegistry*>(p);
     });
 

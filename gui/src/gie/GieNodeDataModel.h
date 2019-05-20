@@ -6,6 +6,8 @@
 #define GUI_GIENODEDATAMODEL_H
 
 #include <gie/Node.h>
+#include <gie/NodeLogic.h>
+#include <gie/Program.h>
 #undef B0
 
 #include <nodes/NodeDataModel>
@@ -16,10 +18,20 @@ class GieNodeDataModel: public QtNodes::NodeDataModel
     Q_OBJECT
 
 public:
-    explicit GieNodeDataModel(const NodeMetadata& metadata): m_metadata(metadata) {}
+    explicit GieNodeDataModel(Program& program, NodeMetadata metadata):
+        m_program{program},
+        m_metadata(std::move(metadata)),
+        m_logic{std::vector<ArgumentValue>(m_metadata.m_arguments.size(), {NoArgument{}})}
+    {
+        m_nodeId = program.addNode({{}, m_logic, m_metadata});
+    };
+
     GieNodeDataModel() = delete;
 
-    virtual ~GieNodeDataModel() override = default;
+    virtual ~GieNodeDataModel() override
+    {
+        m_program.removeNode(m_nodeId);
+    }
 
     unsigned int nPorts(QtNodes::PortType portType) const override;
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
@@ -37,11 +49,15 @@ public:
     QString validationMessage() const override;
 
 private:
+    Program& m_program;
     NodeId m_nodeId;
     NodeMetadata m_metadata;
+    NodeLogic m_logic;
 
     QtNodes::NodeValidationState modelValidationState = QtNodes::NodeValidationState::Warning;
     QString modelValidationError = QString("Missing or incorrect inputs");
+
+    friend class Editor;
 };
 
 
