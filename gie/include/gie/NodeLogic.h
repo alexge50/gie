@@ -14,8 +14,10 @@
 #include <utility>
 #include <variant>
 
+struct NoArgument {};
+
 using NodeId = std::size_t;
-using ArgumentValue = std::variant<NodeId, Value>;
+using ArgumentValue = std::variant<NodeId, Value, NoArgument>;
 
 struct NodeLogic
 {
