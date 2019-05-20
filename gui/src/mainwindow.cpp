@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sys.attr("path").attr("insert")(1, os.attr("getcwd")());
 
     m_program.import("modules.arithmetic");
+    m_program.import("modules.string");
 
     setCentralWidget(new Editor(m_program, this));
 }
