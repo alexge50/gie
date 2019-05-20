@@ -17,14 +17,14 @@ public:
         m_hash{Hasher(name)},
         m_name{std::move(name)}{}
 
-    bool operator==(const Type& other)
+    bool operator==(const Type& other) const
     {
         if(m_hash != other.m_hash)
             return false;
         return m_name == other.m_name;
     }
 
-    bool operator!=(const Type& other)
+    bool operator!=(const Type& other) const
     {
         return !(*this == other);
     }
