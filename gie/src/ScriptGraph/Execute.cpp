@@ -15,6 +15,24 @@
 #include <algorithm>
 #include <utility>
 
+std::optional<Value> executeNode(const Node& node)
+{
+    using namespace boost::python;
+
+    list arguments;
+
+    for(const auto &argument: node.m_logic.m_argument)
+    {
+        if(std::holds_alternative<Value>(argument))
+            arguments.append(std::get<Value>(argument).m_object);
+        else return std::nullopt;
+
+    }
+
+    auto p = PyEval_CallObject(node.m_metadata.m_function.ptr(), tuple{arguments}.ptr());
+    return Value{object{handle(borrowed(p))}};
+}
+
 Value executeNode(ScriptGraph &graph, NodeId nodeId)
 {
     using namespace boost::python;
