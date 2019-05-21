@@ -10,6 +10,8 @@
 #include "GieNodeDataModel.h"
 #include "TypeData.h"
 
+#include <iostream>
+
 unsigned int GieNodeDataModel::nPorts(QtNodes::PortType portType) const
 {
     if(portType == QtNodes::PortType::In)
@@ -57,7 +59,18 @@ std::shared_ptr<QtNodes::NodeData> GieNodeDataModel::outData(QtNodes::PortIndex 
 
 void GieNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> data, QtNodes::PortIndex port)
 {
+    if(!data)
+        return;
+
     m_logic.m_argument[port] = extractGieValue(data);
+
+    if(!std::holds_alternative<NodeId>(m_program.getNode(m_nodeId).m_logic.m_argument[port]))
+    {
+        auto node = m_program.getNode(m_nodeId);
+        node.m_logic.m_argument[port] = m_logic.m_argument[port];
+        std::cout << "node edited" << std::endl;
+        //m_program.editNode(m_nodeId, node);
+    }
 }
 
 QtNodes::NodeValidationState GieNodeDataModel::validationState() const

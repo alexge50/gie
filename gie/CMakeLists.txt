@@ -45,6 +45,11 @@ install(
         NAMESPACE gie::
         DESTINATION lib/cmake/gie)
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(gie PRIVATE -fcompare-debug -g)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(gie PRIVATE -fstandalone-debug -g)
+endif()
 
 # TESTS
 find_package(Catch2 REQUIRED)
@@ -55,9 +60,9 @@ target_link_libraries(gie_test gie)
 file(INSTALL tests/test_modules DESTINATION ./)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(gie_test PRIVATE -fcompare-debug)
+    target_compile_options(gie_test PRIVATE -fcompare-debug -g)
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    target_compile_options(gie_test PRIVATE -fstandalone-debug)
+    target_compile_options(gie_test PRIVATE -fstandalone-debug -g)
 endif()
 
 add_executable(gie_dev_test tests/dev_test.cpp)

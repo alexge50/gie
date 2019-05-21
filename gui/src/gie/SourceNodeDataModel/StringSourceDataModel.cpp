@@ -59,6 +59,7 @@ void StringSourceDataModel::onTextEdited(QString const &string)
 
     m_data = std::make_shared<StringData>(string);
     Q_EMIT dataUpdated(0);
+    Q_EMIT onValueChanged(m_data);
 }
 
 

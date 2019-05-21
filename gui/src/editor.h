@@ -21,6 +21,7 @@ public:
 private Q_SLOTS:
     void onConnectionCreated(const QtNodes::Connection& c);
     void onConnectionDeleted(const QtNodes::Connection& c);
+    void nodeCreated(QtNodes::Node &n);
 
 private:
     Program& m_program;

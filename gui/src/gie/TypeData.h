@@ -22,10 +22,10 @@ Value extractGieValue(const std::shared_ptr<QtNodes::NodeData>& nodeData)
     const auto& type = nodeData->type().id;
 
     if(type == "double")
-        return Value{boost::python::object(reinterpret_cast<const NumberData*>(&nodeData)->number())};
+        return Value{boost::python::object(reinterpret_cast<const NumberData*>(nodeData.get())->number())};
 
     if(type == "string")
-        return Value{boost::python::object(reinterpret_cast<const StringData*>(&nodeData)->string())};
+        return Value{boost::python::object(reinterpret_cast<const StringData*>(nodeData.get())->string())};
 
     return Value{};
 }

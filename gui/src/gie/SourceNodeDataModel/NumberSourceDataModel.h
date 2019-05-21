@@ -39,6 +39,9 @@ public:
 
     QWidget* embeddedWidget() override { return m_lineEdit; }
 
+Q_SIGNALS:
+    void onValueChanged(std::shared_ptr<QtNodes::NodeData>);
+
 private Q_SLOTS:
     void onTextEdited(QString const &string);
 

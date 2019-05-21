@@ -43,28 +43,42 @@ Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{pr
 
 void Editor::onConnectionCreated(const QtNodes::Connection& c)
 {
-    auto giver = reinterpret_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::Out)->nodeDataModel());
-    auto receiver = reinterpret_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel());
+    auto giver = dynamic_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::Out)->nodeDataModel());
+    auto receiver = dynamic_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel());
 
-    auto portIndex = c.getPortIndex(QtNodes::PortType::Out);
+    if(giver != nullptr && receiver != nullptr)
+    {
+        auto portIndex = c.getPortIndex(QtNodes::PortType::Out);
 
-    auto node = m_program.getNode(receiver->nodeId());
-    node.m_logic.m_argument[portIndex] = giver->nodeId();
+        auto node = m_program.getNode(receiver->nodeId());
+        node.m_logic.m_argument[portIndex] = giver->nodeId();
 
-    m_program.editNode(receiver->nodeId(), node);
+        m_program.editNode(receiver->nodeId(), node);
 
-    //std::cout << "onConnectionCreated: connected " << giver->nodeId() << " with " << receiver->nodeId() << std::endl;
+        std::cout << "onConnectionCreated: connected " << giver->nodeId() << " with " << receiver->nodeId() << std::endl;
+    }
 }
 
 void Editor::onConnectionDeleted(const QtNodes::Connection& c)
 {
-    auto receiver = reinterpret_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel());
-    auto portIndex = c.getPortIndex(QtNodes::PortType::In);
+    if(auto receiver = dynamic_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
+    {
+        auto portIndex = c.getPortIndex(QtNodes::PortType::In);
 
-    auto node = m_program.getNode(receiver->nodeId());
-    node.m_logic.m_argument[portIndex] = NoArgument{};
+        auto node = m_program.getNode(receiver->nodeId());
+        node.m_logic.m_argument[portIndex] = NoArgument{};
 
-    m_program.editNode(receiver->nodeId(), node);
+        m_program.editNode(receiver->nodeId(), node);
 
-    //std::cout << "onConnectionRemoved: removed argument from " << receiver->nodeId() << std::endl;
+        std::cout << "onConnectionRemoved: removed argument from " << receiver->nodeId() << std::endl;
+    }
+}
+
+void Editor::nodeCreated(QtNodes::Node &n)
+{
+    /*if(auto* p = dynamic_cast<NumberSourceDataModel*>(n.nodeDataModel()); p != nullptr)
+        QObject::connect(
+            p, &NumberSourceDataModel::onValueChanged,
+            this, &Editor::
+        );*/
 }

@@ -71,6 +71,7 @@ void NumberSourceDataModel::onTextEdited(QString const &string)
     {
         m_data = std::make_shared<NumberData>(number);
         Q_EMIT dataUpdated(0);
+        Q_EMIT onValueChanged(m_data);
     }
     else Q_EMIT dataInvalidated(0);
 }

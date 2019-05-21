@@ -30,7 +30,7 @@ set(SOURCE
         src/gie/SourceNodeDataModel/StringSourceDataModel.cpp
         src/gie/SourceNodeDataModel/StringSourceDataModel.h src/gie/SourceNodeDataModel/NumberSourceDataModel.cpp src/gie/SourceNodeDataModel/NumberSourceDataModel.h)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -g")
 
 add_definitions(-DQT_NO_KEYWORDS)
 
