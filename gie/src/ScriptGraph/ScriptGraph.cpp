@@ -63,13 +63,16 @@ void editNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id, [[m
 
         boost::remove_vertex(id, graph.structure);
 
-        for (auto &argument: node.m_logic.m_argument) {
-            if (std::holds_alternative<NodeId>(argument)) {
+        for (auto &argument: node.m_logic.m_argument)
+        {
+            if (std::holds_alternative<NodeId>(argument))
+            {
                 auto callee = std::get<NodeId>(argument);
                 if (lookup(graph, callee) != -1)
                     boost::add_edge(std::get<NodeId>(argument), id, graph.structure);
             }
         }
+        boost::add_edge(id, id, graph.structure);
     }
 }
 
