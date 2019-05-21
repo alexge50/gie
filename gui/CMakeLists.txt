@@ -28,9 +28,9 @@ set(SOURCE
         src/gie/NumberData.h
         src/gie/TypeData.h
         src/gie/SourceNodeDataModel/StringSourceDataModel.cpp
-        src/gie/SourceNodeDataModel/StringSourceDataModel.h src/gie/SourceNodeDataModel/NumberSourceDataModel.cpp src/gie/SourceNodeDataModel/NumberSourceDataModel.h)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -g")
+        src/gie/SourceNodeDataModel/StringSourceDataModel.h
+        src/gie/SourceNodeDataModel/NumberSourceDataModel.cpp
+        src/gie/SourceNodeDataModel/NumberSourceDataModel.h)
 
 add_definitions(-DQT_NO_KEYWORDS)
 
@@ -38,5 +38,11 @@ add_executable(gui ${SOURCE})
 target_link_libraries(gui Qt5::Widgets gie::gie NodeEditor::nodes)
 target_include_directories(gui PRIVATE gie::gie NodeEditor::nodes)
 target_compile_definitions(gui PRIVATE NODE_EDITOR_SHARED)
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(gui PRIVATE -Wall -Werror -fcompare-debug -g)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(gui PRIVATE  -Wall -Werror -g -fstandalone-debug)
+endif()
 
 file(INSTALL modules DESTINATION ./)
