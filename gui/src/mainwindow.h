@@ -9,6 +9,8 @@
 #undef B0
 
 #include <QMainWindow>
+#include <QMenuBar>
+#include "editor.h"
 
 namespace Ui {
     class MainWindow;
@@ -25,6 +27,8 @@ public:
 private:
     Ui::MainWindow *ui;
     Program m_program;
+    QMenuBar* m_menu;
+    Editor* m_editor;
 };
 
 #endif //GUI_MAINWINDOW_H

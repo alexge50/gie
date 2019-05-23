@@ -18,6 +18,10 @@ class Editor: public QWidget
 public:
     explicit Editor(Program&, QWidget* parent = nullptr);
 
+public Q_SLOTS:
+    void onSave();
+    void onLoad();
+
 private Q_SLOTS:
     void onConnectionCreated(const QtNodes::Connection& c);
     void onConnectionDeleted(const QtNodes::Connection& c);

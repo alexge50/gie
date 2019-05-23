@@ -2,23 +2,18 @@
 // Created by alex on 5/18/19.
 //
 
+#include <QtWidgets/QVBoxLayout>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 #include "editor.h"
 
-/*
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-}*/
 
-MainWindow::MainWindow(QWidget *parent) :
-        QMainWindow(parent),
-        ui(nullptr)
-{
     m_program.context().module("builtins", false);
 
     auto sys = m_program.context().module("sys", false);
@@ -29,7 +24,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_program.import("modules.arithmetic");
     m_program.import("modules.string");
 
-    setCentralWidget(new Editor(m_program, this));
+    setCentralWidget(m_editor = new Editor(m_program));
+
+    QObject::connect(
+            ui->actionSave, &QAction::triggered,
+            m_editor, &Editor::onSave
+    );
+
+    QObject::connect(
+            ui->actionLoad, &QAction::triggered,
+            m_editor, &Editor::onLoad
+    );
 }
 
 MainWindow::~MainWindow()

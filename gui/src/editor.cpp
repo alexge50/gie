@@ -13,6 +13,7 @@
 
 #include <nodes/Connection>
 #include <nodes/Node>
+#include <QtWidgets/QFileDialog>
 
 Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{program}
 {
@@ -81,4 +82,30 @@ void Editor::nodeCreated(QtNodes::Node &n)
             p, &NumberSourceDataModel::onValueChanged,
             this, &Editor::
         );*/
+}
+
+void Editor::onSave()
+{
+    auto filename = QFileDialog::getSaveFileName(
+            this,
+            tr("Save gie project file"),
+            "/home/alex",
+            tr("*.gie")
+    );
+
+    if(QFile file(filename); file.open(QIODevice::ReadWrite))
+    {
+        auto data = m_scene->saveToMemory();
+        file.write(data);
+    }
+}
+
+void Editor::onLoad()
+{
+    auto filename = QFileDialog::getOpenFileName(
+            this,
+            tr("Open gie project file"),
+            "/home/alex",
+            tr("*.gie")
+    );
 }
