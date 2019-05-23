@@ -16,6 +16,7 @@
 #include <QtWidgets/QFileDialog>
 
 #include "serialisation/serialise.h"
+#include "serialisation/deserialise.h"
 
 Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{program}
 {
@@ -91,7 +92,7 @@ void Editor::onSave()
     auto filename = QFileDialog::getSaveFileName(
             this,
             tr("Save gie project file"),
-            "/home/alex",
+            QDir::homePath(),
             tr("*.gie")
     );
 
@@ -107,7 +108,13 @@ void Editor::onLoad()
     auto filename = QFileDialog::getOpenFileName(
             this,
             tr("Open gie project file"),
-            "/home/alex",
+            QDir::homePath(),
             tr("*.gie")
     );
+
+    if(QFile file(filename); file.open(QIODevice::ReadOnly))
+    {
+        auto data = file.readAll();
+        deserialise(*m_scene, data);
+    }
 }
