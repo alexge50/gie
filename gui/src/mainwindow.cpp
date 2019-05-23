@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->actionLoad, &QAction::triggered,
             m_editor, &Editor::onLoad
     );
+    
 }
 
 MainWindow::~MainWindow()

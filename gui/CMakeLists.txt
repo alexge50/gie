@@ -35,7 +35,9 @@ set(SOURCE
         src/gie/SourceNodeDataModel/NumberSourceDataModel.h
         src/gie/types/ColorData.h
         src/serialisation/serialise.h
-        src/serialisation/deserialise.h)
+        src/serialisation/deserialise.h
+        src/symbolviewer/symbolviewer.cpp
+        src/symbolviewer/symbolviewer.h)
 
 
 add_definitions(-DQT_NO_KEYWORDS)
