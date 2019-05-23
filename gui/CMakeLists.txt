@@ -13,6 +13,7 @@ find_package(Qt5Core)
 find_package(gie REQUIRED HINTS dump)
 find_package(NodeEditor REQUIRED HINTS dump)
 find_package(modules HINTS dump`)
+find_package(KF5WidgetsAddons CONFIG REQUIRED)
 
 set(SOURCE
         src/mainwindow.ui
@@ -35,14 +36,16 @@ set(SOURCE
         src/gie/SourceNodeDataModel/NumberSourceDataModel.h
         src/gie/types/ColorData.h
         src/serialisation/serialise.h
-        src/serialisation/deserialise.h)
+        src/serialisation/deserialise.h
+        src/colorpicker/colorpicker.cpp
+        src/colorpicker/colorpicker.h src/gie/SourceNodeDataModel/ColorSourceDataModel.cpp src/gie/SourceNodeDataModel/ColorSourceDataModel.h)
 
 
 add_definitions(-DQT_NO_KEYWORDS)
 
 add_executable(gui ${SOURCE})
-target_link_libraries(gui Qt5::Widgets gie::gie NodeEditor::nodes)
-target_include_directories(gui PRIVATE gie::gie NodeEditor::nodes modules::modules)
+target_link_libraries(gui Qt5::Widgets gie::gie NodeEditor::nodes KF5::WidgetsAddons)
+target_include_directories(gui PRIVATE gie::gie NodeEditor::nodes modules::modules KF5::WidgetsAddons)
 target_compile_definitions(gui PRIVATE NODE_EDITOR_SHARED)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
