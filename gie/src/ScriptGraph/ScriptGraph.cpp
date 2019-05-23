@@ -63,6 +63,8 @@ void editNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id, [[m
 
         boost::remove_vertex(id, graph.structure);
 
+        boost::add_edge(id, id, graph.structure);
+
         for (auto &argument: node.m_logic.m_argument)
         {
             if (std::holds_alternative<NodeId>(argument))
@@ -72,15 +74,13 @@ void editNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id, [[m
                     boost::add_edge(std::get<NodeId>(argument), id, graph.structure);
             }
         }
-        boost::add_edge(id, id, graph.structure);
     }
 }
 
-void removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)
+void removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)//BUG: boost doesn't delete the vertices
 {
     auto r = lookup(graph, id);
     graph.nodes.erase(graph.nodes.begin() + r);
     graph.cache.erase(graph.cache.begin() + r);
-    boost::add_edge(id, id, graph.structure);
     boost::remove_vertex(id, graph.structure);
 }
