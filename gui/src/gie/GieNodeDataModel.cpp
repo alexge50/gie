@@ -26,12 +26,12 @@ QtNodes::NodeDataType GieNodeDataModel::dataType(QtNodes::PortType portType, QtN
 
 QString GieNodeDataModel::caption() const
 {
-    return QString::fromStdString(m_metadata.m_functionName);
+    return QString::fromStdString(m_metadata.m_symbol.prettyName + ":" + m_metadata.m_symbol.module);
 }
 
 QString GieNodeDataModel::name() const
 {
-    return QString::fromStdString(m_metadata.m_functionName);
+    return QString::fromStdString(m_metadata.m_symbol.qualifiedName);
 }
 
 bool GieNodeDataModel::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
