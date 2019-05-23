@@ -16,6 +16,8 @@ struct Symbol
     std::string qualifiedName;
 };
 
+Symbol createSymbol(std::string qualifiedName);
+
 class PythonContext
 {
 public:

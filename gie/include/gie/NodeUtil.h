@@ -12,7 +12,7 @@
 
 #include <gie/PythonContext.h>
 
-NodeMetadata fetchMetadata(PythonContext&, std::string name);
+NodeMetadata fetchMetadata(PythonContext&, std::string qualifiedFunctionName);
 Node makeNode(PythonContext&, std::string name, std::vector<ArgumentValue>);
 
 #endif //GIE_LIBRARY_NODEUTIL_H

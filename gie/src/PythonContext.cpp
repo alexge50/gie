@@ -6,6 +6,15 @@
 
 #include <boost/python.hpp>
 
+Symbol createSymbol(std::string qualifiedName)
+{
+    return Symbol{
+        qualifiedName.substr(0, qualifiedName.find('.')),
+        qualifiedName.substr(qualifiedName.find_last_of('.') + 1),
+        std::move(qualifiedName)
+    };
+}
+
 PythonContext::PythonContext()
 {
     using namespace boost::python;
@@ -38,12 +47,9 @@ boost::python::object PythonContext::module(const std::string& name, bool expose
                 auto extractor = boost::python::extract<std::string>(o.attr("__name__"));
                 if(extractor.check())
                 {
-                    m_importedSymbols.push_back({
-                                                        extractor(),
-                                                        name.substr(name.find_last_of('.') + 1),
-                                                        name.substr(name.find_last_of('.') + 1) + '.' + extractor()
-                                                });
-                    m_functions[name.substr(name.find_last_of('.') + 1) + '.' + extractor()] = o;
+                    auto qualifiedName = name.substr(name.find_last_of('.') + 1) + '.' + extractor();
+                    m_importedSymbols.push_back(createSymbol(qualifiedName));
+                    m_functions[qualifiedName] = o;
                 }
             }
         }
