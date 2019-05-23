@@ -12,6 +12,7 @@
 
 #include "StringData.h"
 #include "NumberData.h"
+#include "ColorData.h"
 
 #include <memory>
 
@@ -27,6 +28,9 @@ Value extractGieValue(const std::shared_ptr<QtNodes::NodeData>& nodeData)
     if(type == "string")
         return Value{boost::python::object(reinterpret_cast<const StringData*>(nodeData.get())->string())};
 
+    if(type == "Color")
+        return Value{boost::python::object(reinterpret_cast<const ColorData*>(nodeData.get())->color())};
+
     return Value{};
 }
 
@@ -37,6 +41,9 @@ std::shared_ptr<QtNodes::NodeData> extractNodeData(const Value& value)
 
     if(auto x = boost::python::extract<std::string>{value.m_object}; x.check())
         return std::make_shared<StringData>(x());
+
+    if(auto x = boost::python::extract<Color>{value.m_object}; x.check())
+        return std::make_shared<ColorData>(x());
 
     return nullptr;
 }

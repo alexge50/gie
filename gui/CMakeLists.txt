@@ -12,6 +12,7 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt5Core)
 find_package(gie REQUIRED HINTS dump)
 find_package(NodeEditor REQUIRED HINTS dump)
+find_package(modules HINTS dump`)
 
 set(SOURCE
         src/mainwindow.ui
@@ -24,19 +25,20 @@ set(SOURCE
         src/gie/GieDataModelRegistry.h
         src/gie/GieNodeDataModel.cpp
         src/gie/GieNodeDataModel.h
-        src/gie/StringData.h
-        src/gie/NumberData.h
-        src/gie/TypeData.h
+        src/gie/types/StringData.h
+        src/gie/types/NumberData.h
+        src/gie/types/TypeData.h
         src/gie/SourceNodeDataModel/StringSourceDataModel.cpp
         src/gie/SourceNodeDataModel/StringSourceDataModel.h
         src/gie/SourceNodeDataModel/NumberSourceDataModel.cpp
-        src/gie/SourceNodeDataModel/NumberSourceDataModel.h)
+        src/gie/SourceNodeDataModel/NumberSourceDataModel.h
+        src/gie/types/ColorData.h)
 
 add_definitions(-DQT_NO_KEYWORDS)
 
 add_executable(gui ${SOURCE})
 target_link_libraries(gui Qt5::Widgets gie::gie NodeEditor::nodes)
-target_include_directories(gui PRIVATE gie::gie NodeEditor::nodes)
+target_include_directories(gui PRIVATE gie::gie NodeEditor::nodes modules::modules)
 target_compile_definitions(gui PRIVATE NODE_EDITOR_SHARED)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -45,4 +47,4 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_compile_options(gui PRIVATE  -Wall -Werror -g -fstandalone-debug)
 endif()
 
-file(INSTALL modules DESTINATION ./)
+file(INSTALL dump/modules DESTINATION ./)
