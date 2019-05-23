@@ -1,7 +1,7 @@
 import os
 
 install_path = '../dump'
-modules = ['nodeeditor', '../gie']
+modules = ['nodeeditor', '../gie', '../modules']
 
 os.system('mkdir build')
 os.chdir('build')
