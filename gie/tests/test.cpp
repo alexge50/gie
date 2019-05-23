@@ -2,6 +2,7 @@
 // Created by alex on 11/17/18.
 //
 #define CATCH_CONFIG_MAIN
+
 #include <catch2/catch.hpp>
 
 #include <gie/Node.h>
@@ -17,11 +18,12 @@
 
 TEST_CASE("GIE API tests", "[program]")
 {
-    Program program;
-    program.import("builtins");
 
-    auto sys = program.context().module("sys");
-    auto os = program.context().module("os");
+    Program program;
+    program.context().module("builtins", false);
+
+    auto sys = program.context().module("sys", false);
+    auto os = program.context().module("os", false);
 
     sys.attr("path").attr("insert")(1, os.attr("getcwd")());
 
@@ -32,14 +34,14 @@ TEST_CASE("GIE API tests", "[program]")
     SECTION("a couple of nodes")
     {
         NodeId castToString, castToInt;
-        castToString = program.addNode(makeNode(program.context(), "to_string", {ArgumentValue{Value{input}}}));
-        SECTION("1 node run")
-        {
+        castToString = program.addNode(makeNode(program.context(), "basic.to_string", {ArgumentValue{Value{input}}}));
+        SECTION("1 node run") {
             auto result = program.run();
-            REQUIRE(std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});
+            REQUIRE(std::to_string(boost::python::extract<int>(input)) ==
+                    std::string{boost::python::extract<std::string>(result.value().m_object)});
         }
 
-        castToInt = program.addNode(makeNode(program.context(), "to_int", {castToString}));
+        castToInt = program.addNode(makeNode(program.context(), "basic.to_int", {castToString}));
 
         SECTION("2 nodes run")
         {
@@ -51,7 +53,8 @@ TEST_CASE("GIE API tests", "[program]")
         {
             program.removeNode(castToInt);
             auto result = program.run();
-            REQUIRE(std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});
+            REQUIRE(std::to_string(boost::python::extract<int>(input)) ==
+                    std::string{boost::python::extract<std::string>(result.value().m_object)});
 
             program.removeNode(castToString);
             auto result2 = program.run();
@@ -64,12 +67,13 @@ TEST_CASE("GIE API tests", "[program]")
         std::vector<NodeId> castToString;
         std::vector<NodeId> castToInt;
 
-        castToString.push_back(program.addNode(makeNode(program.context(), "to_string", {ArgumentValue{Value{input}}})));
-        castToInt.push_back(program.addNode(makeNode(program.context(), "to_int", {castToString.back()})));
-        for(int i = 0; i < 100; i ++)
+        castToString.push_back(
+                program.addNode(makeNode(program.context(), "basic.to_string", {ArgumentValue{Value{input}}})));
+        castToInt.push_back(program.addNode(makeNode(program.context(), "basic.to_int", {castToString.back()})));
+        for (int i = 0; i < 100; i++)
         {
-            castToString.push_back(program.addNode(makeNode(program.context(), "to_string", {castToInt.back()})));
-            castToInt.push_back(program.addNode(makeNode(program.context(), "to_int", {castToString.back()})));
+            castToString.push_back(program.addNode(makeNode(program.context(), "basic.to_string", {castToInt.back()})));
+            castToInt.push_back(program.addNode(makeNode(program.context(), "basic.to_int", {castToString.back()})));
         }
 
         SECTION("run")
@@ -86,17 +90,18 @@ TEST_CASE("GIE API tests", "[program]")
             program.removeNode(stringId);
             program.removeNode(intId);
 
-            program.editNode(castToString[51], makeNode(program.context(), "to_string", {castToInt[49]}));
+            program.editNode(castToString[51], makeNode(program.context(), "basic.to_string", {castToInt[49]}));
 
             auto result = program.run();
-            REQUIRE(std::to_string(boost::python::extract<int>(input)) == std::string{boost::python::extract<std::string>(result.value().m_object)});
+            REQUIRE(std::to_string(boost::python::extract<int>(input)) ==
+                    std::string{boost::python::extract<std::string>(result.value().m_object)});
         }
 
         SECTION("removing all nodes")
         {
-            for(auto i: castToString)
+            for (auto i: castToString)
                 program.removeNode(i);
-            for(auto i: castToInt)
+            for (auto i: castToInt)
                 program.removeNode(i);
 
             auto result = program.run();
