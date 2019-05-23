@@ -8,7 +8,7 @@
 #undef B0
 
 #include "GieNodeDataModel.h"
-#include "TypeData.h"
+#include "src/gie/types/TypeData.h"
 
 unsigned int GieNodeDataModel::nPorts(QtNodes::PortType portType) const
 {

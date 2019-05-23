@@ -10,7 +10,7 @@
 
 #include <nodes/NodeDataModel>
 
-#include "../NumberData.h"
+#include "src/gie/types/NumberData.h"
 
 class NumberSourceDataModel: public QtNodes::NodeDataModel
 {

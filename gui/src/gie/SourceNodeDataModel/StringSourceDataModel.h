@@ -10,7 +10,7 @@
 
 #include <nodes/NodeDataModel>
 
-#include "../StringData.h"
+#include "src/gie/types/StringData.h"
 
 class StringSourceDataModel: public QtNodes::NodeDataModel
 {
