@@ -81,5 +81,6 @@ void removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)
     auto r = lookup(graph, id);
     graph.nodes.erase(graph.nodes.begin() + r);
     graph.cache.erase(graph.cache.begin() + r);
+    boost::add_edge(id, id, graph.structure);
     boost::remove_vertex(id, graph.structure);
 }
