@@ -15,6 +15,8 @@
 #include <nodes/Node>
 #include <QtWidgets/QFileDialog>
 
+#include "serialisation/serialise.h"
+
 Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{program}
 {
     auto vlayout = new QVBoxLayout(this);
@@ -95,7 +97,7 @@ void Editor::onSave()
 
     if(QFile file(filename); file.open(QIODevice::ReadWrite))
     {
-        auto data = m_scene->saveToMemory();
+        auto data = serialise(*m_scene);;
         file.write(data);
     }
 }
