@@ -28,7 +28,7 @@ public:
 
     GieNodeDataModel() = delete;
 
-    virtual ~GieNodeDataModel() override
+    ~GieNodeDataModel() override
     {
         m_program.removeNode(m_nodeId);
     }
