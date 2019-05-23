@@ -9,8 +9,8 @@
 Symbol createSymbol(std::string qualifiedName)
 {
     return Symbol{
-        qualifiedName.substr(0, qualifiedName.find('.')),
         qualifiedName.substr(qualifiedName.find_last_of('.') + 1),
+        qualifiedName.substr(0, qualifiedName.find('.')),
         std::move(qualifiedName)
     };
 }
