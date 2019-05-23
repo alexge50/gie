@@ -30,7 +30,9 @@ set(SOURCE
         src/gie/SourceNodeDataModel/StringSourceDataModel.cpp
         src/gie/SourceNodeDataModel/StringSourceDataModel.h
         src/gie/SourceNodeDataModel/NumberSourceDataModel.cpp
-        src/gie/SourceNodeDataModel/NumberSourceDataModel.h)
+        src/gie/SourceNodeDataModel/NumberSourceDataModel.h
+        src/serialisation/serialise.h
+        src/serialisation/deserialise.h)
 
 add_definitions(-DQT_NO_KEYWORDS)
 
