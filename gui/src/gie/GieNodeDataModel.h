@@ -33,8 +33,6 @@ public:
         m_program.removeNode(m_nodeId);
     }
 
-    QJsonObject save() const override;
-
     unsigned int nPorts(QtNodes::PortType portType) const override;
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 

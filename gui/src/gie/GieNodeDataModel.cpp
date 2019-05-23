@@ -10,16 +10,6 @@
 #include "GieNodeDataModel.h"
 #include "TypeData.h"
 
-QJsonObject GieNodeDataModel::save() const
-{
-    QJsonObject modelJson = NodeDataModel::save();
-
-    modelJson["function"] = QString::fromStdString(m_metadata.m_functionName);
-
-    return modelJson;
-}
-
-
 unsigned int GieNodeDataModel::nPorts(QtNodes::PortType portType) const
 {
     if(portType == QtNodes::PortType::In)
