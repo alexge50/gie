@@ -27,7 +27,6 @@ MainWindow::MainWindow(QWidget *parent) :
     sys.attr("path").attr("insert")(1, os.attr("getcwd")());
 
     m_program.context().module("modules.internals", false);
-    m_program.context().getFunction("import_globals")();
     m_program.import("modules.arithmetic");
     m_program.import("modules.string");
     m_program.import("modules.colors");
