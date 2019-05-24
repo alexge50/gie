@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <cstring>
 
-#include <Color.h>
+#include "Color.h"
 
 class Image
 {
