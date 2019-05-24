@@ -53,6 +53,11 @@ set(SOURCE
         src/gie/DisplayNodeDataModel/ColorDisplayDataModel.cpp
         src/gie/DisplayNodeDataModel/ColorDisplayDataModel.h
         src/gie/types/ImageData.h
+        src/gie/types/IntegerData.h
+        src/gie/SourceNodeDataModel/IntegerSourceDataModel.cpp
+        src/gie/SourceNodeDataModel/IntegerSourceDataModel.h
+        src/gie/DisplayNodeDataModel/IntegerDisplayDataModel.cpp
+        src/gie/DisplayNodeDataModel/IntegerDisplayDataModel.h
 )
 
 
