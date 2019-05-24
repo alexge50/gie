@@ -46,6 +46,8 @@ set(SOURCE
         src/symbolviewer/symbolviewer.h
         src/gie/DisplayNodeDataModel/NumberDisplayDataModel.cpp
         src/gie/DisplayNodeDataModel/NumberDisplayDataModel.h
+        src/colorsample/colorsample.cpp
+        src/colorsample/colorsample.h
 )
 
 
