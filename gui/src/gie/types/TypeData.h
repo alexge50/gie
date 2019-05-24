@@ -44,7 +44,10 @@ Value extractGieValue(const std::shared_ptr<QtNodes::NodeData>& nodeData)
 
 std::shared_ptr<QtNodes::NodeData> extractNodeData(const Value& value)
 {
-    if(auto x = boost::python::extract<double>{value.m_object}; x.check())
+    if(auto x = boost::python::extract<long long>{value.m_object}; x.check() && PyLong_Check(value.m_object.ptr()))
+        return std::make_shared<IntegerData>(x());
+
+    if(auto x = boost::python::extract<double>{value.m_object}; x.check() && PyFloat_Check(value.m_object.ptr()))
         return std::make_shared<NumberData>(x());
 
     if(auto x = boost::python::extract<std::string>{value.m_object}; x.check())
