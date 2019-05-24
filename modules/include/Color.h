@@ -14,6 +14,9 @@ struct Color
     Color(const Color&) = default;
     Color(Color&&) = default;
 
+    Color& operator=(const Color&) = default;
+    Color& operator=(Color&&) = default;
+
     uint8_t r, g, b;
 };
 
