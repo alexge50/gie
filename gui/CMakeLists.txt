@@ -12,7 +12,7 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt5Core)
 find_package(gie REQUIRED HINTS dump)
 find_package(NodeEditor REQUIRED HINTS dump)
-find_package(modules HINTS dump`)
+find_package(modules HINTS dump)
 find_package(KF5WidgetsAddons CONFIG REQUIRED)
 
 set(SOURCE
@@ -38,7 +38,9 @@ set(SOURCE
         src/serialisation/serialise.h
         src/serialisation/deserialise.h
         src/colorpicker/colorpicker.cpp
-        src/colorpicker/colorpicker.h src/gie/SourceNodeDataModel/ColorSourceDataModel.cpp src/gie/SourceNodeDataModel/ColorSourceDataModel.h)
+        src/colorpicker/colorpicker.h
+        src/gie/SourceNodeDataModel/ColorSourceDataModel.cpp
+        src/gie/SourceNodeDataModel/ColorSourceDataModel.h
         src/serialisation/deserialise.h
         src/symbolviewer/symbolviewer.cpp
         src/symbolviewer/symbolviewer.h)
