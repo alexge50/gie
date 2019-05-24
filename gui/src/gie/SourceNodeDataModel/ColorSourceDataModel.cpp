@@ -36,7 +36,7 @@ void ColorSourceDataModel::restore(QJsonObject const &p)
 
     if (!r.isUndefined() && !g.isUndefined() && !b.isUndefined())
     {
-        Color color{r.toDouble(), g.toDouble(), b.toDouble()};
+        Color color{static_cast<uint8_t>(r.toInt()), static_cast<uint8_t>(g.toInt()), static_cast<uint8_t>(b.toInt())};
         m_data = std::make_shared<ColorData>(color);
     }
 }
@@ -51,9 +51,9 @@ unsigned int ColorSourceDataModel::nPorts(QtNodes::PortType portType) const
 void ColorSourceDataModel::onColorChanged(QColor color)
 {
     m_data = std::make_shared<ColorData>(Color{
-        color.red() / 255.,
-        color.green() / 255.,
-        color.blue() / 255.
+        static_cast<uint8_t>(color.red()),
+        static_cast<uint8_t>(color.green()),
+        static_cast<uint8_t>(color.blue())
     });
     Q_EMIT dataUpdated(0);
     Q_EMIT onValueChanged(m_data);

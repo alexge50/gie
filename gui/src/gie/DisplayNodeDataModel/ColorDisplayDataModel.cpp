@@ -32,9 +32,9 @@ void ColorDisplayDataModel::setInData(std::shared_ptr<QtNodes::NodeData> input, 
 
         auto color = data->color();
         m_colorSample->setColor(QColor(
-                static_cast<int>(color.r * 255),
-                static_cast<int>(color.g * 255),
-                static_cast<int>(color.b * 255))
+                color.r,
+                color.g,
+                color.b)
         );
     }
     else
