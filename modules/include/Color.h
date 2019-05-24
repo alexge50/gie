@@ -5,14 +5,16 @@
 #ifndef MODULES_COLOR_H
 #define MODULES_COLOR_H
 
+#include <cstdint>
+
 struct Color
 {
     Color(): r{0}, g{0}, b{0} {}
-    Color(double r_, double g_, double b_): r{r_}, g{g_}, b{b_} {}
+    Color(uint8_t r_, uint8_t g_, uint8_t b_): r{r_}, g{g_}, b{b_} {}
     Color(const Color&) = default;
     Color(Color&&) = default;
 
-    double r, g, b;
+    uint8_t r, g, b;
 };
 
 #endif //MODULES_COLOR_H
