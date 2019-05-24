@@ -18,6 +18,9 @@ class Editor: public QWidget
 public:
     explicit Editor(Program&, QWidget* parent = nullptr);
 
+public:
+    void setRegistry(std::shared_ptr<QtNodes::DataModelRegistry>);
+
 public Q_SLOTS:
     void onSave();
     void onLoad();

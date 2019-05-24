@@ -15,7 +15,7 @@ public:
     SymbolViewer(QWidget* parent = nullptr);
 
 public Q_SLOTS:
-    void onSymbolsUpdate(const std::map<std::string, std::vector<std::string>>&);
+    void onSymbolsUpdate(const std::map<QString, std::vector<QString>>&);
 
 private:
     QTreeWidget* m_treeWidget;

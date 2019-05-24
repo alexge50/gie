@@ -18,7 +18,7 @@ SymbolViewer::SymbolViewer(QWidget* parent):
     layout->addWidget(m_treeWidget, 0, 0);
 }
 
-void SymbolViewer::onSymbolsUpdate(const std::map<std::string, std::vector<std::string>>& modules)
+void SymbolViewer::onSymbolsUpdate(const std::map<QString, std::vector<QString>>& modules)
 {
     m_treeWidget->reset();
 
@@ -26,10 +26,10 @@ void SymbolViewer::onSymbolsUpdate(const std::map<std::string, std::vector<std::
 
     for(const auto& [name, functions]: modules)
     {
-        auto entry = new QTreeWidgetItem(QStringList() << QString::fromStdString(name));
+        auto entry = new QTreeWidgetItem(QStringList() << name);
 
         for(const auto& function: functions)
-            entry->addChild(new QTreeWidgetItem(QStringList() << QString::fromStdString(function)));
+            entry->addChild(new QTreeWidgetItem(QStringList() << function));
 
         list.append(entry);
     }

@@ -25,7 +25,7 @@ Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{pr
     vlayout->setMargin(0);
     vlayout->setSpacing(0);
 
-    m_scene = new QtNodes::FlowScene(registerDataModels(m_program));
+    m_scene = new QtNodes::FlowScene();
 
     m_view = new QtNodes::FlowView(m_scene);
     m_view->setSceneRect(-640000, -640000, 640000, 640000);
@@ -117,4 +117,9 @@ void Editor::onLoad()
         auto data = file.readAll();
         deserialise(*m_scene, data);
     }
+}
+
+void Editor::setRegistry(std::shared_ptr<QtNodes::DataModelRegistry> registry)
+{
+    m_scene->setRegistry(registry);
 }

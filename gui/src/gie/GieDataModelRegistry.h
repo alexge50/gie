@@ -28,7 +28,7 @@ private:
 };
 
 [[maybe_unused]]
-static std::shared_ptr<QtNodes::DataModelRegistry> registerDataModels(Program& program)
+static std::shared_ptr<GieDataModelRegistry> registerDataModels(Program& program)
 {
     std::shared_ptr<GieDataModelRegistry> registry(new GieDataModelRegistry(program), [](auto p){
         delete reinterpret_cast<GieDataModelRegistry*>(p);

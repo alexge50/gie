@@ -46,9 +46,29 @@ MainWindow::MainWindow(QWidget *parent) :
 
     symbolViewerDock->setWidget(m_symbolViewer);
     addDockWidget(Qt::RightDockWidgetArea, symbolViewerDock);
+
+    QObject::connect(
+            this, &MainWindow::onSymbolsImported,
+            m_symbolViewer, &SymbolViewer::onSymbolsUpdate
+    );
+
+    reloadSymbols();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::reloadSymbols()
+{
+    m_modelRegistry = registerDataModels(m_program);
+    m_editor->setRegistry(m_modelRegistry);
+
+    std::map<QString, std::vector<QString>> symbols;
+
+    for(const auto& [name, category]: m_modelRegistry->registeredModelsCategoryAssociation())
+        symbols[category].push_back(name);
+
+    Q_EMIT onSymbolsImported(symbols);
 }

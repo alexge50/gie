@@ -12,6 +12,7 @@
 #include <QMenuBar>
 #include "editor.h"
 #include "symbolviewer/symbolviewer.h"
+#include "src/gie/GieDataModelRegistry.h"
 
 namespace Ui {
     class MainWindow;
@@ -25,6 +26,12 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+Q_SIGNALS:
+    void onSymbolsImported(const std::map<QString, std::vector<QString>>&);
+
+private:
+    void reloadSymbols();
+
 private:
     Ui::MainWindow *ui;
     Program m_program;
@@ -32,6 +39,7 @@ private:
     Editor* m_editor;
 
     SymbolViewer* m_symbolViewer;
+    std::shared_ptr<GieDataModelRegistry> m_modelRegistry;
 };
 
 #endif //GUI_MAINWINDOW_H
