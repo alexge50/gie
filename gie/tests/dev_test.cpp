@@ -27,9 +27,8 @@ int main()
 
     program.import("test_modules.basic");
 
-    for(const auto& s: program.context().importedSymbols())
+    for(const auto& [prettyName, module, qualifiedName]: program.context().importedSymbols())
     {
-        std::cout << s << std::endl;
-        auto x = fetchMetadata(program.context(), s);
+        std::cout << prettyName << " " <<  module << " " << qualifiedName << std::endl;
     }
 }

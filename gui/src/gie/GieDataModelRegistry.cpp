@@ -11,7 +11,7 @@ void GieDataModelRegistry::registerModel(const NodeMetadata& metadata, const QSt
 {
     RegistryItemCreator creator = [this, metadata](){ return std::make_unique<GieNodeDataModel>(m_program, metadata); };
 
-    const QString name = metadata.m_functionName.c_str();
+    const QString name = QString::fromStdString(metadata.m_symbol.qualifiedName);
 
     /*
      * the members that were required to be accessed are private, but they have const qualified accessors

@@ -7,6 +7,7 @@
 
 #include <gie/Argument.h>
 #include <gie/Type.h>
+#include <gie/PythonContext.h>
 
 #include <vector>
 #include <string>
@@ -17,7 +18,7 @@ struct NodeMetadata
     boost::python::object m_function;
     std::vector<ArgumentMetadata> m_arguments;
     Type m_returnType;
-    std::string m_functionName;
+    Symbol m_symbol;
 };
 
 #endif //GIE_LIBRARY_NODEMETADATA_H

@@ -50,16 +50,16 @@ static Type fetchReturnType(PythonContext& context, boost::python::object callab
     else return Type{""};
 }
 
-NodeMetadata fetchMetadata(PythonContext& context, std::string name)
+NodeMetadata fetchMetadata(PythonContext& context, std::string qualifiedFunctionName)
 {
-    auto object = context.getFunction(name);
+    auto object = context.getFunction(qualifiedFunctionName);
 
     return NodeMetadata
     {
         object,
         fetchArguments(context, object),
         fetchReturnType(context, object),
-        std::move(name)
+        createSymbol(qualifiedFunctionName)
     };
 }
 

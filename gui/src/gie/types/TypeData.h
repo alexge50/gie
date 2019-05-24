@@ -50,7 +50,7 @@ std::shared_ptr<QtNodes::NodeData> extractNodeData(const Value& value)
 
 QtNodes::NodeDataType getTypeData(const Type& type)
 {
-    static std::unordered_map<std::string, QString> typeMap = {{"str", "string"}, {"float", "double"}};
+    static std::unordered_map<std::string, QString> typeMap = {{"str", "string"}, {"float", "double"}, {"Color", "Color"}};
 
     return {typeMap[type.name()], typeMap[type.name()]};
 }

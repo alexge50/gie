@@ -6,6 +6,15 @@
 
 #include <boost/python.hpp>
 
+Symbol createSymbol(std::string qualifiedName)
+{
+    return Symbol{
+        qualifiedName.substr(qualifiedName.find_last_of('.') + 1),
+        qualifiedName.substr(0, qualifiedName.find('.')),
+        std::move(qualifiedName)
+    };
+}
+
 PythonContext::PythonContext()
 {
     using namespace boost::python;
@@ -37,7 +46,11 @@ boost::python::object PythonContext::module(const std::string& name, bool expose
             {
                 auto extractor = boost::python::extract<std::string>(o.attr("__name__"));
                 if(extractor.check())
-                    m_importedSymbols.push_back(extractor());
+                {
+                    auto qualifiedName = name.substr(name.find_last_of('.') + 1) + '.' + extractor();
+                    m_importedSymbols.push_back(createSymbol(qualifiedName));
+                    m_functions[qualifiedName] = o;
+                }
             }
         }
     }
@@ -47,11 +60,8 @@ boost::python::object PythonContext::module(const std::string& name, bool expose
 
 boost::python::object PythonContext::getFunction(const std::string &name) const
 {
-    for([[maybe_unused]] auto& [_, module]: m_importedModules)
-    {
-        if(module.attr("__dict__").contains(name.c_str()))
-            return module.attr("__dict__")[name.c_str()];
-    }
+    if(auto it = m_functions.find(name); it != m_functions.end())
+        return it->second;
 
     return boost::python::object();
 }

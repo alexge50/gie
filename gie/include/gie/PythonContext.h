@@ -9,6 +9,15 @@
 #include <unordered_map>
 #include <string>
 
+struct Symbol
+{
+    std::string prettyName;
+    std::string module;
+    std::string qualifiedName;
+};
+
+Symbol createSymbol(std::string qualifiedName);
+
 class PythonContext
 {
 public:
@@ -17,14 +26,15 @@ public:
     boost::python::object module(const std::string &, bool exposeSymbols = true);
     boost::python::object getFunction(const std::string &) const;
 
-    const std::vector<std::string>& importedSymbols() const { return m_importedSymbols; }
+    const std::vector<Symbol>& importedSymbols() const { return m_importedSymbols; }
 
 private:
     boost::python::object m_main;
     boost::python::object m_global;
 
     std::unordered_map<std::string, boost::python::object> m_importedModules;
-    std::vector<std::string> m_importedSymbols;
+    std::vector<Symbol> m_importedSymbols;
+    std::unordered_map<std::string, boost::python::object> m_functions;
 };
 
 #endif //GIE_LIBRARY_PYTHONCONTEXT_H
