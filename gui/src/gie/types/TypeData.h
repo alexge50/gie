@@ -13,6 +13,7 @@
 #include "StringData.h"
 #include "NumberData.h"
 #include "ColorData.h"
+#include "ImageData.h"
 
 #include <memory>
 
@@ -30,6 +31,9 @@ Value extractGieValue(const std::shared_ptr<QtNodes::NodeData>& nodeData)
 
     if(type == "Color")
         return Value{boost::python::object(reinterpret_cast<const ColorData*>(nodeData.get())->color())};
+
+    if(type == "Image")
+        return Value{boost::python::object(reinterpret_cast<const ImageData*>(nodeData.get())->image())};
 
     return Value{};
 }
@@ -50,7 +54,7 @@ std::shared_ptr<QtNodes::NodeData> extractNodeData(const Value& value)
 
 QtNodes::NodeDataType getTypeData(const Type& type)
 {
-    static std::unordered_map<std::string, QString> typeMap = {{"str", "string"}, {"float", "double"}, {"Color", "Color"}};
+    static std::unordered_map<std::string, QString> typeMap = {{"str", "string"}, {"float", "double"}, {"Color", "Color"}, {"Image", "Image"}};
 
     return {typeMap[type.name()], typeMap[type.name()]};
 }

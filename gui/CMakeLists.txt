@@ -52,6 +52,7 @@ set(SOURCE
         src/gie/DisplayNodeDataModel/StringDisplayDataModel.h
         src/gie/DisplayNodeDataModel/ColorDisplayDataModel.cpp
         src/gie/DisplayNodeDataModel/ColorDisplayDataModel.h
+        src/gie/types/ImageData.h
 )
 
 
