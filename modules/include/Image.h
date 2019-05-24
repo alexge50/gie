@@ -17,12 +17,12 @@ class Image
     static const int N_CHANNELS = 3;
 public:
     Image(unsigned width, unsigned height):
-        width{width},
-        height{height},
-        data(N_CHANNELS * width * height)
+            width{width},
+            height{height},
+            data(N_CHANNELS * width * height)
     {}
 
-    Image(uint8_t* data, unsigned width, unsigned height):
+    Image(const uint8_t* data, unsigned width, unsigned height):
             width{width},
             height{height},
             data(N_CHANNELS * width * height)
@@ -30,27 +30,27 @@ public:
         std::memcpy(this->data.data(), data, N_CHANNELS * width * height);
     }
 
-    Color pixelAt(unsigned x, unsigned y)
+    Color pixelAt(unsigned row, unsigned column)
     {
-        uint8_t* pixel = &data[index(x, y)];
+        uint8_t* pixel = &data[index(row, column)];
         return Color(pixel[0], pixel[1], pixel[2]);
     }
 
-    void setPixel(unsigned x, unsigned y, Color color)
+    void setPixel(unsigned row, unsigned column, Color color)
     {
-        uint8_t* pixel = &data[index(x, y)];
-        std::tie(pixel[0], pixel[1], pixel[2]) = color;
+        uint8_t* pixel = &data[index(row, column)];
+        std::tie(pixel[0], pixel[1], pixel[2]) = std::make_tuple(color.r, color.g, color.b);
     }
 
 private:
-    std::size_t index(unsigned x, unsigned y)
+    std::size_t index(unsigned row, unsigned column)
     {
-        return (y * width + x) * N_CHANNELS;
+        return (row * width + column) * N_CHANNELS;
     }
 
 private:
-    std::vector<uint8_t> data;
     unsigned width, height;
+    std::vector<uint8_t> data;
 };
 
 #endif //MODULES_IMAGE_H
