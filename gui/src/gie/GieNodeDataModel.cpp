@@ -68,6 +68,28 @@ void GieNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> data, QtNode
         node.m_logic.m_argument[port] =  m_logic.m_argument[port];
         m_program.editNode(m_nodeId, node);
     }
+
+    auto allPortsAssigned = std::find_if(
+            m_logic.m_argument.begin(),
+            m_logic.m_argument.end(),
+            [](const auto& x)
+            {
+                return std::holds_alternative<NoArgument>(x);
+            }) == m_logic.m_argument.end();
+
+    if(allPortsAssigned)
+    {
+        modelValidationState = QtNodes::NodeValidationState::Valid;
+        modelValidationError = QString();
+    }
+    else
+    {
+        modelValidationState = QtNodes::NodeValidationState::Warning;
+        modelValidationError = QString("Missing or incorrect inputs");
+    }
+
+    Q_EMIT dataUpdated(0);
+
 }
 
 QtNodes::NodeValidationState GieNodeDataModel::validationState() const
