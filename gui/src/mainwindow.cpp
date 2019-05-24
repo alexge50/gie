@@ -7,6 +7,8 @@
 #include "ui_mainwindow.h"
 
 #include "editor.h"
+#include <QDockWidget>
+#include "colorpicker/colorpicker.h"
 
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
@@ -37,7 +39,13 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->actionLoad, &QAction::triggered,
             m_editor, &Editor::onLoad
     );
-    
+
+
+    QDockWidget* symbolViewerDock = new QDockWidget("SymbolViewer", this);
+    m_symbolViewer = new SymbolViewer(symbolViewerDock);
+
+    symbolViewerDock->setWidget(m_symbolViewer);
+    addDockWidget(Qt::RightDockWidgetArea, symbolViewerDock);
 }
 
 MainWindow::~MainWindow()

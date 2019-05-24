@@ -11,6 +11,7 @@
 #include <QMainWindow>
 #include <QMenuBar>
 #include "editor.h"
+#include "symbolviewer/symbolviewer.h"
 
 namespace Ui {
     class MainWindow;
@@ -29,6 +30,8 @@ private:
     Program m_program;
     QMenuBar* m_menu;
     Editor* m_editor;
+
+    SymbolViewer* m_symbolViewer;
 };
 
 #endif //GUI_MAINWINDOW_H

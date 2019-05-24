@@ -4,11 +4,18 @@
 
 #include "symbolviewer.h"
 
+#include <QGridLayout>
+
 SymbolViewer::SymbolViewer(QWidget* parent):
-    QWidget(parent),
-    m_treeWidget{new QTreeWidget(this)}
+    QWidget(parent)
 {
-    m_treeWidget->addTopLevelItem( new QTreeWidgetItem(QStringList() << "available blocks"));
+    auto layout = new QGridLayout(this);
+    layout->setContentsMargins(QMargins());
+
+    m_treeWidget = new QTreeWidget{};
+    m_treeWidget->setHeaderHidden(true);
+
+    layout->addWidget(m_treeWidget, 0, 0);
 }
 
 void SymbolViewer::onSymbolsUpdate(const std::map<std::string, std::vector<std::string>>& modules)
