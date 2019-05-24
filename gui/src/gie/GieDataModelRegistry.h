@@ -16,6 +16,8 @@
 #include "SourceNodeDataModel/StringSourceDataModel.h"
 #include "SourceNodeDataModel/ColorSourceDataModel.h"
 
+#include "DisplayNodeDataModel/NumberDisplayDataModel.h"
+
 class GieDataModelRegistry: public QtNodes::DataModelRegistry
 {
 public:
@@ -40,6 +42,9 @@ static std::shared_ptr<GieDataModelRegistry> registerDataModels(Program& program
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<StringSourceDataModel>("source");
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<NumberSourceDataModel>("source");
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<ColorSourceDataModel>("source");
+
+    static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<NumberDisplayDataModel>("display");
+
 
     return registry;
 }
