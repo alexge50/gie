@@ -16,6 +16,7 @@
 #include "SourceNodeDataModel/IntegerSourceDataModel.h"
 #include "SourceNodeDataModel/StringSourceDataModel.h"
 #include "SourceNodeDataModel/ColorSourceDataModel.h"
+#include "SourceNodeDataModel/ImageSourceDataModel.h"
 
 #include "DisplayNodeDataModel/NumberDisplayDataModel.h"
 #include "DisplayNodeDataModel/IntegerDisplayDataModel.h"
@@ -47,6 +48,7 @@ static std::shared_ptr<GieDataModelRegistry> registerDataModels(Program& program
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<NumberSourceDataModel>("source");
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<IntegerSourceDataModel>("source");
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<ColorSourceDataModel>("source");
+    static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<ImageSourceDataModel>("source");
 
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<NumberDisplayDataModel>("display");
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<IntegerDisplayDataModel>("display");

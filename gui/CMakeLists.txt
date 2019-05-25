@@ -60,6 +60,8 @@ set(SOURCE
         src/gie/DisplayNodeDataModel/IntegerDisplayDataModel.h
         src/filepicker/filepicker.cpp
         src/filepicker/filepicker.h
+        src/gie/SourceNodeDataModel/ImageSourceDataModel.cpp
+        src/gie/SourceNodeDataModel/ImageSourceDataModel.h
 )
 
 

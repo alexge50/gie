@@ -30,7 +30,7 @@ FilePicker::FilePicker(QString filter, QWidget *parent):
 void FilePicker::selectFile()
 {
     m_filename = QFileDialog::getOpenFileName(
-            this,
+            nullptr,
             tr("Open File"),
             QDir::homePath(),
             m_filter
