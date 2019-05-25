@@ -43,12 +43,30 @@ unsigned int ImageSourceDataModel::nPorts(QtNodes::PortType portType) const
     else return 1;
 }
 
+static std::vector<uint8_t> imageToRawData(const QImage& image)
+{
+    std::vector<uint8_t> data(static_cast<unsigned long>(image.width() * image.height() * 3));
+    const auto rowSize = static_cast<const size_t>(image.width()) * 3;
+    std::size_t index = 0;
+    std::size_t indexInImage = 0;
+
+    for(int i = 0; i < image.height(); i++)
+    {
+        std::memcpy(data.data() + index, image.bits() + indexInImage, rowSize);
+
+        indexInImage += image.bytesPerLine();
+        index += rowSize;
+    }
+
+    return data;
+}
+
 void ImageSourceDataModel::onFileChanged(QString filename)
 {
     m_filename = std::move(filename);
-    QImage image(m_filename);
+    QImage image = QImage(m_filename).convertToFormat(QImage::Format_RGB888);
 
-    m_data = std::make_shared<ImageData>(Image{image.bits(), static_cast<unsigned int>(image.width()),
+    m_data = std::make_shared<ImageData>(Image{imageToRawData(image), static_cast<unsigned int>(image.width()),
                                                static_cast<unsigned int>(image.height())});
     Q_EMIT dataUpdated(0);
     Q_EMIT onValueChanged(m_data);
