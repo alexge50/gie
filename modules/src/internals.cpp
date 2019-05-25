@@ -25,5 +25,7 @@ BOOST_PYTHON_MODULE(internals)
     class_<Image>("Image", init<unsigned, unsigned >())
             .def("__copy__", copyObject<Image>)
             .def("pixel_at", &Image::pixelAt)
-            .def("set_pixel", &Image::setPixel);
+            .def("set_pixel", &Image::setPixel)
+            .def("width", &Image::width_)
+            .def("height", &Image::height_);
 }

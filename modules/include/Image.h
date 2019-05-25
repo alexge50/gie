@@ -42,6 +42,11 @@ public:
         std::tie(pixel[0], pixel[1], pixel[2]) = std::make_tuple(color.r, color.g, color.b);
     }
 
+    const unsigned width, height;
+
+    auto width_() { return width; }
+    auto height_() { return height; }
+
 private:
     std::size_t index(unsigned row, unsigned column)
     {
@@ -49,7 +54,6 @@ private:
     }
 
 private:
-    unsigned width, height;
     std::vector<uint8_t> data;
 };
 
