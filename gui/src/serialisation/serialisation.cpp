@@ -5,17 +5,16 @@
 #ifndef GUI_SERIALISE_H
 #define GUI_SERIALISE_H
 
-#include "../gie/GieNodeDataModel.h"
-#include <nodes/FlowScene>
+#include "serialisation.h"
 
-#include <QtCore/QJsonArray>
-#include <QtCore/QJsonValue>
-#include <QtCore/QJsonObject>
 #include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
+#include <QtCore/QJsonArray>
+#include <QtCore/QJsonValueRef>
 
-#include <iostream>
+#include <nodes/Node>
 
-auto serialise(const QtNodes::FlowScene& scene)
+QJsonObject serialise(const QtNodes::FlowScene& scene)
 {
     QJsonObject json;
 
@@ -36,7 +35,21 @@ auto serialise(const QtNodes::FlowScene& scene)
     json["connections"] = connections;
 
 
-    return QJsonDocument{json}.toJson();
+    return json;
 }
+
+void deserialise(QtNodes::FlowScene& scene, const QJsonObject& json)
+{
+    scene.clearScene();
+
+    auto nodes = json["nodes"].toArray();
+    for(QJsonValueRef node: nodes)
+        scene.restoreNode(node.toObject());
+
+    auto connections = json["connections"].toArray();
+    for(QJsonValueRef connection: connections)
+        scene.restoreConnection(connection.toObject());
+}
+
 
 #endif //GUI_SERIALISE_H
