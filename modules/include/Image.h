@@ -53,6 +53,8 @@ public:
     auto width_() { return width; }
     auto height_() { return height; }
 
+    const uint8_t* raw() const { return data.data(); }
+
 private:
     std::size_t index(unsigned row, unsigned column)
     {
