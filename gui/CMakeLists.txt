@@ -62,6 +62,10 @@ set(SOURCE
         src/filepicker/filepicker.h
         src/gie/SourceNodeDataModel/ImageSourceDataModel.cpp
         src/gie/SourceNodeDataModel/ImageSourceDataModel.h
+        src/gie/DisplayNodeDataModel/ImageDisplayDataModel.cpp
+        src/gie/DisplayNodeDataModel/ImageDisplayDataModel.h
+        src/imageviewer/imageviewer.cpp
+        src/imageviewer/imageviewer.h
 )
 
 
