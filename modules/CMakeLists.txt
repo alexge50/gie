@@ -13,7 +13,7 @@ target_link_libraries(internals ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 target_include_directories(internals PRIVATE include/ ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS})
 
 install(TARGETS internals DESTINATION modules)
-install(FILES modules/arithmetic.py modules/colors.py modules/string.py DESTINATION modules)
+install(FILES modules/arithmetic.py modules/colors.py modules/string.py modules/images.py DESTINATION modules)
 
 add_library(modules INTERFACE)
 include(GNUInstallDirs)

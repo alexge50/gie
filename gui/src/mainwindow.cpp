@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_program.import("modules.arithmetic");
     m_program.import("modules.string");
     m_program.import("modules.colors");
+    m_program.import("modules.images");
 
     setCentralWidget(m_editor = new Editor(m_program));
 
