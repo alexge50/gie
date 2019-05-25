@@ -30,6 +30,12 @@ public:
         std::memcpy(this->data.data(), data, N_CHANNELS * width * height);
     }
 
+    Image(std::vector<uint8_t> data, unsigned width, unsigned height):
+        width{width},
+        height{height},
+        data{std::move(data)}
+    {}
+
     Color pixelAt(unsigned row, unsigned column)
     {
         uint8_t* pixel = &data[index(row, column)];
