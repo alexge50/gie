@@ -18,6 +18,8 @@
 
 void deserialise(QtNodes::FlowScene& scene, const QByteArray& data)
 {
+    scene.clearScene();
+
     QJsonObject json = QJsonDocument::fromJson(data).object();
 
     auto nodes = json["nodes"].toArray();
