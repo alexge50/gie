@@ -136,7 +136,7 @@ Project loadProject(QString directory, QtNodes::FlowScene& scene)
 
     QJsonObject json = QJsonDocument::fromJson(data).object();
 
-    deserialise(scene, json["scene"].toObject());
-
-    return Project{scene, directory, std::move(json)};
+    auto project = Project{scene, directory, json};
+    deserialise(scene, project, json["scene"].toObject());
+    return project;
 }

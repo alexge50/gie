@@ -9,7 +9,9 @@
 
 #include <QtCore/QJsonObject>
 
+#include "src/Project.h"
+
 auto serialise(const QtNodes::FlowScene& scene) -> QJsonObject;
-void deserialise(QtNodes::FlowScene& scene, const QJsonObject& json);
+void deserialise(QtNodes::FlowScene& scene, const Project& project, const QJsonObject& json);
 
 #endif //GUI_SERIALISATION_H

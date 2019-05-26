@@ -13,6 +13,7 @@
 #include <QtCore/QJsonValueRef>
 
 #include <nodes/Node>
+#include <src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.h>
 
 QJsonObject serialise(const QtNodes::FlowScene& scene)
 {
@@ -38,17 +39,48 @@ QJsonObject serialise(const QtNodes::FlowScene& scene)
     return json;
 }
 
-void deserialise(QtNodes::FlowScene& scene, const QJsonObject& json)
+void deserialise(QtNodes::FlowScene& scene, const Project& project, const QJsonObject& json)
 {
     scene.clearScene();
 
+    std::map<QUuid, QtNodes::Node*> managedNodes;
+
     auto nodes = json["nodes"].toArray();
     for(QJsonValueRef node: nodes)
-        scene.restoreNode(node.toObject());
+    {
+        if(node.toObject()["model"].toObject()["name"].toString() != "ManagedImageSource")
+            scene.restoreNode(node.toObject());
+        else
+        {
+            QUuid id = node.toObject()["id"].toString();
+            const ProjectImage& projectImage = project.importedImages().find(QUuid{node.toObject()["model"].toObject()["uuid"].toString()})->second;
+            QPointF position = {
+                    node.toObject()["position"].toObject()["x"].toDouble(),
+                    node.toObject()["position"].toObject()["y"].toDouble()
+            };
+
+            auto& node = scene.createNode(std::make_unique<ManagedImageSourceDataModel>(projectImage));
+            managedNodes[id] = &node;
+            scene.setNodePosition(node, position);
+        }
+    }
 
     auto connections = json["connections"].toArray();
     for(QJsonValueRef connection: connections)
-        scene.restoreConnection(connection.toObject());
+    {
+        QUuid id = connection.toObject()["out_id"].toString();
+        if(managedNodes.find(id) == managedNodes.end())
+            scene.restoreConnection(connection.toObject());
+        else
+        {
+            QUuid inId = connection.toObject()["in_id"].toString();
+            int inIndex = connection.toObject()["in_index"].toInt();
+            int outIndex = connection.toObject()["out_index"].toInt();
+
+
+            scene.createConnection(*scene.nodes().find(inId)->second, inIndex, *managedNodes[id], outIndex);
+        }
+    }
 }
 
 
