@@ -32,13 +32,13 @@ MainWindow::MainWindow(QWidget *parent) :
     setCentralWidget(m_editor = new Editor(m_program));
 
     QObject::connect(
-            ui->actionSave, &QAction::triggered,
-            m_editor, &Editor::onSave
+            ui->actionNewProject, &QAction::triggered,
+            m_editor, &Editor::onNewProject
     );
 
     QObject::connect(
-            ui->actionLoad, &QAction::triggered,
-            m_editor, &Editor::onLoad
+            ui->actionOpenProject, &QAction::triggered,
+            m_editor, &Editor::onOpenProject
     );
 
 

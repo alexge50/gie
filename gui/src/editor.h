@@ -5,12 +5,16 @@
 #ifndef GUI_EDITOR_H
 #define GUI_EDITOR_H
 
+#include <memory>
+
 #include <gie/Program.h>
-#undef B0
 
 #include <QWidget>
+#include <QLabel>
+
 #include <nodes/FlowScene>
 #include <nodes/FlowView>
+#include "Project.h"
 
 class Editor: public QWidget
 {
@@ -22,18 +26,26 @@ public:
     void setRegistry(std::shared_ptr<QtNodes::DataModelRegistry>);
 
 public Q_SLOTS:
-    void onSave();
-    void onLoad();
+    void onNewProject();
+    void onOpenProject();
 
 private Q_SLOTS:
+    void onNewProject_(QDir, QString name);
+
     void onConnectionCreated(const QtNodes::Connection& c);
     void onConnectionDeleted(const QtNodes::Connection& c);
     void nodeCreated(QtNodes::Node &n);
 
 private:
+    void keyPressEvent(QKeyEvent*) override;
+
+private:
     Program& m_program;
+    std::unique_ptr<Project> m_project;
+
     QtNodes::FlowScene* m_scene;
     QtNodes::FlowView* m_view;
+    QLabel* m_noProjectMessage;
 };
 
 

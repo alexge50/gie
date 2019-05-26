@@ -1,12 +1,14 @@
+#include <utility>
+
 //
 // Created by alex on 5/18/19.
 //
 
 #include <gie/NodeLogic.h>
-#undef B0
 
 #include "editor.h"
 #include <QVBoxLayout>
+#include <QKeyEvent>
 
 #include "gie/GieDataModelRegistry.h"
 #include "gie/GieNodeDataModel.h"
@@ -15,8 +17,11 @@
 #include <nodes/Node>
 #include <QtWidgets/QFileDialog>
 
-#include "serialisation/serialise.h"
-#include "serialisation/deserialise.h"
+#include "src/serialisation/serialisation.h"
+
+#include "src/newproject/newproject.h"
+
+#include "Project.h"
 
 Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{program}
 {
@@ -31,6 +36,7 @@ Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{pr
     m_view->setSceneRect(-640000, -640000, 640000, 640000);
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_view->hide();
 
     vlayout->addWidget(m_view);
 
@@ -43,6 +49,8 @@ Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{pr
             m_scene, &QtNodes::FlowScene::connectionDeleted,
             this, &Editor::onConnectionDeleted
     );
+
+    vlayout->addWidget(m_noProjectMessage = new QLabel("No project loaded. Consider loading a project: Files > Open Project"));
 }
 
 void Editor::onConnectionCreated(const QtNodes::Connection& c)
@@ -87,39 +95,41 @@ void Editor::nodeCreated(QtNodes::Node &n)
         );*/
 }
 
-void Editor::onSave()
+void Editor::onNewProject()
 {
-    auto filename = QFileDialog::getSaveFileName(
-            this,
-            tr("Save gie project file"),
-            QDir::homePath(),
-            tr("*.gie")
-    );
-
-    if(QFile file(filename); file.open(QIODevice::ReadWrite))
-    {
-        auto data = serialise(*m_scene);;
-        file.write(data);
-    }
+    auto dialog = new NewProject();
+    connect(dialog, &NewProject::newProject, this, &Editor::onNewProject_);
+    dialog->show();
 }
 
-void Editor::onLoad()
+void Editor::onNewProject_(QDir directory, QString name)
 {
-    auto filename = QFileDialog::getOpenFileName(
+    m_project = std::make_unique<Project>(newProject(directory, std::move(name), *m_scene));
+    m_noProjectMessage->hide();
+    m_view->show();
+}
+
+void Editor::onOpenProject()
+{
+    auto directory = QFileDialog::getExistingDirectory(
             this,
-            tr("Open gie project file"),
-            QDir::homePath(),
-            tr("*.gie")
+            tr("Open gie project"),
+            QDir::homePath()
     );
 
-    if(QFile file(filename); file.open(QIODevice::ReadOnly))
-    {
-        auto data = file.readAll();
-        deserialise(*m_scene, data);
-    }
+    m_project = std::make_unique<Project>(loadProject(directory, *m_scene));
+
+    m_noProjectMessage->hide();
+    m_view->show();
+}
+
+void Editor::keyPressEvent(QKeyEvent* e)
+{
+    if(e->key() == Qt::Key_S && (e->modifiers().testFlag(Qt::ControlModifier)))
+        m_project->save();
 }
 
 void Editor::setRegistry(std::shared_ptr<QtNodes::DataModelRegistry> registry)
 {
-    m_scene->setRegistry(registry);
+    m_scene->setRegistry(std::move(registry));
 }

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>938</width>
+    <width>1090</width>
     <height>640</height>
    </rect>
   </property>
@@ -41,7 +41,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>938</width>
+     <width>1090</width>
      <height>28</height>
     </rect>
    </property>
@@ -49,8 +49,8 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionSave"/>
-    <addaction name="actionLoad"/>
+    <addaction name="actionNewProject"/>
+    <addaction name="actionOpenProject"/>
    </widget>
    <addaction name="menu1"/>
   </widget>
@@ -71,6 +71,16 @@
   <action name="actionLoad">
    <property name="text">
     <string>Load</string>
+   </property>
+  </action>
+  <action name="actionNewProject">
+   <property name="text">
+    <string>New Project</string>
+   </property>
+  </action>
+  <action name="actionOpenProject">
+   <property name="text">
+    <string>Open Project</string>
    </property>
   </action>
  </widget>
