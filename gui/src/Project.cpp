@@ -25,7 +25,7 @@ Project::Project(QtNodes::FlowScene& scene,QDir projectDirectory, QJsonObject js
     m_projectDirectory{projectDirectory},
     m_name{m_projectDirectory.dirName()}
 {
-    deserialiseImages(json);
+    deserialiseImages(json["images"]);
 }
 
 void Project::save()
