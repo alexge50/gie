@@ -55,6 +55,8 @@ void Project::importImage(QString filename, QString name)
                 QImage(absoluteImportedFilename)
         };
     }
+
+    save();
 }
 
 QJsonValue Project::serialiseImages()
