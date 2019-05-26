@@ -35,6 +35,8 @@ public:
     void save();
     void importImage(QString filename, QString name);
 
+    const std::map<QUuid, ProjectImage>& importedImages() const { return m_images; };
+
 private:
     QJsonValue serialiseImages();
     QJsonValue serialiseScripts();
