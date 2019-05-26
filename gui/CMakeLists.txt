@@ -77,6 +77,10 @@ set(SOURCE
         src/importimage/importimage.cpp
         src/importimage/importimage.h
         src/importimage/importimage.ui
+        src/importedimagesviewer/importedimagesviewer.cpp
+        src/importedimagesviewer/importedimagesviewer.h
+        src/importedimagesviewer/imagecell.cpp
+        src/importedimagesviewer/imagecell.h
 )
 
 
