@@ -33,6 +33,11 @@ void Project::save()
     QJsonObject json;
 
     json["scene"] = serialise(m_scene);
+    json["images"] = serialiseImages();
+    json["scripts"] = serialiseScripts();
+
+    if(QFile file(m_projectDirectory.absolutePath() + "/" + "gieprojectfile"); file.open(QIODevice::WriteOnly))
+        file.write(QJsonDocument(json).toJson());
 }
 
 void Project::importImage(QString filename, QString name)
