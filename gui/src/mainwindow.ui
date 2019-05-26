@@ -52,7 +52,14 @@
     <addaction name="actionNewProject"/>
     <addaction name="actionOpenProject"/>
    </widget>
+   <widget class="QMenu" name="menuProject">
+    <property name="title">
+     <string>Project</string>
+    </property>
+    <addaction name="actionImportImage"/>
+   </widget>
    <addaction name="menu1"/>
+   <addaction name="menuProject"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -81,6 +88,11 @@
   <action name="actionOpenProject">
    <property name="text">
     <string>Open Project</string>
+   </property>
+  </action>
+  <action name="actionImportImage">
+   <property name="text">
+    <string>Import Image</string>
    </property>
   </action>
  </widget>

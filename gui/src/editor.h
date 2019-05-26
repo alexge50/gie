@@ -32,9 +32,11 @@ Q_SIGNALS:
 public Q_SLOTS:
     void onNewProject();
     void onOpenProject();
+    void onImportImage();
 
 private Q_SLOTS:
     void onNewProject_(QDir, QString name);
+    void onImportImage_(QString name);
 
     void onConnectionCreated(const QtNodes::Connection& c);
     void onConnectionDeleted(const QtNodes::Connection& c);

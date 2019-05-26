@@ -21,6 +21,7 @@
 #include "src/serialisation/serialisation.h"
 
 #include "src/newproject/newproject.h"
+#include "src/importimage/importimage.h"
 
 #include "Project.h"
 
@@ -130,6 +131,21 @@ void Editor::keyPressEvent(QKeyEvent* e)
 {
     if(e->key() == Qt::Key_S && (e->modifiers().testFlag(Qt::ControlModifier)))
         m_project->save();
+}
+
+void Editor::onImportImage()
+{
+    auto dialog = new ImportImage();
+    connect(dialog, &ImportImage::importImage, this, &Editor::onImportImage_);
+    dialog->show();
+}
+
+void Editor::onImportImage_(QString path)
+{
+    QDir p{path};
+    QString filename = p.dirName();
+
+    m_project->importImage(path, filename);
 }
 
 void Editor::setRegistry(std::shared_ptr<QtNodes::DataModelRegistry> registry)

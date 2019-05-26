@@ -42,6 +42,11 @@ MainWindow::MainWindow(QWidget *parent) :
     );
 
     QObject::connect(
+            ui->actionImportImage, &QAction::triggered,
+            m_editor, &Editor::onImportImage
+    );
+
+    QObject::connect(
             m_editor, &Editor::attachDockWindow,
             this, &MainWindow::onAttachDockWindow
     );
