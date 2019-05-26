@@ -111,6 +111,8 @@ void Editor::onNewProject_(QDir directory, QString name)
     m_project = std::make_unique<Project>(newProject(directory, std::move(name), *m_scene));
     m_noProjectMessage->hide();
     m_view->show();
+
+    reloadImages();
 }
 
 void Editor::onOpenProject()
@@ -125,6 +127,8 @@ void Editor::onOpenProject()
 
     m_noProjectMessage->hide();
     m_view->show();
+
+    reloadImages();
 }
 
 void Editor::keyPressEvent(QKeyEvent* e)
@@ -146,9 +150,21 @@ void Editor::onImportImage_(QString path)
     QString filename = p.dirName();
 
     m_project->importImage(path, filename);
+    reloadImages();
 }
 
 void Editor::setRegistry(std::shared_ptr<QtNodes::DataModelRegistry> registry)
 {
     m_scene->setRegistry(std::move(registry));
+}
+
+void Editor::reloadImages()
+{
+    std::vector<ProjectImage> images;
+
+    images.reserve(m_project->importedImages().size());
+    for(const auto&[uuid, image]: m_project->importedImages())
+        images.push_back(image);
+
+    Q_EMIT importedImagesReload(images);
 }

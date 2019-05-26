@@ -28,6 +28,7 @@ public:
 
 Q_SIGNALS:
     void attachDockWindow(QDockWidget*);
+    void importedImagesReload(const std::vector<ProjectImage>&);
 
 public Q_SLOTS:
     void onNewProject();
@@ -44,6 +45,7 @@ private Q_SLOTS:
 
 private:
     void keyPressEvent(QKeyEvent*) override;
+    void reloadImages();
 
 private:
     Program& m_program;

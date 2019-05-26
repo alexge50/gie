@@ -12,6 +12,7 @@
 #include <QMenuBar>
 #include "editor.h"
 #include "symbolviewer/symbolviewer.h"
+#include "importedimagesviewer/importedimagesviewer.h"
 #include "src/gie/GieDataModelRegistry.h"
 
 namespace Ui {
@@ -42,6 +43,7 @@ private:
     Editor* m_editor;
 
     SymbolViewer* m_symbolViewer;
+    ImportedImagesViewer* m_imageViewer;
     std::shared_ptr<GieDataModelRegistry> m_modelRegistry;
 };
 

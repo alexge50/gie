@@ -64,6 +64,17 @@ MainWindow::MainWindow(QWidget *parent) :
     );
 
     reloadSymbols();
+
+    QDockWidget* imageViewerDock = new QDockWidget("ImportedImages", this);
+    m_imageViewer = new ImportedImagesViewer(imageViewerDock);
+
+    imageViewerDock->setWidget(m_imageViewer);
+    addDockWidget(Qt::LeftDockWidgetArea, imageViewerDock);
+
+    QObject::connect(
+            m_editor, &Editor::importedImagesReload,
+            m_imageViewer, &ImportedImagesViewer::onImagesUpdate
+    );
 }
 
 MainWindow::~MainWindow()
