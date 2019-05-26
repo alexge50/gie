@@ -123,6 +123,7 @@ Project newProject(QDir dir, QString name, QtNodes::FlowScene& scene)
 Project loadProject(QString directory, QtNodes::FlowScene& scene)
 {
     QFile file(directory + "/gieprojectfile");
+    file.open(QIODevice::ReadOnly);
 
     auto data = file.readAll();
 
