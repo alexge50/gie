@@ -41,6 +41,11 @@ MainWindow::MainWindow(QWidget *parent) :
             m_editor, &Editor::onOpenProject
     );
 
+    QObject::connect(
+            m_editor, &Editor::attachDockWindow,
+            this, &MainWindow::onAttachDockWindow
+    );
+
 
     QDockWidget* symbolViewerDock = new QDockWidget("SymbolViewer", this);
     m_symbolViewer = new SymbolViewer(symbolViewerDock);
@@ -72,4 +77,10 @@ void MainWindow::reloadSymbols()
         symbols[category].push_back(name);
 
     Q_EMIT onSymbolsImported(symbols);
+}
+
+void MainWindow::onAttachDockWindow(QDockWidget* dock)
+{
+    dock->setParent(this);
+    addDockWidget(Qt::LeftDockWidgetArea, dock);
 }

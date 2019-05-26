@@ -12,6 +12,7 @@
 
 #include "gie/GieDataModelRegistry.h"
 #include "gie/GieNodeDataModel.h"
+#include "gie/DisplayNodeDataModel/PreviewImageDisplayDataModel.h"
 
 #include <nodes/Connection>
 #include <nodes/Node>
@@ -48,6 +49,11 @@ Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{pr
     QObject::connect(
             m_scene, &QtNodes::FlowScene::connectionDeleted,
             this, &Editor::onConnectionDeleted
+    );
+
+    QObject::connect(
+            m_scene, &QtNodes::FlowScene::nodeCreated,
+            this, &Editor::nodeCreated
     );
 
     vlayout->addWidget(m_noProjectMessage = new QLabel("No project loaded. Consider loading a project: Files > Open Project"));
@@ -88,11 +94,8 @@ void Editor::onConnectionDeleted(const QtNodes::Connection& c)
 
 void Editor::nodeCreated(QtNodes::Node &n)
 {
-    /*if(auto* p = dynamic_cast<NumberSourceDataModel*>(n.nodeDataModel()); p != nullptr)
-        QObject::connect(
-            p, &NumberSourceDataModel::onValueChanged,
-            this, &Editor::
-        );*/
+    if(auto* p = dynamic_cast<PreviewImageDisplayDataModel*>(n.nodeDataModel()); p != nullptr)
+        Q_EMIT(attachDockWindow(p->dockWidget()));
 }
 
 void Editor::onNewProject()

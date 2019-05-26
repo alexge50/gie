@@ -29,6 +29,9 @@ public:
 Q_SIGNALS:
     void onSymbolsImported(const std::map<QString, std::vector<QString>>&);
 
+private Q_SLOTS:
+    void onAttachDockWindow(QDockWidget*);
+
 private:
     void reloadSymbols();
 

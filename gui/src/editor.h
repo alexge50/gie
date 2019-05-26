@@ -10,6 +10,7 @@
 #include <gie/Program.h>
 
 #include <QWidget>
+#include <QDockWidget>
 #include <QLabel>
 
 #include <nodes/FlowScene>
@@ -24,6 +25,9 @@ public:
 
 public:
     void setRegistry(std::shared_ptr<QtNodes::DataModelRegistry>);
+
+Q_SIGNALS:
+    void attachDockWindow(QDockWidget*);
 
 public Q_SLOTS:
     void onNewProject();
