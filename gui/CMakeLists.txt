@@ -35,13 +35,13 @@ set(SOURCE
         src/gie/SourceNodeDataModel/NumberSourceDataModel.h
         src/gie/SourceNodeDataModel/NumberSourceDataModel.h
         src/gie/types/ColorData.h
-        src/serialisation/serialise.h
-        src/serialisation/deserialise.h
+        src/serialisation/serialisation.cpp
+        src/serialisation/serialisation.h
         src/colorpicker/colorpicker.cpp
         src/colorpicker/colorpicker.h
         src/gie/SourceNodeDataModel/ColorSourceDataModel.cpp
         src/gie/SourceNodeDataModel/ColorSourceDataModel.h
-        src/serialisation/deserialise.h
+        src/serialisation/serialisation.h
         src/symbolviewer/symbolviewer.cpp
         src/symbolviewer/symbolviewer.h
         src/gie/DisplayNodeDataModel/NumberDisplayDataModel.cpp
@@ -66,6 +66,12 @@ set(SOURCE
         src/gie/DisplayNodeDataModel/ImageDisplayDataModel.h
         src/imageviewer/imageviewer.cpp
         src/imageviewer/imageviewer.h
+        src/Project.cpp src/Project.h
+        src/newproject/newproject.cpp
+        src/newproject/newproject.h
+        src/newproject/newproject.ui
+        src/directorypicker/directorypicker.cpp
+        src/directorypicker/directorypicker.h
 )
 
 
