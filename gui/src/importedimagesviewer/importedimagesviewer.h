@@ -19,7 +19,7 @@ public:
     ImportedImagesViewer(QWidget* parent = nullptr);
 
 Q_SIGNALS:
-    void imagePressed(const QImage&);
+    void imagePressed(const ProjectImage&);
 
 public Q_SLOTS:
     void onImagesUpdate(const std::vector<ProjectImage>&);
@@ -30,7 +30,7 @@ private Q_SLOTS:
 private:
     QTableWidget* m_table;
 
-    std::vector<ImageCell*> m_rows;
+    std::vector<ProjectImage> m_rows;
 };
 
 

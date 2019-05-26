@@ -3,6 +3,7 @@
 //
 
 #include <utility>
+#include <memory>
 
 #include <gie/NodeLogic.h>
 
@@ -13,6 +14,7 @@
 #include "gie/GieDataModelRegistry.h"
 #include "gie/GieNodeDataModel.h"
 #include "gie/DisplayNodeDataModel/PreviewImageDisplayDataModel.h"
+#include "gie/SourceNodeDataModel/ManagedImageSourceDataModel.h"
 
 #include <nodes/Connection>
 #include <nodes/Node>
@@ -99,9 +101,9 @@ void Editor::nodeCreated(QtNodes::Node &n)
         Q_EMIT(attachDockWindow(p->dockWidget()));
 }
 
-void Editor::addImageNode(const QImage&)
+void Editor::addImageNode(const ProjectImage& projectImage)
 {
-
+    m_scene->createNode(std::make_unique<ManagedImageSourceDataModel>(projectImage));
 }
 
 void Editor::onNewProject()
