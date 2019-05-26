@@ -72,6 +72,8 @@ set(SOURCE
         src/newproject/newproject.ui
         src/directorypicker/directorypicker.cpp
         src/directorypicker/directorypicker.h
+        src/gie/DisplayNodeDataModel/PreviewImageDisplayDataModel.cpp
+        src/gie/DisplayNodeDataModel/PreviewImageDisplayDataModel.h
 )
 
 
