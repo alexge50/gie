@@ -81,6 +81,8 @@ set(SOURCE
         src/importedimagesviewer/importedimagesviewer.h
         src/importedimagesviewer/imagecell.cpp
         src/importedimagesviewer/imagecell.h
+        src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.cpp
+        src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.h
 )
 
 
