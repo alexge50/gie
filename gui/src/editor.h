@@ -35,6 +35,8 @@ public Q_SLOTS:
     void onOpenProject();
     void onImportImage();
 
+    void addImageNode(const QImage&);
+
 private Q_SLOTS:
     void onNewProject_(QDir, QString name);
     void onImportImage_(QString name);

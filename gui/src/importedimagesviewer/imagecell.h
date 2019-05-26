@@ -16,8 +16,7 @@ class ImageCell: public QWidget
 public:
     ImageCell(QString name, QImage image, QWidget* parent = nullptr);
 
-Q_SIGNALS:
-    void triggered(const QImage&);
+    const QImage& image() { return m_image; }
 
 protected:
     void resizeEvent(QResizeEvent*) override;

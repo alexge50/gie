@@ -75,6 +75,11 @@ MainWindow::MainWindow(QWidget *parent) :
             m_editor, &Editor::importedImagesReload,
             m_imageViewer, &ImportedImagesViewer::onImagesUpdate
     );
+
+    QObject::connect(
+            m_imageViewer, &ImportedImagesViewer::imagePressed,
+            m_editor, &Editor::addImageNode
+    );
 }
 
 MainWindow::~MainWindow()

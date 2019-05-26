@@ -25,10 +25,12 @@ public Q_SLOTS:
     void onImagesUpdate(const std::vector<ProjectImage>&);
 
 private Q_SLOTS:
-    void onImagePressed(const QImage&);
+    void cellTriggered(int row, int column);
 
 private:
     QTableWidget* m_table;
+
+    std::vector<ImageCell*> m_rows;
 };
 
 

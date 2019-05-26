@@ -99,6 +99,11 @@ void Editor::nodeCreated(QtNodes::Node &n)
         Q_EMIT(attachDockWindow(p->dockWidget()));
 }
 
+void Editor::addImageNode(const QImage&)
+{
+
+}
+
 void Editor::onNewProject()
 {
     auto dialog = new NewProject();

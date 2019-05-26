@@ -13,6 +13,8 @@ ImportedImagesViewer::ImportedImagesViewer(QWidget *parent):
 {
     auto layout = new QVBoxLayout(this);
     layout->addWidget(m_table);
+
+    connect(m_table, &QTableWidget::cellDoubleClicked, this, &ImportedImagesViewer::cellTriggered);
 }
 
 void ImportedImagesViewer::onImagesUpdate(const std::vector<ProjectImage>& images)
@@ -30,14 +32,16 @@ void ImportedImagesViewer::onImagesUpdate(const std::vector<ProjectImage>& image
     int row = 0;
     for(const auto&[uuid, name, image]: images)
     {
-        m_table->setCellWidget(row, 0, new ImageCell(name, image, m_table));
+        auto cell = new ImageCell(name, image, m_table);
+        m_table->setCellWidget(row, 0, cell);
+        m_rows.push_back(cell);
         row++;
     }
 
     m_table->resizeRowsToContents();
 }
 
-void ImportedImagesViewer::onImagePressed(const QImage& image)
+void ImportedImagesViewer::cellTriggered(int row, int column)
 {
-    Q_EMIT imagePressed(image);
+    Q_EMIT imagePressed(m_rows[row]->image());
 }
