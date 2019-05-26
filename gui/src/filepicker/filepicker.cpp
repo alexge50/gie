@@ -27,6 +27,11 @@ FilePicker::FilePicker(QString filter, QWidget *parent):
     );
 }
 
+void FilePicker::setFile(QString name)
+{
+    m_filenameEdit->setText(name);
+}
+
 void FilePicker::selectFile()
 {
     m_filename = QFileDialog::getOpenFileName(

@@ -15,6 +15,8 @@ Q_OBJECT
 public:
     explicit FilePicker(QString filter = "*", QWidget *parent = nullptr);
 
+    void setFile(QString name);
+
 Q_SIGNALS:
     void fileChanged(QString name);
 

@@ -32,6 +32,7 @@ void ImageSourceDataModel::restore(QJsonObject const &p)
 
     if (!filename.isUndefined())
     {
+        m_filePicker->setFile(filename.toString());
         onFileChanged(filename.toString());
     }
 }
