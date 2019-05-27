@@ -12,12 +12,9 @@
 
 #include <iostream>
 
-std::optional<Value> Program::run()
+std::vector<Result> Program::run()
 {
-    auto result = executeGraph(m_graph);
-    if(!result.empty())
-        return result[0];
-    return std::nullopt;
+    return executeGraph(m_graph);
 }
 
 NodeId Program::addNode(const Node &node)
@@ -38,6 +35,21 @@ void Program::removeNode(NodeId id)
 const Node& Program::getNode(NodeId id) const
 {
     return ::getNode(m_graph, id).node;
+}
+
+void Program::addResult(std::string tag, NodeId id)
+{
+    ::addResult(m_graph, tag, id);
+}
+
+void Program::editResult(std::string tag, NodeId id)
+{
+    ::editResult(m_graph, tag, id);
+}
+
+void Program::removeResult(std::string tag)
+{
+    ::removeResult(m_graph, tag);
 }
 
 void Program::import(const std::string &module)
