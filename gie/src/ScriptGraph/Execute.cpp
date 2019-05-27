@@ -94,18 +94,20 @@ std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const ScriptGraph::gr
     return stack;
 }
 
-std::vector<Value> executeGraph(ScriptGraph &graph)
+std::vector<std::pair<std::string, Value>> executeGraph(ScriptGraph &graph)
 {
-    std::vector<Value> result;
+    std::vector<std::pair<std::string, Value>> results;
     auto runtimeOrder = calculateRuntimeOrder(graph.structure);
 
     for(auto [node, unused]: runtimeOrder)
     {
         auto r = executeNode(graph, node);
         getNode(graph, node).cache = r;
-        if(unused)
-            result.push_back(r);
     }
 
-    return result;
+    results.reserve(graph.results.size());
+    for(const auto& [tag, nodeId]: graph.results)
+        results.emplace_back(tag, getNode(graph, nodeId).cache);
+
+    return results;
 }

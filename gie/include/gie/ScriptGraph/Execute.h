@@ -18,6 +18,6 @@ std::optional<Value> executeNode(const Node& node);
 Value executeNode(ScriptGraph& graph, NodeId nodeId);
 std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const ScriptGraph::graph& graph);
 
-std::vector<Value> executeGraph(ScriptGraph& graph);
+std::vector<std::pair<std::string, Value>> executeGraph(ScriptGraph& graph);
 
 #endif //GIE_LIBRARY_EXECUTE_H
