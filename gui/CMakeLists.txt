@@ -83,6 +83,7 @@ set(SOURCE
         src/importedimagesviewer/imagecell.h
         src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.cpp
         src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.h
+        resources/resources.qrc
 )
 
 

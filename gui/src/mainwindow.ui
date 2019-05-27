@@ -68,6 +68,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionBuildImages"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionSave">
@@ -95,8 +96,30 @@
     <string>Import Image</string>
    </property>
   </action>
+  <action name="actionBuildImages">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/icons/export.png</normaloff>:/icons/export.png</iconset>
+   </property>
+   <property name="text">
+    <string>export</string>
+   </property>
+   <property name="iconText">
+    <string>export</string>
+   </property>
+   <property name="toolTip">
+    <string>Export Image</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
