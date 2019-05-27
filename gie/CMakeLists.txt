@@ -24,7 +24,7 @@ set(LIBRARY_SOURCES
         include/gie/Result.h
 )
 
-find_package(Boost COMPONENTS python3 graph REQUIRED)
+find_package(Boost COMPONENTS python3 REQUIRED)
 find_package(PythonLibs REQUIRED)
 
 add_library(gie STATIC ${LIBRARY_SOURCES})
