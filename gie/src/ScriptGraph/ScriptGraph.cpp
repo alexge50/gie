@@ -38,18 +38,6 @@ NodeId addNode(ScriptGraph& graph, const Node& node)
     graph.nodes.emplace_back(node, id);
     graph.cache.emplace_back(std::nullopt, id);
 
-    boost::add_edge(id, id, graph.structure);
-
-    for(auto &argument: node.m_logic.m_argument)
-    {
-        if(std::holds_alternative<NodeId>(argument))
-        {
-            auto callee = std::get<NodeId>(argument);
-            if(lookup(graph, callee) != -1)
-                boost::add_edge(std::get<NodeId>(argument), id, graph.structure);
-        }
-    }
-
     return id;
 }
 
@@ -61,20 +49,6 @@ void editNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id, [[m
     {
         Node& node = graph.nodes[r].first;
         node = newNode;
-
-        boost::remove_vertex(id, graph.structure);
-
-        boost::add_edge(id, id, graph.structure);
-
-        for (auto &argument: node.m_logic.m_argument)
-        {
-            if (std::holds_alternative<NodeId>(argument))
-            {
-                auto callee = std::get<NodeId>(argument);
-                if (lookup(graph, callee) != -1)
-                    boost::add_edge(std::get<NodeId>(argument), id, graph.structure);
-            }
-        }
     }
 }
 
@@ -83,7 +57,6 @@ void removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)//
     auto r = lookup(graph, id);
     graph.nodes.erase(graph.nodes.begin() + r);
     graph.cache.erase(graph.cache.begin() + r);
-    boost::remove_vertex(id, graph.structure);
 }
 
 void addResult(ScriptGraph& graph, std::string tag, NodeId id)

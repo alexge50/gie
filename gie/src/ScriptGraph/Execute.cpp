@@ -11,9 +11,11 @@
 #include <gie/PythonContext.h>
 
 #include <boost/python.hpp>
+#include <boost/graph/topological_sort.hpp>
 
 #include <algorithm>
 #include <utility>
+#include <queue>
 
 std::optional<Value> executeNode(const Node& node)
 {
@@ -33,7 +35,7 @@ std::optional<Value> executeNode(const Node& node)
     return Value{object{handle(borrowed(p))}};
 }
 
-Value executeNode(ScriptGraph &graph, NodeId nodeId)
+void executeNode(ScriptGraph &graph, NodeId nodeId)
 {
     using namespace boost::python;
 
@@ -43,7 +45,11 @@ Value executeNode(ScriptGraph &graph, NodeId nodeId)
     for(const auto &argument: node_.node.m_logic.m_argument)
     {
         if(std::holds_alternative<NodeId>(argument))
+        {
+            if(!getNode(graph, std::get<NodeId>(argument)).cache.has_value())
+                executeNode(graph, std::get<NodeId>(argument));
             arguments.append(object{getNode(graph, std::get<NodeId>(argument)).cache->m_object});
+        }
         else
             arguments.append(std::get<Value>(argument).m_object);
     }
@@ -52,62 +58,24 @@ Value executeNode(ScriptGraph &graph, NodeId nodeId)
     object r{handle(borrowed(p))};
 
     node_.cache = Value{r};
-
-    return Value{r};
-}
-
-static void topologicalSort(
-        const ScriptGraph::graph &structure,
-        NodeId node,
-        std::unordered_map<NodeId, bool> &visited,
-        std::vector<std::pair<NodeId, bool>> &stack)
-{
-    bool unused = true;
-    visited[node] = true;
-
-    for(auto [it, end] = boost::vertices(structure); it != end; it++)
-    {
-        if(!visited[*it])
-        {
-            topologicalSort(structure, *it, visited, stack);
-            unused = false;
-        }
-
-    }
-
-    stack.emplace_back(node, unused);
-}
-
-std::vector<std::pair<NodeId, bool>> calculateRuntimeOrder(const ScriptGraph::graph& structure)
-{
-    std::vector<std::pair<NodeId, bool>> stack;
-    std::unordered_map<NodeId, bool> visited;
-
-    for(auto [it, end] = boost::vertices(structure); it != end; it++)
-    {
-        if(!visited[*it])
-            topologicalSort(structure, *it, visited, stack);
-    }
-
-    std::reverse(stack.begin(), stack.end());
-
-    return stack;
 }
 
 std::vector<Result> executeGraph(ScriptGraph &graph)
 {
-    std::vector<Result> results;
-    auto runtimeOrder = calculateRuntimeOrder(graph.structure);
+    for(auto& cache: graph.cache)
+        cache.first = std::nullopt;
 
-    for(auto [node, unused]: runtimeOrder)
+    for(const auto& node: graph.nodes)
     {
-        auto r = executeNode(graph, node);
-        getNode(graph, node).cache = r;
+        executeNode(graph, node.second);
     }
 
+    std::vector<Result> results;
+
+    const auto& constGraph = graph;
     results.reserve(graph.results.size());
-    for(const auto& [tag, nodeId]: graph.results)
-        results.push_back({tag, getNode(graph, nodeId).cache.value()});
+    for(const auto& p: constGraph.results)
+        results.push_back({p.first, getNode(constGraph, p.second).cache.value()});
 
     return results;
 }

@@ -18,9 +18,6 @@ struct ScriptGraph
     std::vector<std::pair<Node, NodeId>> nodes;
     std::vector<std::pair<std::optional<Value>, NodeId>> cache;
     std::vector<std::pair<std::string, NodeId>> results;
-
-    using graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS>;
-    graph structure;
 };
 
 struct NodeCachePair
