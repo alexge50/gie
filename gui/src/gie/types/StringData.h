@@ -5,14 +5,16 @@
 #ifndef GUI_STRINGDATA_H
 #define GUI_STRINGDATA_H
 
-#include <nodes/NodeData>
+#include <boost/python.hpp>
+#include "TypeData.h"
 
-class StringData: public QtNodes::NodeData
+class StringData: public TypeData
 {
 public:
     explicit StringData() = default;
-    StringData(std::string data): m_data{std::move(data)} {}
-    StringData(const QString& data): m_data(data.toUtf8().constData()) {}
+    StringData(const std::string& data): m_data{boost::python::object(data)} {}
+    StringData(const QString& data): m_data{boost::python::object(data.toUtf8().constData())} {}
+    StringData(const Value& data): m_data{data} {}
 
     StringData(const StringData&) = default;
     StringData(StringData&&) = default;
@@ -24,17 +26,18 @@ public:
 
     const std::string& string() const
     {
-        return m_data;
+        return boost::python::extract<std::string>(m_data.m_object);
     }
 
     QString asText() const
     {
-        return QString::fromStdString(m_data);
+        return QString::fromStdString(boost::python::extract<std::string>(m_data.m_object));
     }
 
+    Value value() override { return m_data; }
 
 private:
-    std::string m_data;
+    Value m_data;
 };
 
 

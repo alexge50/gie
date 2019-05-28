@@ -92,6 +92,7 @@ set(SOURCE
         src/exportimage/exportimage.ui
         src/savefilepicker/savefilepicker.cpp
         src/savefilepicker/savefilepicker.h
+        src/gie/types/ExtractTypes.h
 )
 
 

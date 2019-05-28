@@ -5,13 +5,15 @@
 #ifndef GUI_NUMBERDATA_H
 #define GUI_NUMBERDATA_H
 
-#include <nodes/NodeData>
+#include <boost/python.hpp>
+#include "TypeData.h"
 
-class NumberData: public QtNodes::NodeData
+class NumberData: public TypeData
 {
 public:
     explicit NumberData() = default;
-    NumberData(double data): m_data{data} {}
+    NumberData(double data): m_data{boost::python::object(data)} {}
+    NumberData(const Value& data): m_data{data} {}
 
     NumberData(const NumberData&) = default;
     NumberData(NumberData&&) = default;
@@ -23,17 +25,18 @@ public:
 
     double number() const
     {
-        return m_data;
+        return  boost::python::extract<double>(m_data.m_object);
     }
 
     QString asText() const
     {
-        return QString::number(m_data);
+        return QString::number(boost::python::extract<double>(m_data.m_object));
     }
 
+    Value value() override { return m_data; }
 
 private:
-    double m_data;
+    Value m_data;
 };
 
 #endif //GUI_NUMBERDATA_H

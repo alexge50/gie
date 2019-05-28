@@ -5,13 +5,15 @@
 #ifndef GUI_INTDATA_H
 #define GUI_INTDATA_H
 
-#include <nodes/NodeData>
+#include <boost/python.hpp>
+#include "TypeData.h"
 
-class IntegerData: public QtNodes::NodeData
+class IntegerData: public TypeData
 {
 public:
     explicit IntegerData() = default;
-    IntegerData(long long int data): m_data{data} {}
+    IntegerData(long long int data): m_data{boost::python::object(data)} {}
+    IntegerData(const Value& data): m_data{data} {}
 
     IntegerData(const IntegerData&) = default;
     IntegerData(IntegerData&&) = default;
@@ -23,17 +25,18 @@ public:
 
     long long int number() const
     {
-        return m_data;
+        return boost::python::extract<long long int>(m_data.m_object);
     }
 
     QString asText() const
     {
-        return QString::number(m_data);
+        return QString::number(boost::python::extract<long long int>(m_data.m_object));
     }
 
+    Value value() override { return m_data; }
 
 private:
-    long long int m_data;
+    Value m_data;
 };
 
 #endif //GUI_INTDATA_H

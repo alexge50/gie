@@ -6,67 +6,13 @@
 #define GUI_TYPEDATA_H
 
 #include <gie/Value.h>
-#include <gie/Argument.h>
-#include <boost/python.hpp>
-#undef B0
+#include <nodes/NodeData>
 
-#include "StringData.h"
-#include "NumberData.h"
-#include "IntegerData.h"
-#include "ColorData.h"
-#include "ImageData.h"
-
-#include <memory>
-
-Value extractGieValue(const std::shared_ptr<QtNodes::NodeData>& nodeData)
+class TypeData: public QtNodes::NodeData
 {
-    if(!nodeData) return Value{};
+public:
+    virtual Value value() = 0;
+};
 
-    const auto& type = nodeData->type().id;
-
-    if(type == "double")
-        return Value{boost::python::object(reinterpret_cast<const NumberData*>(nodeData.get())->number())};
-
-    if(type == "integer")
-        return Value{boost::python::object(reinterpret_cast<const IntegerData*>(nodeData.get())->number())};
-
-    if(type == "string")
-        return Value{boost::python::object(reinterpret_cast<const StringData*>(nodeData.get())->string())};
-
-    if(type == "Color")
-        return Value{boost::python::object(reinterpret_cast<const ColorData*>(nodeData.get())->color())};
-
-    if(type == "Image")
-        return Value{boost::python::object(reinterpret_cast<const ImageData*>(nodeData.get())->image())};
-
-    return Value{};
-}
-
-std::shared_ptr<QtNodes::NodeData> extractNodeData(const Value& value)
-{
-    if(auto x = boost::python::extract<long long>{value.m_object}; x.check() && PyLong_Check(value.m_object.ptr()))
-        return std::make_shared<IntegerData>(x());
-
-    if(auto x = boost::python::extract<double>{value.m_object}; x.check() && PyFloat_Check(value.m_object.ptr()))
-        return std::make_shared<NumberData>(x());
-
-    if(auto x = boost::python::extract<std::string>{value.m_object}; x.check())
-        return std::make_shared<StringData>(x());
-
-    if(auto x = boost::python::extract<Color>{value.m_object}; x.check())
-        return std::make_shared<ColorData>(x());
-
-    if(auto x = boost::python::extract<Image>{value.m_object}; x.check())
-        return std::make_shared<ImageData>(x());
-
-    return nullptr;
-}
-
-QtNodes::NodeDataType getTypeData(const Type& type)
-{
-    static std::unordered_map<std::string, QString> typeMap = {{"str", "string"}, {"float", "double"}, {"int", "integer"}, {"Color", "Color"}, {"Image", "Image"}};
-
-    return {typeMap[type.name()], typeMap[type.name()]};
-}
 
 #endif //GUI_TYPEDATA_H

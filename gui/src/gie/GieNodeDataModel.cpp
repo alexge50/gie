@@ -8,7 +8,7 @@
 #undef B0
 
 #include "GieNodeDataModel.h"
-#include "src/gie/types/TypeData.h"
+#include "src/gie/types/ExtractTypes.h"
 
 unsigned int GieNodeDataModel::nPorts(QtNodes::PortType portType) const
 {
@@ -81,7 +81,7 @@ void GieNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> data, QtNode
         auto result = executeNode({{}, m_logic, m_metadata});
 
         if(result.has_value())
-            m_result = std::shared_ptr<QtNodes::NodeData>(extractNodeData(result.value()));
+            m_result = extractNodeData(m_metadata.m_returnType, result.value());
         else
         {
             modelValidationState = QtNodes::NodeValidationState::Warning;

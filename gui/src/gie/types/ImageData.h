@@ -5,14 +5,16 @@
 #ifndef GUI_IMAGEDATA_H
 #define GUI_IMAGEDATA_H
 
-#include <nodes/NodeData>
+#include <boost/python.hpp>
+#include "TypeData.h"
 #include <modules/Image.h>
 
-class ImageData: public QtNodes::NodeData
+class ImageData: public TypeData
 {
 public:
-    explicit ImageData(): m_data(0, 0) {};
-    ImageData(Image data): m_data{std::move(data)} {}
+    explicit ImageData(): m_data(boost::python::object(Image{0, 0})) {}
+    ImageData(const Image& data): m_data{boost::python::object(data)} {}
+    ImageData(const Value& data): m_data{data} {}
 
     ImageData(const ImageData&) = default;
     ImageData(ImageData&&) = default;
@@ -24,11 +26,13 @@ public:
 
     const Image& image() const
     {
-        return m_data;
+        return boost::python::extract<Image>(m_data.m_object);
     }
 
+    Value value() override { return m_data; }
+
 private:
-    Image m_data;
+    Value m_data;
 };
 
 #endif //GUI_IMAGEDATA_H
