@@ -56,6 +56,9 @@ std::shared_ptr<QtNodes::NodeData> extractNodeData(const Value& value)
     if(auto x = boost::python::extract<Color>{value.m_object}; x.check())
         return std::make_shared<ColorData>(x());
 
+    if(auto x = boost::python::extract<Image>{value.m_object}; x.check())
+        return std::make_shared<ImageData>(x());
+
     return nullptr;
 }
 
