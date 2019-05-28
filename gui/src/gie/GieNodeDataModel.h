@@ -8,31 +8,22 @@
 #include <gie/Node.h>
 #include <gie/NodeLogic.h>
 #include <gie/Program.h>
-#undef B0
 
 #include <nodes/NodeDataModel>
 #include <QString>
+#include <QThread>
 
 class GieNodeDataModel: public QtNodes::NodeDataModel
 {
     Q_OBJECT
 
 public:
-    explicit GieNodeDataModel(Program& program, NodeMetadata metadata):
-        m_program{program},
-        m_metadata(std::move(metadata)),
-        m_logic{std::vector<ArgumentValue>(m_metadata.m_arguments.size(), {NoArgument{}})}
-    {
-        m_nodeId = program.addNode({{}, m_logic, m_metadata});
-    };
-
+    explicit GieNodeDataModel(Program& program, NodeMetadata metadata);
     GieNodeDataModel() = delete;
 
-    ~GieNodeDataModel() override
-    {
-        m_program.removeNode(m_nodeId);
-    }
+    ~GieNodeDataModel() override;
 
+public:
     unsigned int nPorts(QtNodes::PortType portType) const override;
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
@@ -53,7 +44,14 @@ public:
 
     auto nodeId() const { return m_nodeId; }
 
+Q_SIGNALS:
+    void startWork(const Node& node);
+
+private Q_SLOTS:
+    void onWorkFinished(std::shared_ptr<QtNodes::NodeData>);
+
 private:
+    QThread m_workerThread;
     Program& m_program;
     NodeId m_nodeId;
     NodeMetadata m_metadata;

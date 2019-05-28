@@ -6,7 +6,6 @@
 #define GUI_MAINWINDOW_H
 
 #include <gie/Program.h>
-#undef B0
 
 #include <QMainWindow>
 #include <QMenuBar>
@@ -14,6 +13,8 @@
 #include "symbolviewer/symbolviewer.h"
 #include "importedimagesviewer/importedimagesviewer.h"
 #include "src/gie/GieDataModelRegistry.h"
+
+#include "src/ScopedGILRelease.h"
 
 namespace Ui {
     class MainWindow;

@@ -93,7 +93,7 @@ set(SOURCE
         src/savefilepicker/savefilepicker.cpp
         src/savefilepicker/savefilepicker.h
         src/gie/types/ExtractTypes.h
-)
+        src/gie/NodeProcessingWorker.cpp src/gie/NodeProcessingWorker.h src/ScopedGILRelease.h)
 
 
 add_definitions(-DQT_NO_KEYWORDS)

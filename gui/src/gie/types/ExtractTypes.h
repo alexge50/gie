@@ -19,7 +19,7 @@
 
 #include <memory>
 
-Value extractGieValue(const std::shared_ptr<QtNodes::NodeData>& nodeData)
+inline Value extractGieValue(const std::shared_ptr<QtNodes::NodeData>& nodeData)
 {
     if(auto p = dynamic_cast<TypeData*>(nodeData.get()); p)
     {
@@ -29,7 +29,7 @@ Value extractGieValue(const std::shared_ptr<QtNodes::NodeData>& nodeData)
     return Value{};
 }
 
-std::shared_ptr<QtNodes::NodeData> extractNodeData(const Value& value)
+inline std::shared_ptr<QtNodes::NodeData> extractNodeData(const Value& value)
 {
     if(auto x = boost::python::extract<long long>{value.m_object}; x.check() && PyLong_Check(value.m_object.ptr()))
         return std::make_shared<IntegerData>(value);
@@ -49,7 +49,7 @@ std::shared_ptr<QtNodes::NodeData> extractNodeData(const Value& value)
     return nullptr;
 }
 
-std::shared_ptr<QtNodes::NodeData> extractNodeData(const Type& type, const Value& value)
+inline std::shared_ptr<QtNodes::NodeData> extractNodeData(const Type& type, const Value& value)
 {
     if(type == Type("str"))
         return std::make_shared<StringData>(value);
@@ -69,7 +69,7 @@ std::shared_ptr<QtNodes::NodeData> extractNodeData(const Type& type, const Value
     return nullptr;
 }
 
-QtNodes::NodeDataType getTypeData(const Type& type)
+inline QtNodes::NodeDataType getTypeData(const Type& type)
 {
     static std::unordered_map<std::string, QString> typeMap = {{"str", "string"}, {"float", "double"}, {"int", "integer"}, {"Color", "Color"}, {"Image", "Image"}};
 

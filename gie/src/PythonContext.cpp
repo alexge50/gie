@@ -19,8 +19,6 @@ PythonContext::PythonContext()
 {
     using namespace boost::python;
 
-    Py_Initialize();
-
     m_main = import("__main__");
     m_global = m_main.attr("__dict__");
 }

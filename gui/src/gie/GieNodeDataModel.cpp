@@ -9,6 +9,33 @@
 
 #include "GieNodeDataModel.h"
 #include "src/gie/types/ExtractTypes.h"
+#include "NodeProcessingWorker.h"
+
+GieNodeDataModel::GieNodeDataModel(Program& program, NodeMetadata metadata):
+    m_program{program},
+    m_metadata(std::move(metadata)),
+    m_logic{std::vector<ArgumentValue>(m_metadata.m_arguments.size(), {NoArgument{}})}
+{
+    m_nodeId = program.addNode({{}, m_logic, m_metadata});
+
+    auto worker = new NodeProcessingWorker();
+    worker->moveToThread(&m_workerThread);
+
+    qRegisterMetaType<Node>("Node");
+    connect(&m_workerThread, &QThread::finished, worker, &QObject::deleteLater);
+    connect(this, &GieNodeDataModel::startWork, worker, &NodeProcessingWorker::startNodeProcessing);
+    connect(worker, &NodeProcessingWorker::resultReady, this, &GieNodeDataModel::onWorkFinished);
+
+    m_workerThread.start();
+}
+
+GieNodeDataModel::~GieNodeDataModel()
+{
+    m_program.removeNode(m_nodeId);
+
+    m_workerThread.quit();
+    m_workerThread.wait();
+}
 
 unsigned int GieNodeDataModel::nPorts(QtNodes::PortType portType) const
 {
@@ -74,29 +101,16 @@ void GieNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> data, QtNode
             }) == m_logic.m_argument.end();
 
     if(allPortsAssigned)
-    {
-        modelValidationState = QtNodes::NodeValidationState::Valid;
-        modelValidationError = QString();
-
-        auto result = executeNode({{}, m_logic, m_metadata});
-
-        if(result.has_value())
-            m_result = extractNodeData(m_metadata.m_returnType, result.value());
-        else
-        {
-            modelValidationState = QtNodes::NodeValidationState::Warning;
-            modelValidationError = QString("Missing or incorrect inputs");
-            m_result = std::shared_ptr<QtNodes::NodeData>();
-        }
-    }
+        Q_EMIT startWork({{}, m_logic, m_metadata});
     else
     {
         modelValidationState = QtNodes::NodeValidationState::Warning;
         modelValidationError = QString("Missing or incorrect inputs");
+
+        m_result = std::shared_ptr<QtNodes::NodeData>();
+
+        Q_EMIT dataUpdated(0);
     }
-
-    Q_EMIT dataUpdated(0);
-
 }
 
 QtNodes::NodeValidationState GieNodeDataModel::validationState() const
@@ -107,4 +121,22 @@ QtNodes::NodeValidationState GieNodeDataModel::validationState() const
 QString GieNodeDataModel::validationMessage() const
 {
     return modelValidationError;
+}
+
+void GieNodeDataModel::onWorkFinished(std::shared_ptr<QtNodes::NodeData> result)
+{
+    m_result = std::move(result);
+
+    if(m_result)
+    {
+        modelValidationState = QtNodes::NodeValidationState::Valid;
+        modelValidationError = QString();
+    }
+    else
+    {
+        modelValidationState = QtNodes::NodeValidationState::Warning;
+        modelValidationError = QString("Missing or incorrect inputs");
+    }
+
+    Q_EMIT dataUpdated(0);
 }

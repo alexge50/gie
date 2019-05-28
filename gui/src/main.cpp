@@ -56,6 +56,11 @@ std::string fetchPythonException()
 
 int main(int argc, char *argv[])
 {
+    Py_Initialize();
+    PyEval_InitThreads();
+
+    ScopedGILRelease release;
+
     int ret;
     try
     {
