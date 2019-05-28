@@ -80,6 +80,11 @@ MainWindow::MainWindow(QWidget *parent) :
             m_imageViewer, &ImportedImagesViewer::imagePressed,
             m_editor, &Editor::addImageNode
     );
+
+    QObject::connect(
+            ui->actionExportImage, &QAction::triggered,
+            m_editor, &Editor::onExportImage
+    );
 }
 
 MainWindow::~MainWindow()

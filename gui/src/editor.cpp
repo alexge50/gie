@@ -18,14 +18,19 @@
 
 #include <nodes/Connection>
 #include <nodes/Node>
+#include <nodes/FlowViewStyle>
+#include <nodes/ConnectionStyle>
+#include <nodes/NodeStyle>
 #include <QtWidgets/QFileDialog>
 
 #include "src/serialisation/serialisation.h"
 
 #include "src/newproject/newproject.h"
 #include "src/importimage/importimage.h"
+#include "src/exportimage/exportimage.h"
 
 #include "Project.h"
+
 
 Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{program}
 {
@@ -78,6 +83,14 @@ void Editor::onConnectionCreated(const QtNodes::Connection& c)
 
         std::cout << "onConnectionCreated: connected " << giver->nodeId() << " with " << receiver->nodeId() << std::endl;
     }
+    if(giver != nullptr)
+    {
+        if(auto receiver = dynamic_cast<TargetExportImageDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
+        {
+            m_targets.insert({receiver->getId(), receiver->getTargetName()});
+            m_program.addResult(receiver->getId().toUtf8().constData(), giver->nodeId());
+        }
+    }
 }
 
 void Editor::onConnectionDeleted(const QtNodes::Connection& c)
@@ -93,12 +106,26 @@ void Editor::onConnectionDeleted(const QtNodes::Connection& c)
 
         std::cout << "onConnectionRemoved: removed argument from " << receiver->nodeId() << std::endl;
     }
+    else if(auto receiver = dynamic_cast<TargetExportImageDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
+    {
+        m_targets.erase(receiver->getId());
+        m_program.removeResult(receiver->getId().toUtf8().constData());
+    }
 }
 
 void Editor::nodeCreated(QtNodes::Node &n)
 {
     if(auto* p = dynamic_cast<PreviewImageDisplayDataModel*>(n.nodeDataModel()); p != nullptr)
         Q_EMIT(attachDockWindow(p->dockWidget()));
+
+    if(auto* p = dynamic_cast<TargetExportImageDataModel*>(n.nodeDataModel()); p != nullptr)
+        connect(p, &TargetExportImageDataModel::targetNameChanged, this, &Editor::onTargetNameChanged);
+}
+
+void Editor::onTargetNameChanged(const QUuid& id, const QString& name)
+{
+    if(auto it = m_targets.find(id); it != m_targets.end())
+        it->second = name;
 }
 
 void Editor::addImageNode(const ProjectImage& projectImage)
@@ -158,6 +185,35 @@ void Editor::onImportImage_(QString path)
 
     m_project->importImage(path, filename);
     reloadImages();
+}
+
+void Editor::onExportImage()
+{
+    auto exportImage = new ExportImage(m_targets);
+    connect(exportImage, &ExportImage::exportImage, this, &Editor::onExportImage_);
+    exportImage->show();
+}
+
+void Editor::onExportImage_(const QUuid& uuid, const QString& filename)
+{
+    auto results = m_program.run();
+    std::string id = uuid.toString().toUtf8().constData();
+
+    auto it = std::find_if(results.begin(), results.end(), [&id](const auto& x)
+    {
+        return x.tag == id;
+    });
+
+    if(it != results.end())
+    {
+        auto image = boost::python::extract<Image>(it->value.m_object)();
+
+        auto imageData = new uint8_t[image.width * image.height * 3];
+        std::memcpy(imageData, image.raw(), image.width * image.height * 3);
+
+        QImage qImage(imageData, image.width, image.height, QImage::Format_RGB888, [](auto p){ delete static_cast<uint8_t*>(p); });
+        qImage.save(filename);
+    }
 }
 
 void Editor::setRegistry(std::shared_ptr<QtNodes::DataModelRegistry> registry)

@@ -6,12 +6,14 @@
 #define GUI_EDITOR_H
 
 #include <memory>
+#include <map>
 
 #include <gie/Program.h>
 
 #include <QWidget>
 #include <QDockWidget>
 #include <QLabel>
+#include <QUuid>
 
 #include <nodes/FlowScene>
 #include <nodes/FlowView>
@@ -37,13 +39,18 @@ public Q_SLOTS:
 
     void addImageNode(const ProjectImage&);
 
+    void onExportImage();
+
 private Q_SLOTS:
     void onNewProject_(QDir, QString name);
     void onImportImage_(QString name);
+    void onExportImage_(const QUuid&, const QString&);
 
     void onConnectionCreated(const QtNodes::Connection& c);
     void onConnectionDeleted(const QtNodes::Connection& c);
     void nodeCreated(QtNodes::Node &n);
+
+    void onTargetNameChanged(const QUuid& id, const QString&);
 
 private:
     void keyPressEvent(QKeyEvent*) override;
@@ -56,6 +63,8 @@ private:
     QtNodes::FlowScene* m_scene;
     QtNodes::FlowView* m_view;
     QLabel* m_noProjectMessage;
+
+    std::map<QUuid, QString> m_targets;
 };
 
 
