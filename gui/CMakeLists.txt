@@ -66,7 +66,8 @@ set(SOURCE
         src/gie/DisplayNodeDataModel/ImageDisplayDataModel.h
         src/imageviewer/imageviewer.cpp
         src/imageviewer/imageviewer.h
-        src/Project.cpp src/Project.h
+        src/Project.cpp
+        src/Project.h
         src/newproject/newproject.cpp
         src/newproject/newproject.h
         src/newproject/newproject.ui
@@ -83,7 +84,14 @@ set(SOURCE
         src/importedimagesviewer/imagecell.h
         src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.cpp
         src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.h
-        resources/resources.qrc
+        resources/gui.qrc
+        src/gie/DisplayNodeDataModel/TargetExportImageDataModel.cpp
+        src/gie/DisplayNodeDataModel/TargetExportImageDataModel.h
+        src/exportimage/exportimage.cpp
+        src/exportimage/exportimage.h
+        src/exportimage/exportimage.ui
+        src/savefilepicker/savefilepicker.cpp
+        src/savefilepicker/savefilepicker.h
 )
 
 
