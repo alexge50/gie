@@ -12,7 +12,11 @@ python_add_module(internals src/internals.cpp)
 target_link_libraries(internals ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 target_include_directories(internals PRIVATE include/ ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS})
 
-install(TARGETS internals DESTINATION modules)
+python_add_module(images_internal src/images_internal.cpp)
+target_link_libraries(images_internal ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+target_include_directories(images_internal PRIVATE include/ ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS})
+
+install(TARGETS internals images_internal DESTINATION modules)
 install(FILES modules/arithmetic.py modules/colors.py modules/string.py modules/images.py DESTINATION modules)
 
 add_library(modules INTERFACE)

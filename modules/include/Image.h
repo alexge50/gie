@@ -36,9 +36,9 @@ public:
         data{std::move(data)}
     {}
 
-    Color pixelAt(unsigned row, unsigned column)
+    Color pixelAt(unsigned row, unsigned column) const
     {
-        uint8_t* pixel = &data[index(row, column)];
+        const uint8_t* pixel = &data[index(row, column)];
         return Color(pixel[0], pixel[1], pixel[2]);
     }
 
@@ -56,7 +56,7 @@ public:
     const uint8_t* raw() const { return data.data(); }
 
 private:
-    std::size_t index(unsigned row, unsigned column)
+    std::size_t index(unsigned row, unsigned column) const
     {
         return (row * width + column) * N_CHANNELS;
     }
