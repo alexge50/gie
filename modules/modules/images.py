@@ -28,3 +28,9 @@ def separate_blue_channel(image: modules.internals.Image)->modules.internals.Ima
 
 def luminance_map(image: modules.internals.Image)->modules.internals.Image:
     return modules.images_internal.luminance_map(image)
+
+def pixel_sort(source: modules.internals.Image, mask: modules.internals.Image, threshold: int)->modules.internals.Image:
+    return modules.images_internal.pixel_sort(source, mask, threshold)
+
+def displacement(source: modules.internals.Image, map: modules.internals.Image, row_factor: float, column_factor: float)->modules.internals.Image:
+    return modules.images_internal.displacement(source, map, row_factor, column_factor)
