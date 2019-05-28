@@ -48,11 +48,7 @@ QString GieNodeDataModel::portCaption(QtNodes::PortType portType, QtNodes::PortI
 
 std::shared_ptr<QtNodes::NodeData> GieNodeDataModel::outData(QtNodes::PortIndex port)
 {
-    auto result = executeNode({{}, m_logic, m_metadata});
-
-    if(result.has_value())
-        return std::shared_ptr<QtNodes::NodeData>(extractNodeData(result.value()));
-    else return std::shared_ptr<QtNodes::NodeData>();
+    return m_result;
 }
 
 void GieNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> data, QtNodes::PortIndex port)
@@ -81,6 +77,17 @@ void GieNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> data, QtNode
     {
         modelValidationState = QtNodes::NodeValidationState::Valid;
         modelValidationError = QString();
+
+        auto result = executeNode({{}, m_logic, m_metadata});
+
+        if(result.has_value())
+            m_result = std::shared_ptr<QtNodes::NodeData>(extractNodeData(result.value()));
+        else
+        {
+            modelValidationState = QtNodes::NodeValidationState::Warning;
+            modelValidationError = QString("Missing or incorrect inputs");
+            m_result = std::shared_ptr<QtNodes::NodeData>();
+        }
     }
     else
     {

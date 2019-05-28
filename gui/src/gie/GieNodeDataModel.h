@@ -59,6 +59,8 @@ private:
     NodeMetadata m_metadata;
     NodeLogic m_logic;
 
+    std::shared_ptr<QtNodes::NodeData> m_result;
+
     QtNodes::NodeValidationState modelValidationState = QtNodes::NodeValidationState::Warning;
     QString modelValidationError = QString("Missing or incorrect inputs");
 
