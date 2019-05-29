@@ -6,6 +6,9 @@
 #include <Color.h>
 #include <boost/python.hpp>
 
+#include <iostream>
+#include <fstream>
+
 Image separate_blue_channel(const Image& image)
 {
     Image new_image(image.width, image.height);
@@ -110,6 +113,91 @@ Image pixel_distort_displace(const Image& source, const Image& map, double row_f
     return new_image;
 }
 
+Image displacement(const Image& source, const Image& map, double row_factor, double column_factor)
+{
+    Image new_image(source.width, source.height);
+    Image known_pixels(source.width, source.height);
+
+    for(int row = 0; row < source.height; row++)
+    {
+        for(int column = 0; column < source.width; column++)
+        {
+            double displacement = (map.pixelAt(row, column).r / 255. * 2. - 1.);
+            long long int column_displaced = static_cast<long long int>(displacement * column_factor) + column;
+            long long int row_displaced= static_cast<long long int>(displacement * row_factor) + row;
+
+            row_displaced = (row_displaced + source.height) % source.height;
+            column_displaced = (column_displaced + source.width) % source.width;
+
+            new_image.setPixel(row_displaced, column_displaced, source.pixelAt(row, column));
+            known_pixels.setPixel(row_displaced, column_displaced, Color(1, 0, 0));
+        }
+    }
+
+    std::ostringstream out;
+
+    for(int row = 0; row < source.height; row++)
+    {
+        for(int column = 0; column < source.width; column++)
+        {
+            if(!known_pixels.pixelAt(row,column).r)
+            {
+                Color samples[4];
+                double weights[4];
+                int nSamples = 0;
+                char rowDir[] = {1, -1, 0, 0};
+                char colDir[] = {0, 0, -1, 1};
+
+                out << "---\n";
+                for(int i = 0; i < 4; i++)
+                {
+                    int row_ = row, column_ = column;
+                    int dist = 0;
+
+                    while(row_ >= 0 && row_ < source.height && column_ >= 0 && column_ < source.width && !known_pixels.pixelAt(row_,column_).r)
+                    {
+                        row_ += rowDir[i];
+                        column_ += colDir[i];
+
+                        dist ++;
+                    }
+
+                    if(row_ >= 0 && row_ < source.height && column_ >= 0 && column_ < source.width)
+                    {
+                        samples[i] = source.pixelAt(row_, column_);
+                        weights[i] = 1. / dist;
+                        nSamples++;
+                    }
+                    else weights[i] = 0;
+
+                    out << "color found: " << row_ << " " << column_ << " " << dist << '(' << int(samples[i].r) << ',' << int(samples[i].g) << ',' << int(samples[i].b) << ")\n";
+                }
+
+                double r, g, b;
+
+                if(nSamples != 0)
+                {
+                    r = (samples[0].r * weights[0] + samples[1].r * weights[1] + samples[2].r * weights[2] + samples[3].r * weights[3])/nSamples;
+                    g = (samples[0].g * weights[0] + samples[1].g * weights[1] + samples[2].g * weights[2] + samples[3].g * weights[3])/nSamples;
+                    b = (samples[0].b * weights[0] + samples[1].b * weights[1] + samples[2].b * weights[2] + samples[3].b * weights[3])/nSamples;
+                }
+                else r = g = b = 0;
+
+                out << "computed color: " << '(' << int(r) << ',' << int(g) << ',' << int(b) << ")\n";
+
+                new_image.setPixel(row, column, Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
+                                                      static_cast<uint8_t>(b)));
+            }
+        }
+    }
+
+    std::string s = out.str();
+
+    std::ofstream("displacement_log") << s;
+
+    return new_image;
+}
+
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
@@ -118,4 +206,5 @@ BOOST_PYTHON_MODULE(images_internal)
     def("separate_blue_channel", separate_blue_channel);
     def("pixel_sort", pixel_sort);
     def("pixel_distort_displace", pixel_distort_displace);
+    def("displacement", displacement);
 }
