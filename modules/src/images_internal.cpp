@@ -77,7 +77,7 @@ Image pixel_sort(const Image& source, const Image& mask, int threshold)
     return result;
 }
 
-Image displacement(const Image& source, const Image& map, double row_factor, double column_factor)
+Image pixel_distort_displace(const Image& source, const Image& map, double row_factor, double column_factor)
 {
     Image new_image(source.width, source.height);
 
@@ -96,6 +96,17 @@ Image displacement(const Image& source, const Image& map, double row_factor, dou
             }
         }
 
+    for(int row = 0; row < source.height; row++)
+        for(int column = 0; column < source.width; column++)
+        {
+            if(new_image.pixelAt(row, column).r == 0 &&
+               new_image.pixelAt(row, column).g == 0 &&
+               new_image.pixelAt(row, column).b == 0)
+                new_image.setPixel(row, column, source.pixelAt(row, column));
+        }
+
+
+
     return new_image;
 }
 
@@ -106,5 +117,5 @@ BOOST_PYTHON_MODULE(images_internal)
     def("luminance_map", luminance_map);
     def("separate_blue_channel", separate_blue_channel);
     def("pixel_sort", pixel_sort);
-    def("displacement", displacement);
+    def("pixel_distort_displace", pixel_distort_displace);
 }
