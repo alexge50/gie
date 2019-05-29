@@ -198,6 +198,24 @@ Image displacement(const Image& source, const Image& map, double row_factor, dou
     return new_image;
 }
 
+Image lift_gain(const Image& source, double lift, double gain)
+{
+    Image new_image(source.width, source.height);
+
+    for(int row = 0; row < source.height; row++)
+        for(int column = 0; column < source.width; column++)
+        {
+            auto color = source.pixelAt(static_cast<unsigned int>(row), static_cast<unsigned int>(column));
+            auto r = color.r * (gain - lift) + lift;
+            auto g = color.g * (gain - lift) + lift;
+            auto b = color.b * (gain - lift) + lift;
+            new_image.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
+                                                                                                        static_cast<uint8_t>(b)));
+        }
+
+    return new_image;
+}
+
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
@@ -207,4 +225,5 @@ BOOST_PYTHON_MODULE(images_internal)
     def("pixel_sort", pixel_sort);
     def("pixel_distort_displace", pixel_distort_displace);
     def("displacement", displacement);
+    def("lift_gain", lift_gain);
 }

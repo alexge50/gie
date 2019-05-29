@@ -37,3 +37,6 @@ def pixel_distort_displace(source: modules.internals.Image, map: modules.interna
 
 def displacement(source: modules.internals.Image, map: modules.internals.Image, row_factor: float, column_factor: float)->modules.internals.Image:
     return modules.images_internal.displacement(source, map, row_factor, column_factor)
+
+def lift_gain(source: modules.internals.Image, lift: float, gain: float)->modules.internals.Image:
+    return modules.images_internal.lift_gain(source, lift, gain)
