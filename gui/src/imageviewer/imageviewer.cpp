@@ -11,7 +11,7 @@ ImageViewer::ImageViewer(QWidget *parent) : QWidget(parent)
     m_displayType = Full;
 }
 
-void ImageViewer::setImage(QImage image) { m_image = std::move(image); }
+void ImageViewer::setImage(QImage image) { m_image = std::move(image); Q_EMIT update(); }
 
 void ImageViewer::setDisplayType(DisplayType type)
 {
