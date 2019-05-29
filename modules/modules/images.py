@@ -40,3 +40,6 @@ def displacement(source: modules.internals.Image, map: modules.internals.Image, 
 
 def lift_gain(source: modules.internals.Image, lift: float, gain: float)->modules.internals.Image:
     return modules.images_internal.lift_gain(source, lift, gain)
+
+def gamma(source: modules.internals.Image, gamma: float)->modules.internals.Image:
+    return modules.images_internal.gamma(source, gamma)
