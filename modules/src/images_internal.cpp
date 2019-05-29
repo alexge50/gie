@@ -10,6 +10,14 @@
 #include <iostream>
 #include <fstream>
 
+double clamp(double x, double a, double b)
+{
+    if(x < a) return a;
+    if(x > b) return b;
+    return x;
+}
+
+
 Image separate_blue_channel(const Image& image)
 {
     Image new_image(image.width, image.height);
@@ -235,6 +243,52 @@ Image gamma_(const Image& source, double gamma)
     return new_image;
 }
 
+Image contrast(const Image& source, double contrast)
+{
+    Image new_image(source.width, source.height);
+
+    for(int row = 0; row < source.height; row++)
+        for(int column = 0; column < source.width; column++)
+        {
+            auto color = source.pixelAt(static_cast<unsigned int>(row), static_cast<unsigned int>(column));
+            auto r = color.r * (1. + contrast) * (-1.) - contrast / 2.;
+            auto g = color.g * (1. + contrast) * (-1.) - contrast / 2.;
+            auto b = color.b * (1. + contrast) * (-1.) - contrast / 2.;
+
+            r = clamp(r, 0, 255);
+            g = clamp(g, 0, 255);
+            b = clamp(b, 0, 255);
+
+            new_image.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
+                                                                                                        static_cast<uint8_t>(b)));
+        }
+
+    return new_image;
+}
+
+Image brightness(const Image& source, double brightness)
+{
+    Image new_image(source.width, source.height);
+
+    for(int row = 0; row < source.height; row++)
+        for(int column = 0; column < source.width; column++)
+        {
+            auto color = source.pixelAt(static_cast<unsigned int>(row), static_cast<unsigned int>(column));
+            auto r = color.r + brightness * 255;
+            auto g = color.g + brightness * 255;
+            auto b = color.b + brightness * 255;
+
+            r = clamp(r, 0, 255);
+            g = clamp(g, 0, 255);
+            b = clamp(b, 0, 255);
+
+            new_image.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
+                                                                                                        static_cast<uint8_t>(b)));
+        }
+
+    return new_image;
+}
+
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
@@ -246,4 +300,6 @@ BOOST_PYTHON_MODULE(images_internal)
     def("displacement", displacement);
     def("lift_gain", lift_gain);
     def("gamma", gamma_);
+    def("contrast", contrast);
+    def("brightness", brightness);
 }
