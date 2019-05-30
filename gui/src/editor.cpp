@@ -74,7 +74,7 @@ void Editor::onConnectionCreated(const QtNodes::Connection& c)
 
     if(giver != nullptr && receiver != nullptr)
     {
-        auto portIndex = c.getPortIndex(QtNodes::PortType::Out);
+        auto portIndex = c.getPortIndex(QtNodes::PortType::In);
 
         auto node = m_program.getNode(receiver->nodeId());
         node.m_logic.m_argument[portIndex] = giver->nodeId();
