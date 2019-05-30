@@ -46,10 +46,22 @@ install(
         NAMESPACE gie::
         DESTINATION lib/cmake/gie)
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(gie PRIVATE -fcompare-debug -g)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    target_compile_options(gie PRIVATE -fstandalone-debug -g)
+if ("${CMAKE_BUILD_TYPE}" EQUAL "Debug")
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(gie PRIVATE -fcompare-debug -g -Wall -Werror)
+    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        target_compile_options(gie PRIVATE -fstandalone-debug -g -Wall -Werror)
+    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        target_compile_options(gie PRIVATE /MDd /Zi /Ob0 /Od /RTC1)
+    endif()
+elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(gie PRIVATE -O3)
+    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        target_compile_options(gie PRIVATE -O3)
+    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        target_compile_options(gie PRIVATE /MD /O2 /Ob2)
+    endif()
 endif()
 
 # TESTS
