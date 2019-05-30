@@ -34,6 +34,12 @@
 
 Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{program}
 {
+    QtNodes::ConnectionStyle::setConnectionStyle(R"({
+    "ConnectionStyle": {
+      "UseDataDefinedColors": true
+    }
+})");
+
     auto vlayout = new QVBoxLayout(this);
 
     vlayout->setMargin(0);
