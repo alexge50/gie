@@ -380,6 +380,21 @@ Image box_blur(const Image& source, double row_factor, double column_factor)
     return new_image;
 }
 
+Image mask(const Image& source, const Image& mask, int threshold)
+{
+    Image new_image(source.width, source.height);
+
+    for(int row = 0; row < source.height; row++)
+    {
+        for(int column = 0; column < source.width; column++)
+            if(mask.pixelAt(row, column).r >= threshold)
+                new_image.setPixel(row, column, source.pixelAt(row, column));
+            else new_image.setPixel(row, column, Color(0, 0, 0));
+    }
+
+    return new_image;
+}
+
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
@@ -395,4 +410,5 @@ BOOST_PYTHON_MODULE(images_internal)
     def("brightness", brightness);
     def("guassian_blur", guassian_blur);
     def("box_blur", box_blur);
+    def("mask", mask);
 }

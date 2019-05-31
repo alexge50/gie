@@ -29,3 +29,5 @@ def separate_blue_channel(image: modules.internals.Image)->modules.internals.Ima
 def luminance_map(image: modules.internals.Image)->modules.internals.Image:
     return modules.images_internal.luminance_map(image)
 
+def mask(source: modules.internals.Image, mask: modules.internals.Image, threshold: int)->modules.internals.Image:
+    return modules.images_internal.mask(source, mask, threshold)
