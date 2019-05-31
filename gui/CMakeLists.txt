@@ -122,3 +122,4 @@ elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 endif()
 
 file(INSTALL dump/modules DESTINATION ./)
+file(INSTALL config DESTINATION ./)

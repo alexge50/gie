@@ -1,0 +1,3 @@
+{
+    "modules": ["modules.arithmetic", "modules.blur", "modules.color_correction", "modules.colors", "modules.effects", "modules.images", "modules.string"]
+}

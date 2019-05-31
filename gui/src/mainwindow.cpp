@@ -10,6 +10,10 @@
 #include <QDockWidget>
 #include "colorpicker/colorpicker.h"
 
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow)
@@ -24,10 +28,14 @@ MainWindow::MainWindow(QWidget *parent) :
     sys.attr("path").attr("insert")(1, os.attr("getcwd")());
 
     m_program.context().module("modules.internals", false);
-    m_program.import("modules.arithmetic");
-    m_program.import("modules.string");
-    m_program.import("modules.colors");
-    m_program.import("modules.images");
+
+    QFile file("config");
+    file.open(QIODevice::ReadOnly);
+
+    QJsonObject config = QJsonDocument::fromJson(file.readAll()).object();
+    
+    for(const auto& module: config["modules"].toArray())
+        m_program.import(module.toString().toUtf8().constData());
 
     setCentralWidget(m_editor = new Editor(m_program));
 
