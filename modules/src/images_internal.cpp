@@ -298,35 +298,83 @@ Image guassian_blur(const Image& source, double radius_)
 
     Image new_image(source.width, source.height);
 
+    double iarr = 1. / (2 * radius + 1);
+
     for(int row = 0; row < source.height; row++)
     {
-        for(int column = 0; column < source.width; column++)
+        Color f = source.pixelAt(row, 0);
+        Color l = source.pixelAt(row, source.width - 1);
+        double r = (radius + 1) * f.r;
+        double g = (radius + 1) * f.g;
+        double b = (radius + 1) * f.b;
+
+        for(int column = 0; column < radius; column++)
         {
-            double r = 0., g = 0., b = 0.;
-            double weight_sum = 0.;
+            r += source.pixelAt(row, column).r;
+            g += source.pixelAt(row, column).g;
+            b += source.pixelAt(row, column).b;
+        }
+    }
 
-            for(int row_ = row - radius; row_ < row + radius + 1; row_++)
-                for(int column_ = column - radius; column_ < column + radius + 1; column_++)
+    return new_image;
+}
+
+Image box_blur(const Image& source, double row_factor, double column_factor)
+{
+    static auto get_pixel_or_black = [](const Image& image, int row, int column)
+            {
+                if(row < image.height && column < image.width && row >= 0 && column >= 0)
+                    return image.pixelAt(row, column);
+                return Color();
+            };
+
+    Image tmp(source.width, source.height);
+    {
+        double weight = 1.0f / column_factor;
+        int half = static_cast<int>(column_factor / 2);
+        for(int row = 0; row < source.height; row++)
+            for(int column = 0; column < source.width; column++)
+            {
+                double r = 0., g = 0., b = 0.;
+                for(int i = -half; i <= half; i++)
                 {
-                    auto row__ = std::min(static_cast<int>(source.height) - 1, std::max(0, row_));
-                    auto column__ = std::min(static_cast<int>(source.width) - 1, std::max(0, column_));
-
-                    double a = square(row_ - row__) + square(column_ - column__);
-                    double weight = std::exp( -a / 2 / square(radius)) / (M_PI * 2 * square(radius));
-
-                    r += weight * source.pixelAt(row__, column__).r;
-                    g += weight * source.pixelAt(row__, column__).g;
-                    b += weight * source.pixelAt(row__, column__).b;
-
-                    weight_sum += weight;
+                    r += get_pixel_or_black(source, row, column + i).r * weight;
+                    g += get_pixel_or_black(source, row, column + i).g * weight;
+                    b += get_pixel_or_black(source, row, column + i).b * weight;
                 }
 
-            r /= weight_sum;
-            g /= weight_sum;
-            b /= weight_sum;
+                r = clamp(r, 0, 255);
+                g = clamp(g, 0, 255);
+                b = clamp(b, 0, 255);
 
-            new_image.setPixel(row, column, Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b)));
-        }
+                tmp.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
+                                                                                                            static_cast<uint8_t>(b)));
+            }
+    }
+
+    Image new_image(source.width, source.height);
+
+    {
+        double weight = 1.0f / row_factor;
+        int half = static_cast<int>(column_factor / 2);
+        for(int row = 0; row < source.height; row++)
+            for(int column = 0; column < source.width; column++)
+            {
+                double r = 0., g = 0., b = 0.;
+                for(int i = -half; i <= half; i++)
+                {
+                    r += get_pixel_or_black(tmp, row + i, column).r * weight;
+                    g += get_pixel_or_black(tmp, row + i, column).g * weight;
+                    b += get_pixel_or_black(tmp, row + i, column).b * weight;
+                }
+
+                r = clamp(r, 0, 255);
+                g = clamp(g, 0, 255);
+                b = clamp(b, 0, 255);
+
+                new_image.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
+                                                                                                      static_cast<uint8_t>(b)));
+            }
     }
 
     return new_image;
@@ -346,4 +394,5 @@ BOOST_PYTHON_MODULE(images_internal)
     def("contrast", contrast);
     def("brightness", brightness);
     def("guassian_blur", guassian_blur);
+    def("box_blur", box_blur);
 }
