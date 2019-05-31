@@ -33,7 +33,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
 install(TARGETS internals images_internal DESTINATION modules)
-install(FILES modules/arithmetic.py modules/colors.py modules/string.py modules/images.py modules/blur.py modules/color_correction.py modules/effects.py DESTINATION modules)
+install(FILES modules/arithmetic.py modules/colors.py modules/string.py modules/images.py modules/blur.py modules/color_correction.py modules/effects.py modules/noise.py DESTINATION modules)
 
 add_library(modules INTERFACE)
 include(GNUInstallDirs)
