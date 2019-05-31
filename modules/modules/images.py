@@ -26,6 +26,12 @@ def sample(image: modules.internals.Image, row: int, column: int)->modules.inter
 def separate_blue_channel(image: modules.internals.Image)->modules.internals.Image:
     return modules.images_internal.separate_blue_channel(image)
 
+def separate_red_channel(image: modules.internals.Image)->modules.internals.Image:
+    return modules.images_internal.separate_red_channel(image)
+
+def separate_green_channel(image: modules.internals.Image)->modules.internals.Image:
+    return modules.images_internal.separate_green_channel(image)
+
 def luminance_map(image: modules.internals.Image)->modules.internals.Image:
     return modules.images_internal.luminance_map(image)
 

@@ -35,6 +35,34 @@ Image separate_blue_channel(const Image& image)
     return new_image;
 }
 
+Image separate_red_channel(const Image& image)
+{
+    Image new_image(image.width, image.height);
+
+    for(int row = 0; row < image.height; row++)
+        for(int column = 0; column < image.width; column++)
+        {
+            auto color = image.pixelAt(row, column);
+            new_image.setPixel(row, column, Color(color.r, 0, 0));
+        }
+
+    return new_image;
+}
+
+Image separate_green_channel(const Image& image)
+{
+    Image new_image(image.width, image.height);
+
+    for(int row = 0; row < image.height; row++)
+        for(int column = 0; column < image.width; column++)
+        {
+            auto color = image.pixelAt(row, column);
+            new_image.setPixel(row, column, Color(0, color.g, 0));
+        }
+
+    return new_image;
+}
+
 Image luminance_map(const Image& image)
 {
     Image new_image(image.width, image.height);
@@ -535,13 +563,14 @@ namespace PerlinNoise
     }
 }
 
-
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
 
     def("luminance_map", luminance_map);
     def("separate_blue_channel", separate_blue_channel);
+    def("separate_red_channel", separate_red_channel);
+    def("separate_green_channel", separate_green_channel);
     def("pixel_sort", pixel_sort);
     def("pixel_distort_displace", pixel_distort_displace);
     def("displacement", displacement);
