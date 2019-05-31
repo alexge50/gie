@@ -11,7 +11,8 @@
 #include <iostream>
 #include <fstream>
 
-double clamp(double x, double a, double b)
+template<typename T>
+T clamp(T x, T a, T b)
 {
     if(x < a) return a;
     if(x > b) return b;
@@ -220,9 +221,9 @@ Image lift_gain(const Image& source, double lift, double gain)
             auto g = color.g * (gain - lift) + lift;
             auto b = color.b * (gain - lift) + lift;
 
-            r = clamp(r, 0, 255);
-            g = clamp(g, 0, 255);
-            b = clamp(b, 0, 255);
+            r = clamp(r, 0., 255.);
+            g = clamp(g, 0., 255.);
+            b = clamp(b, 0., 255.);
 
             new_image.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
                                                                                                         static_cast<uint8_t>(b)));
@@ -261,9 +262,9 @@ Image contrast(const Image& source, double contrast)
             auto g = color.g * (1. + contrast) * (-1.) - contrast / 2.;
             auto b = color.b * (1. + contrast) * (-1.) - contrast / 2.;
 
-            r = clamp(r, 0, 255);
-            g = clamp(g, 0, 255);
-            b = clamp(b, 0, 255);
+            r = clamp(r, 0., 255.);
+            g = clamp(g, 0., 255.);
+            b = clamp(b, 0., 255.);
 
             new_image.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
                                                                                                         static_cast<uint8_t>(b)));
@@ -284,9 +285,9 @@ Image brightness(const Image& source, double brightness)
             auto g = color.g + brightness * 255;
             auto b = color.b + brightness * 255;
 
-            r = clamp(r, 0, 255);
-            g = clamp(g, 0, 255);
-            b = clamp(b, 0, 255);
+            r = clamp(r, 0., 255.);
+            g = clamp(g, 0., 255.);
+            b = clamp(b, 0., 255.);
 
             new_image.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
                                                                                                         static_cast<uint8_t>(b)));
@@ -319,9 +320,9 @@ Image box_blur(const Image& source, double row_factor, double column_factor)
                     b += get_pixel_or_black(source, row, column + i).b * weight;
                 }
 
-                r = clamp(r, 0, 255);
-                g = clamp(g, 0, 255);
-                b = clamp(b, 0, 255);
+                r = clamp(r, 0., 255.);
+                g = clamp(g, 0., 255.);
+                b = clamp(b, 0., 255.);
 
                 tmp.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
                                                                                                             static_cast<uint8_t>(b)));
@@ -344,9 +345,9 @@ Image box_blur(const Image& source, double row_factor, double column_factor)
                     b += get_pixel_or_black(tmp, row + i, column).b * weight;
                 }
 
-                r = clamp(r, 0, 255);
-                g = clamp(g, 0, 255);
-                b = clamp(b, 0, 255);
+                r = clamp(r, 0., 255.);
+                g = clamp(g, 0., 255.);
+                b = clamp(b, 0., 255.);
 
                 new_image.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
                                                                                                       static_cast<uint8_t>(b)));
@@ -371,6 +372,49 @@ Image mask(const Image& source, const Image& mask, int threshold)
     return new_image;
 }
 
+Image add(const Image& a, const Image& b)
+{
+    Image new_image(a.width, a.height);
+
+    for(int row = 0; row < a.height; row++)
+    {
+        for(int column = 0; column < a.width; column++)
+        {
+            uint8_t r_ = a.pixelAt(row, column).r + b.pixelAt(row, column).r;
+            uint8_t g_ = a.pixelAt(row, column).g + b.pixelAt(row, column).g;
+            uint8_t b_ = a.pixelAt(row, column).b + b.pixelAt(row, column).b;
+
+            new_image.setPixel(row, column, Color(r_, g_, b_));
+        }
+    }
+
+    return new_image;
+}
+
+Image strict_add(const Image& a, const Image& b)
+{
+    Image new_image(a.width, a.height);
+
+    for(int row = 0; row < a.height; row++)
+    {
+        for(int column = 0; column < a.width; column++)
+        {
+            int r_ = static_cast<int>(a.pixelAt(row, column).r) + static_cast<int>(b.pixelAt(row, column).r);
+            int g_ = static_cast<int>(a.pixelAt(row, column).g) + static_cast<int>(b.pixelAt(row, column).g);
+            int b_ = static_cast<int>(a.pixelAt(row, column).b) + static_cast<int>(b.pixelAt(row, column).b);
+
+            r_ = clamp(r_, 0, 255);
+            g_ = clamp(g_, 0, 255);
+            b_ = clamp(b_, 0, 255);
+
+            new_image.setPixel(row, column, Color(r_, g_, b_));
+        }
+    }
+
+    return new_image;
+}
+
+
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
@@ -386,4 +430,6 @@ BOOST_PYTHON_MODULE(images_internal)
     def("brightness", brightness);
     def("box_blur", box_blur);
     def("mask", mask);
+    def("strict_add", strict_add);
+    def("add", add);
 }

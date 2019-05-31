@@ -31,3 +31,9 @@ def luminance_map(image: modules.internals.Image)->modules.internals.Image:
 
 def mask(source: modules.internals.Image, mask: modules.internals.Image, threshold: int)->modules.internals.Image:
     return modules.images_internal.mask(source, mask, threshold)
+
+def add(a: modules.internals.Image, b: modules.internals.Image)->modules.internals.Image:
+    return modules.images_internal.add(a, b)
+
+def strict_add(a: modules.internals.Image, b: modules.internals.Image)->modules.internals.Image:
+    return modules.images_internal.strict_add(a, b)
