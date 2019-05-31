@@ -6,6 +6,7 @@
 #include <Color.h>
 #include <boost/python.hpp>
 #include <cmath>
+#include <algorithm>
 
 #include <iostream>
 #include <fstream>
@@ -289,6 +290,48 @@ Image brightness(const Image& source, double brightness)
     return new_image;
 }
 
+double square(double x) { return x * x; }
+
+Image guassian_blur(const Image& source, double radius_)
+{
+    int radius = static_cast<int>(radius_);
+
+    Image new_image(source.width, source.height);
+
+    for(int row = 0; row < source.height; row++)
+    {
+        for(int column = 0; column < source.width; column++)
+        {
+            double r = 0., g = 0., b = 0.;
+            double weight_sum = 0.;
+
+            for(int row_ = row - radius; row_ < row + radius + 1; row_++)
+                for(int column_ = column - radius; column_ < column + radius + 1; column_++)
+                {
+                    auto row__ = std::min(static_cast<int>(source.height) - 1, std::max(0, row_));
+                    auto column__ = std::min(static_cast<int>(source.width) - 1, std::max(0, column_));
+
+                    double a = square(row_ - row__) + square(column_ - column__);
+                    double weight = std::exp( -a / 2 / square(radius)) / (M_PI * 2 * square(radius));
+
+                    r += weight * source.pixelAt(row__, column__).r;
+                    g += weight * source.pixelAt(row__, column__).g;
+                    b += weight * source.pixelAt(row__, column__).b;
+
+                    weight_sum += weight;
+                }
+
+            r /= weight_sum;
+            g /= weight_sum;
+            b /= weight_sum;
+
+            new_image.setPixel(row, column, Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b)));
+        }
+    }
+
+    return new_image;
+}
+
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
@@ -302,4 +345,5 @@ BOOST_PYTHON_MODULE(images_internal)
     def("gamma", gamma_);
     def("contrast", contrast);
     def("brightness", brightness);
+    def("guassian_blur", guassian_blur);
 }

@@ -49,3 +49,6 @@ def contrast(source: modules.internals.Image, contrast: float)->modules.internal
 
 def brightness(source: modules.internals.Image, brightness: float)->modules.internals.Image:
     return modules.images_internal.brightness(source, brightness)
+
+def guassian_blur(source: modules.internals.Image, radius: float)->modules.internals.Image:
+    return modules.images_internal.guassian_blur(source, radius)
