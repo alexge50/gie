@@ -108,7 +108,10 @@ Image pixel_sort(const Image& source, const Image& mask, int threshold)
 
         std::sort(pixels.begin(), pixels.end(), [](const auto& lhs, const auto& rhs)
         {
-            return std::make_tuple(lhs.r, lhs.g, lhs.b) < std::make_tuple(rhs.r, rhs.g, rhs.b);
+            auto a = lhs.r * 0.2126 + lhs.g * 0.7152 + lhs.b * 0.0722;
+            auto b = rhs.r * 0.2126 + rhs.g * 0.7152 + rhs.b * 0.0722;
+
+            return a < b;
         });
 
         for(int row = row_start, i = 0; row <= row_end; row++, i++)
@@ -147,8 +150,6 @@ Image pixel_distort_displace(const Image& source, const Image& map, double row_f
                new_image.pixelAt(row, column).b == 0)
                 new_image.setPixel(row, column, source.pixelAt(row, column));
         }
-
-
 
     return new_image;
 }
