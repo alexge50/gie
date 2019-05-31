@@ -219,6 +219,11 @@ Image lift_gain(const Image& source, double lift, double gain)
             auto r = color.r * (gain - lift) + lift;
             auto g = color.g * (gain - lift) + lift;
             auto b = color.b * (gain - lift) + lift;
+
+            r = clamp(r, 0, 255);
+            g = clamp(g, 0, 255);
+            b = clamp(b, 0, 255);
+
             new_image.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
                                                                                                         static_cast<uint8_t>(b)));
         }
@@ -286,35 +291,6 @@ Image brightness(const Image& source, double brightness)
             new_image.setPixel(static_cast<unsigned int>(row), static_cast<unsigned int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
                                                                                                         static_cast<uint8_t>(b)));
         }
-
-    return new_image;
-}
-
-double square(double x) { return x * x; }
-
-Image guassian_blur(const Image& source, double radius_)
-{
-    int radius = static_cast<int>(radius_);
-
-    Image new_image(source.width, source.height);
-
-    double iarr = 1. / (2 * radius + 1);
-
-    for(int row = 0; row < source.height; row++)
-    {
-        Color f = source.pixelAt(row, 0);
-        Color l = source.pixelAt(row, source.width - 1);
-        double r = (radius + 1) * f.r;
-        double g = (radius + 1) * f.g;
-        double b = (radius + 1) * f.b;
-
-        for(int column = 0; column < radius; column++)
-        {
-            r += source.pixelAt(row, column).r;
-            g += source.pixelAt(row, column).g;
-            b += source.pixelAt(row, column).b;
-        }
-    }
 
     return new_image;
 }
@@ -408,7 +384,6 @@ BOOST_PYTHON_MODULE(images_internal)
     def("gamma", gamma_);
     def("contrast", contrast);
     def("brightness", brightness);
-    def("guassian_blur", guassian_blur);
     def("box_blur", box_blur);
     def("mask", mask);
 }
