@@ -34,38 +34,37 @@ endif()
 
 set_target_properties(
         internals PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/modules/modules"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/modules"
 )
 
 set_target_properties(
         images_internal PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/modules/modules"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/modules"
 )
 
-configure_file(modules/arithmetic.py modules/ COPYONLY)
-configure_file(modules/colors.py modules/ COPYONLY)
-configure_file(modules/string.py modules/ COPYONLY)
-configure_file(modules/images.py modules/ COPYONLY)
-configure_file(modules/blur.py modules/ COPYONLY)
-configure_file(modules/color_correction.py modules/ COPYONLY)
-configure_file(modules/effects.py modules/ COPYONLY)
-configure_file(modules/noise.py modules/ COPYONLY)
+add_custom_target(
+        modules
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/modules" "${CMAKE_BINARY_DIR}/bin/modules"
+        DEPENDS modules
+        COMMENT "copying python modules"
+        VERBATIM
+)
 
-add_library(modules INTERFACE)
+add_library(gie-types INTERFACE)
 include(GNUInstallDirs)
 
 target_include_directories(
-       modules INTERFACE
+        gie-types INTERFACE
        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 install(
-        TARGETS modules
-        EXPORT modules-config)
+        TARGETS gie-types
+        EXPORT gie-types-config)
 
 install(
-        EXPORT modules-config
-        NAMESPACE modules::
+        EXPORT gie-types-config
+        NAMESPACE gie::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/modules)
 
 install(

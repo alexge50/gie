@@ -95,9 +95,15 @@ set(SOURCE
 add_definitions(-DQT_NO_KEYWORDS)
 
 add_executable(GIE ${SOURCE})
-target_link_libraries(GIE PRIVATE Qt5::Widgets gie nodes modules QtColorWidgets)
-target_include_directories(GIE PRIVATE Qt5::Widgets gie nodes modules QtColorWidgets)
+add_dependencies(GIE modules internals images_internal)
+target_link_libraries(GIE PRIVATE Qt5::Widgets gie nodes gie-types QtColorWidgets)
+target_include_directories(GIE PRIVATE Qt5::Widgets gie nodes gie-types QtColorWidgets)
 target_compile_definitions(GIE PRIVATE NODE_EDITOR_SHARED)
+
+add_custom_command(
+        TARGET GIE POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy config $<TARGET_FILE_DIR:GIE>
+)
 
 if ("${CMAKE_BUILD_TYPE}" EQUAL "Debug")
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -116,6 +122,3 @@ elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
         target_compile_options(GIE PRIVATE /MD /O2 /Ob2)
     endif()
 endif()
-
-# file(INSTALL dump/modules DESTINATION ./)
-configure_file(config ./ COPYONLY)

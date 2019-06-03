@@ -8,9 +8,7 @@ add_subdirectory(gie)
 add_subdirectory(modules)
 add_subdirectory(gui)
 
-add_custom_command(
-        DEPENDS internals images_internal
-        OUTPUT empty.x
+set_target_properties(
+        GIE PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
-
-file(COPY ${CMAKE_BINARY_DIR}/modules/modules DESTINATION ${CMAKE_BINARY_DIR}/gui/)
