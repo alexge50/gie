@@ -3,8 +3,8 @@
 //
 
 #include <boost/python.hpp>
-#include <Color.h>
-#include <Image.h>
+#include <modules/Color.h>
+#include <modules/Image.h>
 
 using namespace boost::python;
 

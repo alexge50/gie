@@ -2,8 +2,8 @@
 // Created by alex on 5/28/19.
 //
 
-#include <Image.h>
-#include <Color.h>
+#include <modules/Image.h>
+#include <modules/Color.h>
 #include <boost/python.hpp>
 #include <cmath>
 #include <algorithm>
@@ -562,6 +562,11 @@ namespace PerlinNoise
 
         return new_image;
     }
+}
+
+Image gradient(const Image& mask, Color a, Color b)
+{
+
 }
 
 BOOST_PYTHON_MODULE(images_internal)

@@ -99,8 +99,7 @@ set(SOURCE
 add_definitions(-DQT_NO_KEYWORDS)
 
 add_executable(GIE ${SOURCE})
-target_link_libraries(GIE Qt5::Widgets gie::gie NodeEditor::nodes KF5::WidgetsAddons)
-target_include_directories(GIE PRIVATE gie::gie NodeEditor::nodes modules::modules KF5::WidgetsAddons)
+target_link_libraries(GIE PRIVATE Qt5::Widgets gie nodes modules KF5::WidgetsAddons)
 target_compile_definitions(GIE PRIVATE NODE_EDITOR_SHARED)
 
 if ("${CMAKE_BUILD_TYPE}" EQUAL "Debug")

@@ -39,8 +39,8 @@ add_library(modules INTERFACE)
 include(GNUInstallDirs)
 
 target_include_directories(
-        modules INTERFACE
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+       modules INTERFACE include/
+       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 install(
         TARGETS modules
