@@ -8,6 +8,7 @@
 #include <cmath>
 #include <algorithm>
 #include <random>
+#include <numeric>
 
 #include <iostream>
 #include <fstream>
