@@ -4,3 +4,6 @@
 [submodule "3rdparty/Qt-Color-Widgets"]
 	path = 3rdparty/Qt-Color-Widgets
 	url = https://gitlab.com/mattia.basaglia/Qt-Color-Widgets.git
+[submodule "3rdparty/Catch2"]
+	path = 3rdparty/Catch2
+	url = https://github.com/catchorg/Catch2.git

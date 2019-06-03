@@ -46,10 +46,8 @@ install(
         DESTINATION lib/cmake/gie)
 
 # TESTS
-find_package(Catch2 REQUIRED)
-
 add_executable(gie_test tests/test.cpp)
-target_link_libraries(gie_test gie)
+target_link_libraries(gie_test gie Catch2)
 
 file(INSTALL tests/test_modules DESTINATION ./)
 

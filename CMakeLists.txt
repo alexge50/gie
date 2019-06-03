@@ -10,6 +10,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 endif()
 
+add_subdirectory(3rdparty/Catch2)
 add_subdirectory(3rdparty/nodeeditor)
 add_subdirectory(3rdparty/Qt-Color-Widgets)
 add_subdirectory(gie)
