@@ -104,21 +104,3 @@ add_custom_command(
         TARGET GIE POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy config $<TARGET_FILE_DIR:GIE>
 )
-
-if ("${CMAKE_BUILD_TYPE}" EQUAL "Debug")
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_compile_options(GIE PRIVATE -fcompare-debug -g -Wall -Werror)
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        target_compile_options(GIE PRIVATE -fstandalone-debug -g -Wall -Werror)
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        target_compile_options(GIE PRIVATE /MDd /Zi /Ob0 /Od /RTC1)
-    endif()
-elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_compile_options(GIE PRIVATE -O3)
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        target_compile_options(GIE PRIVATE -O3)
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        target_compile_options(GIE PRIVATE /MD /O2 /Ob2)
-    endif()
-endif()

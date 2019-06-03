@@ -12,25 +12,9 @@ python_add_module(internals src/internals.cpp)
 target_link_libraries(internals ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 target_include_directories(internals PRIVATE include/ ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS})
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(internals PRIVATE -O3)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    target_compile_options(internals PRIVATE -O3)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    target_compile_options(internals PRIVATE /MD /Ob2)
-endif()
-
 python_add_module(images_internal src/images_internal.cpp)
 target_link_libraries(images_internal ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 target_include_directories(images_internal PRIVATE include/ ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS})
-
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(images_internal PRIVATE -O3)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    target_compile_options(images_internal PRIVATE -O3)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    target_compile_options(images_internal PRIVATE /MD /Ob2)
-endif()
 
 set_target_properties(
         internals PROPERTIES
