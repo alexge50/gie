@@ -7,7 +7,7 @@
 
 #include <boost/python.hpp>
 #include "TypeData.h"
-#include <modules/Color.h>
+#include <types/Color.h>
 
 class ColorData: public TypeData
 {

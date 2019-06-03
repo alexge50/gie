@@ -7,7 +7,7 @@
 
 #include <boost/python.hpp>
 #include "TypeData.h"
-#include <modules/Image.h>
+#include <types/Image.h>
 
 class ImageData: public TypeData
 {

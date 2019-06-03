@@ -2,8 +2,8 @@
 // Created by alex on 5/28/19.
 //
 
-#include <modules/Image.h>
-#include <modules/Color.h>
+#include <types/Image.h>
+#include <types/Color.h>
 #include <boost/python.hpp>
 #include <cmath>
 #include <algorithm>
