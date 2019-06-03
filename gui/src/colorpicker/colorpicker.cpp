@@ -30,9 +30,9 @@ ColorPicker::ColorPicker(QWidget *parent) : QWidget(parent)
         m_channelSpinbox[row]->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
 
-        connect(m_channelSelector[row], &KGradientSelector::valueChanged, this, &ColorPicker::onUpdate);
-        connect(m_channelSelector[row], &KGradientSelector::valueChanged, m_channelSpinbox[row], &QSpinBox::setValue);
-        connect(m_channelSpinbox[row], static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_channelSelector[row], &KGradientSelector::setValue);
+        connect(m_channelSelector[row], &QSlider::valueChanged, this, &ColorPicker::onUpdate);
+        connect(m_channelSelector[row], &QSlider::valueChanged, m_channelSpinbox[row], &QSpinBox::setValue);
+        connect(m_channelSpinbox[row], static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_channelSelector[row], &QSlider::setValue);
 
 
         colorEditor->addWidget(label, row, 0);

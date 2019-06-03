@@ -10,10 +10,6 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt5Core)
-find_package(gie REQUIRED HINTS dump)
-find_package(NodeEditor REQUIRED HINTS dump)
-find_package(modules HINTS dump)
-find_package(KF5WidgetsAddons CONFIG REQUIRED)
 
 set(SOURCE
         src/mainwindow.ui
@@ -99,7 +95,7 @@ set(SOURCE
 add_definitions(-DQT_NO_KEYWORDS)
 
 add_executable(GIE ${SOURCE})
-target_link_libraries(GIE PRIVATE Qt5::Widgets gie nodes modules KF5::WidgetsAddons)
+target_link_libraries(GIE PRIVATE Qt5::Widgets gie nodes modules)
 target_compile_definitions(GIE PRIVATE NODE_EDITOR_SHARED)
 
 if ("${CMAKE_BUILD_TYPE}" EQUAL "Debug")

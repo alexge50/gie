@@ -8,7 +8,6 @@
 
 #include <QWidget>
 #include <QSpinBox>
-#include <KSelector>
 #include <QSlider>
 
 class ColorPicker : public QWidget
