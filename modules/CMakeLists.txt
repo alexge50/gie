@@ -32,14 +32,31 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     target_compile_options(images_internal PRIVATE /MD /Ob2)
 endif()
 
-install(TARGETS internals images_internal DESTINATION modules)
-install(FILES modules/arithmetic.py modules/colors.py modules/string.py modules/images.py modules/blur.py modules/color_correction.py modules/effects.py modules/noise.py DESTINATION modules)
+set_target_properties(
+        internals PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/modules/modules"
+)
+
+set_target_properties(
+        images_internal PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/modules/modules"
+)
+
+configure_file(modules/arithmetic.py modules/ COPYONLY)
+configure_file(modules/colors.py modules/ COPYONLY)
+configure_file(modules/string.py modules/ COPYONLY)
+configure_file(modules/images.py modules/ COPYONLY)
+configure_file(modules/blur.py modules/ COPYONLY)
+configure_file(modules/color_correction.py modules/ COPYONLY)
+configure_file(modules/effects.py modules/ COPYONLY)
+configure_file(modules/noise.py modules/ COPYONLY)
 
 add_library(modules INTERFACE)
 include(GNUInstallDirs)
 
 target_include_directories(
-       modules INTERFACE include/
+       modules INTERFACE
+       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 install(
@@ -53,4 +70,4 @@ install(
 
 install(
         DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/modules)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/)

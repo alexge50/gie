@@ -95,7 +95,8 @@ set(SOURCE
 add_definitions(-DQT_NO_KEYWORDS)
 
 add_executable(GIE ${SOURCE})
-target_link_libraries(GIE PRIVATE Qt5::Widgets gie nodes modules)
+target_link_libraries(GIE PRIVATE Qt5::Widgets gie nodes modules QtColorWidgets)
+target_include_directories(GIE PRIVATE Qt5::Widgets gie nodes modules QtColorWidgets)
 target_compile_definitions(GIE PRIVATE NODE_EDITOR_SHARED)
 
 if ("${CMAKE_BUILD_TYPE}" EQUAL "Debug")
@@ -116,5 +117,5 @@ elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
     endif()
 endif()
 
-file(INSTALL dump/modules DESTINATION ./)
-file(INSTALL config DESTINATION ./)
+# file(INSTALL dump/modules DESTINATION ./)
+configure_file(config ./ COPYONLY)
