@@ -42,7 +42,6 @@ private:
 private:
     Ui::MainWindow *ui;
     Program m_program;
-    QMenuBar* m_menu;
     Editor* m_editor;
 
     SymbolViewer* m_symbolViewer;
