@@ -44,6 +44,9 @@ def add(a: modules.internals.Image, b: modules.internals.Image)->modules.interna
 def strict_add(a: modules.internals.Image, b: modules.internals.Image)->modules.internals.Image:
     return modules.images_internal.strict_add(a, b)
 
+def multiply(a: modules.internals.Image, b: modules.internals.Image)->modules.internals.Image:
+    return modules.images_internal.multiply(a, b)
+
 def discriminate_greater_than(source: modules.internals.Image, threshold: int)->modules.internals.Image:
     return modules.images_internal.discriminator_greater_than(source, threshold)
 

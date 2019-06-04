@@ -445,6 +445,29 @@ Image strict_add(const Image& a, const Image& b)
     return new_image;
 }
 
+Image multiply(const Image& a, const Image& b)
+{
+    Image new_image(a.width, a.height);
+
+    for(int row = 0; row < static_cast<int>(a.height); row++)
+    {
+        for (int column = 0; column < static_cast<int>(a.width); column++)
+        {
+            int r_ = static_cast<int>(a.pixelAt(row, column).r) * static_cast<int>(b.pixelAt(row, column).r);
+            int g_ = static_cast<int>(a.pixelAt(row, column).g) * static_cast<int>(b.pixelAt(row, column).g);
+            int b_ = static_cast<int>(a.pixelAt(row, column).b) * static_cast<int>(b.pixelAt(row, column).b);
+
+            r_ /= 255;
+            g_ /= 255;
+            b_ /= 255;
+
+            new_image.setPixel(row, column, Color(r_, g_, b_));
+        }
+    }
+
+    return new_image;
+}
+
 namespace PerlinNoise
 {
     double lerp(double a, double b, double x)
@@ -611,6 +634,18 @@ Image discriminator_range(const Image& source, long long int a, long long int b)
 }
 
 
+Image solid_color(const Image& source, Color color)
+{
+    Image new_image(source.width, source.height);
+
+    for(int row = 0; row < static_cast<int>(source.height); row++)
+    {
+        for (int column = 0; column < static_cast<int>(source.width); column++)
+            new_image.setPixel(row, column, color);
+    }
+
+    return new_image;
+}
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
@@ -630,8 +665,10 @@ BOOST_PYTHON_MODULE(images_internal)
     def("mask", mask);
     def("strict_add", strict_add);
     def("add", add);
+    def("multiply", multiply);
     def("perlin_noise", PerlinNoise::perlin_noise);
     def("discriminator_greater_than", discriminator_greater_than);
     def("discriminator_lesser_than", discriminator_lesser_than);
     def("discriminator_range", discriminator_range);
+    def("solid_color", solid_color);
 }
