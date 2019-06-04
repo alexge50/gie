@@ -565,6 +565,52 @@ namespace PerlinNoise
     }
 }
 
+Image discriminator_greater_than(const Image& source, long long int threshold)
+{
+    Image new_image(source.width, source.height);
+
+    for(int row = 0; row < source.height; row++)
+    {
+        for(int column = 0; column < source.width; column++)
+            if(source.pixelAt(row, column).r >= threshold)
+                new_image.setPixel(row, column, Color(255, 255, 255));
+            else new_image.setPixel(row, column, Color(0, 0, 0));
+    }
+
+    return new_image;
+}
+
+Image discriminator_lesser_than(const Image& source, long long int threshold)
+{
+    Image new_image(source.width, source.height);
+
+    for(int row = 0; row < source.height; row++)
+    {
+        for(int column = 0; column < source.width; column++)
+            if(source.pixelAt(row, column).r <= threshold)
+                new_image.setPixel(row, column, Color(255, 255, 255));
+            else new_image.setPixel(row, column, Color(0, 0, 0));
+    }
+
+    return new_image;
+}
+
+Image discriminator_range(const Image& source, long long int a, long long int b)
+{
+    Image new_image(source.width, source.height);
+
+    for(int row = 0; row < source.height; row++)
+    {
+        for(int column = 0; column < source.width; column++)
+            if(source.pixelAt(row, column).r >= a && source.pixelAt(row, column).r <= b)
+                new_image.setPixel(row, column, Color(255, 255, 255));
+            else new_image.setPixel(row, column, Color(0, 0, 0));
+    }
+
+    return new_image;
+}
+
+
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
@@ -585,4 +631,7 @@ BOOST_PYTHON_MODULE(images_internal)
     def("strict_add", strict_add);
     def("add", add);
     def("perlin_noise", PerlinNoise::perlin_noise);
+    def("discriminator_greater_than", discriminator_greater_than);
+    def("discriminator_lesser_than", discriminator_lesser_than);
+    def("discriminator_range", discriminator_range);
 }
