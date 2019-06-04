@@ -32,6 +32,7 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void onAttachDockWindow(QDockWidget*);
+    void onDetachDockWindow(QDockWidget*);
     void onChanged();
     void onSaved();
 

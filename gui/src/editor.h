@@ -32,6 +32,7 @@ public:
 
 Q_SIGNALS:
     void attachDockWindow(QDockWidget*);
+    void detachDockWindow(QDockWidget*);
     void importedImagesReload(const std::vector<ProjectImage>&);
     void sceneChanged();
     void savedProject();
@@ -52,7 +53,8 @@ private Q_SLOTS:
 
     void onConnectionCreated(const QtNodes::Connection& c);
     void onConnectionDeleted(const QtNodes::Connection& c);
-    void nodeCreated(QtNodes::Node &n);
+    void nodeCreated(QtNodes::Node &node);
+    void nodeDeleted(QtNodes::Node &node);
 
     void onTargetNameChanged(const QUuid& id, const QString&);
 

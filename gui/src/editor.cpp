@@ -69,6 +69,11 @@ Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{pr
             this, &Editor::nodeCreated
     );
 
+    QObject::connect(
+            m_scene, &QtNodes::FlowScene::nodeDeleted,
+            this, &Editor::nodeDeleted
+    );
+
     vlayout->addWidget(m_noProjectMessage = new QLabel("No project loaded. Consider loading a project: Files > Open Project"));
 
     connect(m_scene, &QtNodes::FlowScene::nodePlaced, this, &Editor::sceneChanged);
@@ -126,12 +131,20 @@ void Editor::onConnectionDeleted(const QtNodes::Connection& c)
     }
 }
 
-void Editor::nodeCreated(QtNodes::Node &n)
+void Editor::nodeCreated(QtNodes::Node& node)
 {
-    if(auto* p = dynamic_cast<TargetExportImageDataModel*>(n.nodeDataModel()); p != nullptr)
+    if(auto* p = dynamic_cast<TargetExportImageDataModel*>(node.nodeDataModel()); p != nullptr)
     {
         connect(p, &TargetExportImageDataModel::targetNameChanged, this, &Editor::onTargetNameChanged);
         Q_EMIT(attachDockWindow(p->dockWidget()));
+    }
+}
+
+void Editor::nodeDeleted(QtNodes::Node& node)
+{
+    if(auto* p = dynamic_cast<TargetExportImageDataModel*>(node.nodeDataModel()); p != nullptr)
+    {
+        Q_EMIT(detachDockWindow(p->dockWidget()));
     }
 }
 

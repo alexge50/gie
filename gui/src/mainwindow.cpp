@@ -60,6 +60,11 @@ MainWindow::MainWindow(QWidget *parent) :
     );
 
     QObject::connect(
+            m_editor, &Editor::detachDockWindow,
+            this, &MainWindow::onDetachDockWindow
+    );
+
+    QObject::connect(
             m_editor, &Editor::sceneChanged,
             this, &MainWindow::onChanged
     );
@@ -129,6 +134,11 @@ void MainWindow::onAttachDockWindow(QDockWidget* dock)
 {
     dock->setParent(this);
     addDockWidget(Qt::LeftDockWidgetArea, dock);
+}
+
+void MainWindow::onDetachDockWindow(QDockWidget* dock)
+{
+    removeDockWidget(dock);
 }
 
 void MainWindow::onChanged()
