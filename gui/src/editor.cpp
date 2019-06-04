@@ -133,7 +133,10 @@ void Editor::nodeCreated(QtNodes::Node &n)
         Q_EMIT(attachDockWindow(p->dockWidget()));
 
     if(auto* p = dynamic_cast<TargetExportImageDataModel*>(n.nodeDataModel()); p != nullptr)
+    {
         connect(p, &TargetExportImageDataModel::targetNameChanged, this, &Editor::onTargetNameChanged);
+        Q_EMIT(attachDockWindow(p->dockWidget()));
+    }
 }
 
 void Editor::onTargetNameChanged(const QUuid& id, const QString& name)

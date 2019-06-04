@@ -7,6 +7,9 @@
 
 #include <nodes/NodeDataModel>
 #include <QLineEdit>
+#include "src/imageviewer/imageviewer.h"
+
+#include <QDockWidget>
 
 class TargetExportImageDataModel: public QtNodes::NodeDataModel
 {
@@ -37,6 +40,7 @@ public:
 
     const QString& getTargetName() const { return m_targetName; }
     QString getId() const { return m_id.toString(); };
+    QDockWidget* dockWidget() { return m_dock; }
 
 Q_SIGNALS:
     void targetNameChanged(const QUuid& id, const QString&);
@@ -51,6 +55,9 @@ private:
     QLineEdit* m_targetNameEdit;
     QString m_targetName;
     QUuid m_id;
+
+    QDockWidget* m_dock;
+    ImageViewer* m_imageViewer;
 };
 
 
