@@ -74,7 +74,7 @@ Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{pr
             this, &Editor::nodeDeleted
     );
 
-    vlayout->addWidget(m_noProjectMessage = new QLabel("No project loaded. Consider loading a project: Files > Open Project"));
+    vlayout->addWidget(m_noProjectMessage = new QLabel("No project loaded.\nNew Project: File > New Project\nOpen Project: File > Open Project"));
 
     connect(m_scene, &QtNodes::FlowScene::nodePlaced, this, &Editor::sceneChanged);
     connect(m_scene, &QtNodes::FlowScene::nodeDeleted, this, &Editor::sceneChanged);
