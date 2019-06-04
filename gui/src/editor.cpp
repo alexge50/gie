@@ -13,7 +13,6 @@
 
 #include "gie/GieDataModelRegistry.h"
 #include "gie/GieNodeDataModel.h"
-#include "gie/DisplayNodeDataModel/PreviewImageDisplayDataModel.h"
 #include "gie/SourceNodeDataModel/ManagedImageSourceDataModel.h"
 
 #include <nodes/Connection>
@@ -129,9 +128,6 @@ void Editor::onConnectionDeleted(const QtNodes::Connection& c)
 
 void Editor::nodeCreated(QtNodes::Node &n)
 {
-    if(auto* p = dynamic_cast<PreviewImageDisplayDataModel*>(n.nodeDataModel()); p != nullptr)
-        Q_EMIT(attachDockWindow(p->dockWidget()));
-
     if(auto* p = dynamic_cast<TargetExportImageDataModel*>(n.nodeDataModel()); p != nullptr)
     {
         connect(p, &TargetExportImageDataModel::targetNameChanged, this, &Editor::onTargetNameChanged);

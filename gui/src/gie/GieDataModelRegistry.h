@@ -23,7 +23,6 @@
 #include "DisplayNodeDataModel/StringDisplayDataModel.h"
 #include "DisplayNodeDataModel/ColorDisplayDataModel.h"
 #include "DisplayNodeDataModel/ImageDisplayDataModel.h"
-#include "DisplayNodeDataModel/PreviewImageDisplayDataModel.h"
 #include "DisplayNodeDataModel/TargetExportImageDataModel.h"
 
 class GieDataModelRegistry: public QtNodes::DataModelRegistry
@@ -58,7 +57,6 @@ static std::shared_ptr<GieDataModelRegistry> registerDataModels(Program& program
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<StringDisplayDataModel>("display");
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<ColorDisplayDataModel>("display");
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<ImageDisplayDataModel>("display");
-    static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<PreviewImageDisplayDataModel>("display");
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<TargetExportImageDataModel>("display");
 
     return registry;
