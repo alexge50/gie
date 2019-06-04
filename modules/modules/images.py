@@ -35,11 +35,20 @@ def separate_green_channel(image: modules.internals.Image)->modules.internals.Im
 def luminance_map(image: modules.internals.Image)->modules.internals.Image:
     return modules.images_internal.luminance_map(image)
 
-def mask(source: modules.internals.Image, mask: modules.internals.Image, threshold: int)->modules.internals.Image:
-    return modules.images_internal.mask(source, mask, threshold)
+def mask(source: modules.internals.Image, mask: modules.internals.Image)->modules.internals.Image:
+    return modules.images_internal.mask(source, mask)
 
 def add(a: modules.internals.Image, b: modules.internals.Image)->modules.internals.Image:
     return modules.images_internal.add(a, b)
 
 def strict_add(a: modules.internals.Image, b: modules.internals.Image)->modules.internals.Image:
     return modules.images_internal.strict_add(a, b)
+
+def discriminate_greater_than(source: modules.internals.Image, threshold: int)->modules.internals.Image:
+    return modules.images_internal.discriminator_greater_than(source, threshold)
+
+def discriminate_lesser_than(source: modules.internals.Image, threshold: int)->modules.internals.Image:
+    return modules.images_internal.discriminator_lesser_than(source, threshold)
+
+def discriminate_range(source: modules.internals.Image, a: int, b:int)->modules.internals.Image:
+    return modules.images_internal.discriminator_range(source, a, b)

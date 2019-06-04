@@ -79,7 +79,7 @@ Image luminance_map(const Image& image)
     return new_image;
 }
 
-Image pixel_sort(const Image& source, const Image& mask, int threshold)
+Image pixel_sort(const Image& source, const Image& mask)
 {
     struct Interval {int column, row_start, row_end; };
 
@@ -90,11 +90,11 @@ Image pixel_sort(const Image& source, const Image& mask, int threshold)
         while(row < static_cast<int>(source.height))
         {
             int row_begin = row;
-            while(row < static_cast<int>(source.height) && mask.pixelAt(row, column).r >= threshold)
+            while(row < static_cast<int>(source.height) && mask.pixelAt(row, column).r == 255u)
                 row ++;
             intervals.push_back({column, row_begin, row - 1});
 
-            while(row < static_cast<int>(source.height) && mask.pixelAt(row, column).r < threshold)
+            while(row < static_cast<int>(source.height) && mask.pixelAt(row, column).r != 255u)
                 row ++;
         }
     }
@@ -388,14 +388,14 @@ Image box_blur(const Image& source, double row_factor, double column_factor)
     return new_image;
 }
 
-Image mask(const Image& source, const Image& mask, int threshold)
+Image mask(const Image& source, const Image& mask)
 {
     Image new_image(source.width, source.height);
 
     for(int row = 0; row < static_cast<int>(source.height); row++)
     {
         for(int column = 0; column < static_cast<int>(source.width); column++)
-            if(mask.pixelAt(row, column).r >= threshold)
+            if(mask.pixelAt(row, column).r == 255u)
                 new_image.setPixel(row, column, source.pixelAt(row, column));
             else new_image.setPixel(row, column, Color(0, 0, 0));
     }
