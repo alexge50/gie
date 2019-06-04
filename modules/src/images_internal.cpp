@@ -137,7 +137,7 @@ Image pixel_distort_displace(const Image& source, const Image& map, double row_f
 
             if((row_displaced >= 0 && row_displaced < static_cast<int>(source.height)) &&
                (column_displaced >= 0 && column_displaced < static_cast<int>(source.width))
-            )
+                    )
             {
                 new_image.setPixel(row_displaced, column_displaced, source.pixelAt(row, column));
             }
@@ -257,7 +257,7 @@ Image lift_gain(const Image& source, double lift, double gain)
             b = clamp(b, 0., 255.);
 
             new_image.setPixel(static_cast<int>(row), static_cast<int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
-                                                                                                        static_cast<uint8_t>(b)));
+                                                                                      static_cast<uint8_t>(b)));
         }
 
     return new_image;
@@ -275,7 +275,7 @@ Image gamma_(const Image& source, double gamma)
             auto g = pow(color.g, 1. / gamma);
             auto b = pow(color.b, 1. / gamma);
             new_image.setPixel(static_cast<int>(row), static_cast<int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
-                                                                                                        static_cast<uint8_t>(b)));
+                                                                                      static_cast<uint8_t>(b)));
         }
 
     return new_image;
@@ -298,7 +298,7 @@ Image contrast(const Image& source, double contrast)
             b = clamp(b, 0., 255.);
 
             new_image.setPixel(static_cast<int>(row), static_cast<int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
-                                                                                                        static_cast<uint8_t>(b)));
+                                                                                      static_cast<uint8_t>(b)));
         }
 
     return new_image;
@@ -321,7 +321,7 @@ Image brightness(const Image& source, double brightness)
             b = clamp(b, 0., 255.);
 
             new_image.setPixel(static_cast<int>(row), static_cast<int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
-                                                                                                        static_cast<uint8_t>(b)));
+                                                                                      static_cast<uint8_t>(b)));
         }
 
     return new_image;
@@ -330,11 +330,11 @@ Image brightness(const Image& source, double brightness)
 Image box_blur(const Image& source, double row_factor, double column_factor)
 {
     static auto get_pixel_or_black = [](const Image& image, int row, int column)
-            {
-                if(row < static_cast<int>(image.height) && column < static_cast<int>(image.width) && row >= 0 && column >= 0)
-                    return image.pixelAt(row, column);
-                return Color();
-            };
+    {
+        if(row < static_cast<int>(image.height) && column < static_cast<int>(image.width) && row >= 0 && column >= 0)
+            return image.pixelAt(row, column);
+        return Color();
+    };
 
     Image tmp(source.width, source.height);
     {
@@ -356,7 +356,7 @@ Image box_blur(const Image& source, double row_factor, double column_factor)
                 b = clamp(b, 0., 255.);
 
                 tmp.setPixel(static_cast<int>(row), static_cast<int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
-                                                                                                            static_cast<uint8_t>(b)));
+                                                                                    static_cast<uint8_t>(b)));
             }
     }
 
@@ -381,7 +381,7 @@ Image box_blur(const Image& source, double row_factor, double column_factor)
                 b = clamp(b, 0., 255.);
 
                 new_image.setPixel(static_cast<int>(row), static_cast<int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
-                                                                                                      static_cast<uint8_t>(b)));
+                                                                                          static_cast<uint8_t>(b)));
             }
     }
 
@@ -569,9 +569,9 @@ Image discriminator_greater_than(const Image& source, long long int threshold)
 {
     Image new_image(source.width, source.height);
 
-    for(int row = 0; row < source.height; row++)
+    for(int row = 0; row < static_cast<int>(source.height); row++)
     {
-        for(int column = 0; column < source.width; column++)
+        for(int column = 0; column < static_cast<int>(source.width); column++)
             if(source.pixelAt(row, column).r >= threshold)
                 new_image.setPixel(row, column, Color(255, 255, 255));
             else new_image.setPixel(row, column, Color(0, 0, 0));
@@ -584,9 +584,9 @@ Image discriminator_lesser_than(const Image& source, long long int threshold)
 {
     Image new_image(source.width, source.height);
 
-    for(int row = 0; row < source.height; row++)
+    for(int row = 0; row < static_cast<int>(source.height); row++)
     {
-        for(int column = 0; column < source.width; column++)
+        for(int column = 0; column < static_cast<int>(source.width); column++)
             if(source.pixelAt(row, column).r <= threshold)
                 new_image.setPixel(row, column, Color(255, 255, 255));
             else new_image.setPixel(row, column, Color(0, 0, 0));
@@ -599,9 +599,9 @@ Image discriminator_range(const Image& source, long long int a, long long int b)
 {
     Image new_image(source.width, source.height);
 
-    for(int row = 0; row < source.height; row++)
+    for(int row = 0; row < static_cast<int>(source.height); row++)
     {
-        for(int column = 0; column < source.width; column++)
+        for(int column = 0; column < static_cast<int>(source.width); column++)
             if(source.pixelAt(row, column).r >= a && source.pixelAt(row, column).r <= b)
                 new_image.setPixel(row, column, Color(255, 255, 255));
             else new_image.setPixel(row, column, Color(0, 0, 0));
