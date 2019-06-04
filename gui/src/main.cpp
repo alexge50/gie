@@ -56,7 +56,7 @@ std::string fetchPythonException()
 
 int main(int argc, char *argv[])
 {
-    int ret;
+    int ret = -1;
     try
     {
         QApplication a(argc, argv);
