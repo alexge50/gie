@@ -26,6 +26,18 @@ set_target_properties(
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/modules"
 )
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set_target_properties(images_internal PROPERTIES COMPILE_FLAGS -O3)
+    set_target_properties(internals PROPERTIES COMPILE_FLAGS -O3)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set_target_properties(images_internal PROPERTIES COMPILE_FLAGS -O3)
+    set_target_properties(internals PROPERTIES COMPILE_FLAGS -O3)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set_target_properties(images_internal PROPERTIES COMPILE_FLAGS /O3)
+    set_target_properties(internals PROPERTIES COMPILE_FLAGS /O3)
+endif()
+
+
 add_custom_target(
         modules
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/modules" "${CMAKE_BINARY_DIR}/bin/modules"
