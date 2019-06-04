@@ -102,5 +102,5 @@ target_compile_definitions(GIE PRIVATE NODE_EDITOR_SHARED)
 
 add_custom_command(
         TARGET GIE POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy config $<TARGET_FILE_DIR:GIE>
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/config $<TARGET_FILE_DIR:GIE>
 )
