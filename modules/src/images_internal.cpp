@@ -565,11 +565,6 @@ namespace PerlinNoise
     }
 }
 
-Image gradient(const Image& mask, Color a, Color b)
-{
-
-}
-
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
