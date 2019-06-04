@@ -28,9 +28,13 @@ public:
 public:
     void setRegistry(std::shared_ptr<QtNodes::DataModelRegistry>);
 
+    QString getProjectName();
+
 Q_SIGNALS:
     void attachDockWindow(QDockWidget*);
     void importedImagesReload(const std::vector<ProjectImage>&);
+    void sceneChanged();
+    void savedProject();
 
 public Q_SLOTS:
     void onNewProject();

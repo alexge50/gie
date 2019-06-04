@@ -36,6 +36,7 @@ public:
     void importImage(QString filename, QString name);
 
     const std::map<QUuid, ProjectImage>& importedImages() const { return m_images; };
+    QString projectName() const { return m_name; }
 
 private:
     QJsonValue serialiseImages();

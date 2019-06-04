@@ -59,6 +59,16 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::onAttachDockWindow
     );
 
+    QObject::connect(
+            m_editor, &Editor::sceneChanged,
+            this, &MainWindow::onChanged
+    );
+
+    QObject::connect(
+            m_editor, &Editor::savedProject,
+            this, &MainWindow::onSaved
+    );
+
 
     QDockWidget* symbolViewerDock = new QDockWidget("SymbolViewer", this);
     m_symbolViewer = new SymbolViewer(symbolViewerDock);
@@ -93,6 +103,8 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->actionExportImage, &QAction::triggered,
             m_editor, &Editor::onExportImage
     );
+
+    this->setWindowTitle("GIE");
 }
 
 MainWindow::~MainWindow()
@@ -117,4 +129,14 @@ void MainWindow::onAttachDockWindow(QDockWidget* dock)
 {
     dock->setParent(this);
     addDockWidget(Qt::LeftDockWidgetArea, dock);
+}
+
+void MainWindow::onChanged()
+{
+    this->setWindowTitle("GIE [ " + m_editor->getProjectName() + " ]*");
+}
+
+void MainWindow::onSaved()
+{
+    this->setWindowTitle("GIE [ " + m_editor->getProjectName() + " ]");
 }

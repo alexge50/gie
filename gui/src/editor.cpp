@@ -71,6 +71,14 @@ Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{pr
     );
 
     vlayout->addWidget(m_noProjectMessage = new QLabel("No project loaded. Consider loading a project: Files > Open Project"));
+
+    connect(m_scene, &QtNodes::FlowScene::nodePlaced, this, &Editor::sceneChanged);
+    connect(m_scene, &QtNodes::FlowScene::nodeDeleted, this, &Editor::sceneChanged);
+    connect(m_scene, &QtNodes::FlowScene::connectionCreated, this, &Editor::sceneChanged);
+    connect(m_scene, &QtNodes::FlowScene::connectionDeleted, this, &Editor::sceneChanged);
+    connect(m_scene, &QtNodes::FlowScene::nodeMoved, this, &Editor::sceneChanged);
+    connect(m_scene, &QtNodes::FlowScene::nodeDoubleClicked, this, &Editor::sceneChanged);
+    connect(m_scene, &QtNodes::FlowScene::connectionHovered, this, &Editor::sceneChanged);
 }
 
 void Editor::onConnectionCreated(const QtNodes::Connection& c)
@@ -153,6 +161,7 @@ void Editor::onNewProject_(QDir directory, QString name)
     m_view->show();
 
     reloadImages();
+    Q_EMIT savedProject();
 }
 
 void Editor::onOpenProject()
@@ -169,12 +178,16 @@ void Editor::onOpenProject()
     m_view->show();
 
     reloadImages();
+    Q_EMIT savedProject();
 }
 
 void Editor::keyPressEvent(QKeyEvent* e)
 {
     if(e->key() == Qt::Key_S && (e->modifiers().testFlag(Qt::ControlModifier)))
+    {
         m_project->save();
+        Q_EMIT savedProject();
+    }
 }
 
 void Editor::onImportImage()
@@ -236,4 +249,11 @@ void Editor::reloadImages()
         images.push_back(image);
 
     Q_EMIT importedImagesReload(images);
+}
+
+QString Editor::getProjectName()
+{
+    if(m_project)
+        return m_project->projectName();
+    return QString("");
 }
