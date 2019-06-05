@@ -55,3 +55,6 @@ def discriminate_lesser_than(source: modules.internals.Image, threshold: int)->m
 
 def discriminate_range(source: modules.internals.Image, a: int, b:int)->modules.internals.Image:
     return modules.images_internal.discriminator_range(source, a, b)
+
+def proxy(source: modules.internals.Image)->modules.internals.Image:
+    return source
