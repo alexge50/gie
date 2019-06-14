@@ -19,22 +19,39 @@ public:
     Image(unsigned width, unsigned height):
             width{width},
             height{height},
-            data(N_CHANNELS * width * height)
+            data{new uint8_t[N_CHANNELS * width * height]}
     {}
 
     Image(const uint8_t* data, unsigned width, unsigned height):
             width{width},
             height{height},
-            data(N_CHANNELS * width * height)
+            data{new uint8_t[N_CHANNELS * width * height]}
     {
-        std::memcpy(this->data.data(), data, N_CHANNELS * width * height);
+        std::memcpy(this->data, data, N_CHANNELS * width * height);
     }
 
-    Image(std::vector<uint8_t> data, unsigned width, unsigned height):
+    Image(const std::vector<uint8_t>& vecdata, unsigned width, unsigned height):
         width{width},
         height{height},
-        data{std::move(data)}
-    {}
+        data{new uint8_t[N_CHANNELS * width * height]}
+    {
+        std::memcpy(data, vecdata.data(), N_CHANNELS * width * height);
+    }
+
+    Image(const Image& other):
+            width{other.width},
+            height{other.height},
+            data{new uint8_t[N_CHANNELS * width * height]}
+    {
+        std::memcpy(data, other.data, N_CHANNELS * width * height);
+    }
+
+    Image(Image&&) = default;
+
+    ~Image()
+    {
+        delete[] data;
+    }
 
     Color pixelAt(unsigned row, unsigned column) const
     {
@@ -53,7 +70,7 @@ public:
     auto width_() { return width; }
     auto height_() { return height; }
 
-    const uint8_t* raw() const { return data.data(); }
+    const uint8_t* raw() const { return data; }
 
 private:
     std::size_t index(unsigned row, unsigned column) const
@@ -62,7 +79,7 @@ private:
     }
 
 private:
-    std::vector<uint8_t> data;
+    uint8_t* data;
 };
 
 #endif //MODULES_IMAGE_H
