@@ -16,6 +16,6 @@
 std::optional<Value> executeNode(const Node& node);
 
 void executeNode(ScriptGraph& graph, NodeId nodeId);
-std::vector<Result> executeGraph(ScriptGraph& graph);
+std::vector<Result> executeGraph(ScriptGraph& graph); //TODO: doesn't do any checking (typing or NoArgument)
 
 #endif //GIE_LIBRARY_EXECUTE_H

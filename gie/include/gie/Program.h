@@ -12,6 +12,13 @@
 
 #include <vector>
 
+// TODO: change caching strategy
+// TODO: check memory lifetime
+
+// TODO: Add functions, graphs with set arguments and an output
+
+// TODO: Add serialization and deserialization
+
 class Program
 {
 public:
@@ -20,13 +27,13 @@ public:
     Program(Program &&) = default;
 
     std::vector<Result> run();
-
+    // TODO: strong typing for NodeId
     NodeId addNode(const Node &node);
-    void editNode(NodeId, const Node &node);
+    void editNode(NodeId, const Node &node); // TODO: [refactoring] node editing should be done on a per argument basis
     void removeNode(NodeId);
     const Node& getNode(NodeId id) const;
 
-    void addResult(std::string tag, NodeId);
+    void addResult(std::string tag, NodeId); // TODO: tag should be an id instead
     void editResult(std::string tag, NodeId);
     void removeResult(std::string tag);
 

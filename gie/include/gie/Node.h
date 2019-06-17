@@ -17,9 +17,9 @@ using NodeId = std::size_t;
 
 struct Node
 {
-    NodeDrawable m_drawable;
-    NodeLogic m_logic;
-    NodeMetadata m_metadata;
+    NodeDrawable m_drawable; // TODO: unused, remove
+    NodeLogic m_logic; // TODO: size should be enforced/ maybe custom type with fixed amount of elements?
+    NodeMetadata m_metadata; // TODO: should be unmodifiable
 };
 
 

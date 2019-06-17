@@ -18,6 +18,9 @@ struct Symbol
 
 Symbol createSymbol(std::string qualifiedName);
 
+// TODO: find a better module importing method, that doesn't import in globals
+// TODO: expose Image, Color in the imported modules
+// TODO: absolute import
 class PythonContext
 {
 public:

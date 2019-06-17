@@ -16,7 +16,7 @@ public:
     Value() {}
     explicit Value(boost::python::object object): m_object(std::move(object)) {}
 
-    Type m_typeName;
+    Type m_typeName; // TODO: unpopulated, typechecking is done somehow else, force typechecking in libgie.
     boost::python::object m_object;
 };
 

@@ -8,7 +8,7 @@
 #include <string>
 #include <functional>
 
-class Type
+class Type // TODO: limited number of types, convert to an id based type system.
 {
     static std::hash<std::string> Hasher;
 public:
