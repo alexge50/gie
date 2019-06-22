@@ -23,6 +23,7 @@ Requirements:
 ```bash
 git clone https://github.com/alexge50/gie.git
 cd gie
+git submodule init; git submodule update
 mkdir build; cd build
 cmake ..
 make
