@@ -29,7 +29,7 @@ cmake ..
 make
 make install
 ```
-**Disclaimer:** Due to a [bug](https://github.com/paceholder/nodeeditor/issues/238) in one of the gie's dependencies with clang on release is not recommended.
+**Disclaimer:** Due to a [bug](https://github.com/paceholder/nodeeditor/issues/238) in one of the gie's dependencies, clang on release is not recommended.
 
 ### Windows
 * binaries coming soon
