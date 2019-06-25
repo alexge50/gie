@@ -31,6 +31,7 @@ public:
 private:
     boost::python::object m_main;
     boost::python::object m_global;
+    boost::python::object m_importlib, m_importModule;
 
     std::unordered_map<std::string, boost::python::object> m_importedModules;
     std::vector<Symbol> m_importedSymbols;

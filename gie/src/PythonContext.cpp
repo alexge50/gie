@@ -23,6 +23,9 @@ PythonContext::PythonContext()
 
     m_main = import("__main__");
     m_global = m_main.attr("__dict__");
+
+    m_importlib = import("importlib");
+    m_importModule = m_importlib.attr("import_module");
 }
 
 boost::python::object PythonContext::module(const std::string& name, bool exposeSymbols)
@@ -30,7 +33,7 @@ boost::python::object PythonContext::module(const std::string& name, bool expose
     if(auto it = m_importedModules.find(name); it != m_importedModules.end())
         return it->second;
 
-    auto module = boost::python::import(name.c_str());
+    auto module = m_importModule(name);
     m_importedModules.insert({
         name,
         module
