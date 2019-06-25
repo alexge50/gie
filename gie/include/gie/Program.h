@@ -16,13 +16,13 @@ class Program
 {
 public:
     Program() = default;
-    Program(const Program &) = default;
-    Program(Program &&) = default;
+    Program(const Program&) = default;
+    Program(Program&&) = default;
 
     std::vector<Result> run();
 
-    NodeId addNode(const Node &node);
-    void editNode(NodeId, const Node &node);
+    NodeId addNode(const Node& node);
+    void editNode(NodeId, const Node& node);
     void removeNode(NodeId);
     const Node& getNode(NodeId id) const;
 
@@ -30,7 +30,7 @@ public:
     void editResult(std::string tag, NodeId);
     void removeResult(std::string tag);
 
-    void import(const std::string &module);
+    void import(const std::string& name, const std::string& path);
 
     auto& context() { return m_pythonContext; }
     const auto& context() const { return m_pythonContext; }

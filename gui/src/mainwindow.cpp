@@ -35,7 +35,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QJsonObject config = QJsonDocument::fromJson(file.readAll()).object();
     
     for(const auto& module: config["modules"].toArray())
-        m_program.import(module.toString().toUtf8().constData());
+    {
+        std::string name = module.toObject()["name"].toString().toUtf8().constData();
+        std::string path = module.toObject()["path"].toString().toUtf8().constData();
+        m_program.import(name, path);
+    }
 
     setCentralWidget(m_editor = new Editor(m_program));
 
