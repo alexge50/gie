@@ -1,3 +1,13 @@
 {
-    "modules": ["modules.arithmetic", "modules.blur", "modules.color_correction", "modules.colors", "modules.effects", "modules.images", "modules.noise", "modules.string"]
+    "modules": [
+        {"name": "arithmetic", "path": "modules/arithmetic"},
+        {"name": "blur", "path": "modules/blur"},
+        {"name": "color_correction", "path": "modules/color_correction"},
+        {"name": "colors", "path": "modules/colors"},
+        {"name": "effects", "path": "modules/effects"},
+        {"name": "images", "path": "modules/images"},
+        {"name": "noise", "path": "modules/noise"},
+        {"name": "string", "path": "modules/string"}
+
+    ]
 }

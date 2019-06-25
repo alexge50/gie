@@ -52,7 +52,7 @@ void Program::removeResult(std::string tag)
     ::removeResult(m_graph, tag);
 }
 
-void Program::import(const std::string &module)
+void Program::import(const std::string& name, const std::string& path)
 {
-    m_pythonContext.module(module);
+    m_pythonContext.module(name, path);
 }
