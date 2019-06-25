@@ -33,11 +33,12 @@ MainWindow::MainWindow(QWidget *parent) :
     file.open(QIODevice::ReadOnly);
 
     QJsonObject config = QJsonDocument::fromJson(file.readAll()).object();
-    
+
+    std::string rootPath = QFileInfo(file).absoluteDir().absolutePath().toUtf8().constData();
     for(const auto& module: config["modules"].toArray())
     {
         std::string name = module.toObject()["name"].toString().toUtf8().constData();
-        std::string path = module.toObject()["path"].toString().toUtf8().constData();
+        std::string path = rootPath + "/" + module.toObject()["path"].toString().toUtf8().constData();
         m_program.import(name, path);
     }
 
