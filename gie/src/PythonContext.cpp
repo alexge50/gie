@@ -40,23 +40,24 @@ boost::python::object PythonContext::module(const std::string& name, bool expose
     });
 
     if(exposeSymbols)
-    {
-        const auto& list = (boost::python::extract<boost::python::dict>(module.attr("__dict__"))()).items();
-        for(int i = 0; i < boost::python::len(list); i++)
-        {
-            auto o = boost::python::extract<boost::python::object>(list[i][1])();
-            if(PyCallable_Check(o.ptr()))
-            {
-                auto extractor = boost::python::extract<std::string>(o.attr("__name__"));
-                if(extractor.check())
-                {
-                    auto qualifiedName = name.substr(name.find_last_of('.') + 1) + '.' + extractor();
-                    m_importedSymbols.push_back(createSymbol(qualifiedName));
-                    m_functions[qualifiedName] = o;
-                }
-            }
-        }
-    }
+        discoverSymbols(name, module);
+
+    return module;
+}
+
+boost::python::object PythonContext::module(const std::string& name, const std::string& path, bool exposeSymbols)
+{
+    if(auto it = m_importedModules.find(name); it != m_importedModules.end())
+        return it->second;
+
+    auto module = importAbsolute(name, path);
+    m_importedModules.insert({
+                                     name,
+                                     module
+                             });
+
+    if(exposeSymbols)
+        discoverSymbols(name, module);
 
     return module;
 }
@@ -67,4 +68,34 @@ boost::python::object PythonContext::getFunction(const std::string &name) const
         return it->second;
 
     return boost::python::object();
+}
+
+boost::python::object PythonContext::importAbsolute(const std::string& name, const std::string& path)
+{
+    auto importlibUtil = module("importlib.util", false);
+    auto spec = importlibUtil.attr("spec_from_file_location")(name, path);
+
+    auto module = importlibUtil.attr("module_from_spec")(spec);
+    spec.attr("loader").attr("exec_module")(module);
+
+    return module;
+}
+
+void PythonContext::discoverSymbols(const std::string& name, boost::python::object module)
+{
+    const auto& list = (boost::python::extract<boost::python::dict>(module.attr("__dict__"))()).items();
+    for(int i = 0; i < boost::python::len(list); i++)
+    {
+        auto o = boost::python::extract<boost::python::object>(list[i][1])();
+        if(PyCallable_Check(o.ptr()))
+        {
+            auto extractor = boost::python::extract<std::string>(o.attr("__name__"));
+            if(extractor.check())
+            {
+                auto qualifiedName = name.substr(name.find_last_of('.') + 1) + '.' + extractor();
+                m_importedSymbols.push_back(createSymbol(qualifiedName));
+                m_functions[qualifiedName] = o;
+            }
+        }
+    }
 }
