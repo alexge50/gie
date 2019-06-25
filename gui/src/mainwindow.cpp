@@ -20,14 +20,17 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_program.context().module("builtins", false);
+    auto builtins = m_program.context().module("builtins", false);
 
     auto sys = m_program.context().module("sys", false);
     auto os = m_program.context().module("os", false);
 
     sys.attr("path").attr("insert")(1, os.attr("getcwd")());
 
-    m_program.context().module("modules.internals", false);
+    auto internals = m_program.context().module("modules.internals", false);
+
+    builtins.attr("Color") = internals.attr("Color");
+    builtins.attr("Image") = internals.attr("Image");
 
     QFile file("config");
     file.open(QIODevice::ReadOnly);
