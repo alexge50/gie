@@ -29,6 +29,8 @@ public:
 
     const std::vector<Symbol>& importedSymbols() const { return m_importedSymbols; }
 
+    boost::python::object inspect() const;
+
 private:
     boost::python::object importAbsolute(const std::string& name, const std::string& path);
     void discoverSymbols(const std::string& name, boost::python::object);
@@ -37,6 +39,7 @@ private:
     boost::python::object m_main;
     boost::python::object m_global;
     boost::python::object m_importlib, m_importModule;
+    boost::python::object m_inspect;
 
     std::unordered_map<std::string, boost::python::object> m_importedModules;
     std::vector<Symbol> m_importedSymbols;

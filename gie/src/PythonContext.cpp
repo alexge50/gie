@@ -26,6 +26,8 @@ PythonContext::PythonContext()
 
     m_importlib = import("importlib");
     m_importModule = m_importlib.attr("import_module");
+
+    m_inspect = import("inspect");
 }
 
 boost::python::object PythonContext::module(const std::string& name, bool exposeSymbols)
@@ -98,4 +100,9 @@ void PythonContext::discoverSymbols(const std::string& name, boost::python::obje
             }
         }
     }
+}
+
+boost::python::object PythonContext::inspect() const
+{
+    return m_inspect;
 }
