@@ -12,6 +12,7 @@ set(LIBRARY_SOURCES
         include/gie/ScriptGraph/ScriptGraph.h
         include/gie/NodeLogic.h
         include/gie/Node.h
+        src/Node.cpp
         include/gie/Program.h
         include/gie/PythonContext.h
         include/gie/Value.h
@@ -19,9 +20,9 @@ set(LIBRARY_SOURCES
         src/PythonContext.cpp
         src/ScriptGraph/Execute.cpp
         src/ScriptGraph/ScriptGraph.cpp
-        include/gie/NodeUtil.h
-        src/NodeUtil.cpp
+
         include/gie/Result.h
+        src/NodeTypeManager.cpp include/gie/NodeTypeManager.h include/gie/NodeType.h src/NodeType.cpp
 )
 
 find_package(Boost COMPONENTS python3 REQUIRED)

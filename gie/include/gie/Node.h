@@ -5,9 +5,10 @@
 #ifndef GIE_LIBRARY_NODE_H
 #define GIE_LIBRARY_NODE_H
 
-#include "NodeDrawable.h"
-#include "NodeLogic.h"
-#include "NodeMetadata.h"
+#include <gie/NodeDrawable.h>
+#include <gie/NodeLogic.h>
+#include <gie/NodeType.h>
+#include <gie/NodeTypeManager.h>
 
 #include <vector>
 #include <memory>
@@ -19,8 +20,9 @@ struct Node
 {
     NodeDrawable m_drawable;
     NodeLogic m_logic;
-    NodeMetadata m_metadata;
+    NodeTypeId m_metadata;
 };
 
+std::optional<Node> makeNode(NodeTypeManager&, std::string name, std::vector<ArgumentValue>);
 
 #endif //GIE_LIBRARY_NODE_H

@@ -27,7 +27,7 @@ TEST_CASE("GIE API tests", "[program]")
 
     sys.attr("path").attr("insert")(1, os.attr("getcwd")());
 
-    program.import("test_modules.basic");
+    program.import("basic", "test_modules/basic.py");
 
     boost::python::object input(10);
 
