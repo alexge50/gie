@@ -5,8 +5,15 @@
 #ifndef GIE_LIBRARY_ARGUMENT_H
 #define GIE_LIBRARY_ARGUMENT_H
 
-#include <string>
 #include <gie/Type.h>
+#include <gie/Value.h>
+
+#include <string>
+#include <vector>
+#include <memory>
+#include <utility>
+#include <variant>
+
 
 struct ArgumentMetadata
 {
@@ -14,5 +21,11 @@ struct ArgumentMetadata
     Type m_argumentType;
 };
 
+struct NoArgument {};
+
+using NodeId = std::size_t;
+using ArgumentValue = std::variant<NodeId, Value, NoArgument>;
+
+using Arguments = std::vector<ArgumentValue>;
 
 #endif //GIE_LIBRARY_ARGUMENT_H

@@ -4,9 +4,7 @@
 
 #include <gie/Node.h>
 
-#include <iostream>
-
-std::optional<Node> makeNode(NodeTypeManager& typeManager, std::string name, std::vector<ArgumentValue> arguments)
+std::optional<Node> makeNode(NodeTypeManager& typeManager, std::string name, Arguments arguments)
 {
     auto type = typeManager.getId(name);
 
@@ -15,7 +13,6 @@ std::optional<Node> makeNode(NodeTypeManager& typeManager, std::string name, std
 
     return Node
             {
-                    {},
                     {std::move(arguments)},
                     *type
             };
