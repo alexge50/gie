@@ -23,14 +23,20 @@ class PythonContext
 public:
     PythonContext();
 
-    boost::python::object module(const std::string &, bool exposeSymbols = true);
-    boost::python::object getFunction(const std::string &) const;
+    boost::python::object module(const std::string&, bool exposeSymbols = true);
+    boost::python::object module(const std::string& name, const std::string& path, bool exposeSymbols = true);
+    boost::python::object getFunction(const std::string&) const;
 
     const std::vector<Symbol>& importedSymbols() const { return m_importedSymbols; }
 
 private:
+    boost::python::object importAbsolute(const std::string& name, const std::string& path);
+    void discoverSymbols(const std::string& name, boost::python::object);
+
+private:
     boost::python::object m_main;
     boost::python::object m_global;
+    boost::python::object m_importlib, m_importModule;
 
     std::unordered_map<std::string, boost::python::object> m_importedModules;
     std::vector<Symbol> m_importedSymbols;

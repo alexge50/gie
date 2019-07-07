@@ -20,22 +20,30 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_program.context().module("builtins", false);
+    auto builtins = m_program.context().module("builtins", false);
 
     auto sys = m_program.context().module("sys", false);
     auto os = m_program.context().module("os", false);
 
     sys.attr("path").attr("insert")(1, os.attr("getcwd")());
 
-    m_program.context().module("modules.internals", false);
+    auto internals = m_program.context().module("modules.internals", false);
+
+    builtins.attr("Color") = internals.attr("Color");
+    builtins.attr("Image") = internals.attr("Image");
 
     QFile file("config");
     file.open(QIODevice::ReadOnly);
 
     QJsonObject config = QJsonDocument::fromJson(file.readAll()).object();
-    
+
+    std::string rootPath = QFileInfo(file).absoluteDir().absolutePath().toUtf8().constData();
     for(const auto& module: config["modules"].toArray())
-        m_program.import(module.toString().toUtf8().constData());
+    {
+        std::string name = module.toObject()["name"].toString().toUtf8().constData();
+        std::string path = rootPath + "/" + module.toObject()["path"].toString().toUtf8().constData();
+        m_program.import(name, path);
+    }
 
     setCentralWidget(m_editor = new Editor(m_program));
 
