@@ -22,8 +22,21 @@ NodeId Program::addNode(const Node &node)
     return ::addNode(m_graph, node);
 }
 
+NodeId Program::addNode(std::string name, Arguments arguments)
+{
+    return ::addNode(m_graph, makeNode(m_typeManager, name, arguments).value());
+}
+
 void Program::editNode(NodeId id, const Node &node)
 {
+    return ::editNode(m_graph, id, node);
+}
+
+void Program::editNode(NodeId id, size_t argumentId, ArgumentValue argument) //TODO: add ::editNode overload
+{
+    auto node = ::getNode(m_graph, id).node;
+    node.arguments[argumentId] = std::move(argument);
+
     return ::editNode(m_graph, id, node);
 }
 
@@ -56,3 +69,4 @@ void Program::import(const std::string& name, const std::string& path)
 {
     m_pythonContext.module(name, path);
 }
+

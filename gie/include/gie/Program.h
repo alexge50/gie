@@ -22,7 +22,9 @@ public:
     std::vector<Result> run();
 
     NodeId addNode(const Node& node);
+    NodeId addNode(std::string name, Arguments);
     void editNode(NodeId, const Node& node);
+    void editNode(NodeId, size_t argumentId, ArgumentValue);
     void removeNode(NodeId);
     const Node& getNode(NodeId id) const;
 
@@ -38,6 +40,7 @@ public:
 private:
     ScriptGraph m_graph;
     PythonContext m_pythonContext;
+    NodeTypeManager m_typeManager{m_pythonContext};
 };
 
 
