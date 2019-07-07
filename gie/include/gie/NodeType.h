@@ -13,6 +13,8 @@
 #include <string>
 #include <boost/python.hpp>
 
+using NodeTypeId = size_t;
+
 struct NodeType
 {
     boost::python::object m_function;
@@ -20,5 +22,7 @@ struct NodeType
     Type m_returnType;
     Symbol m_symbol;
 };
+
+NodeType fetchNodeType(const PythonContext&, std::string qualifiedFunctionName);
 
 #endif //GIE_NODETYPE_H
