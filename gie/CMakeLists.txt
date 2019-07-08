@@ -7,22 +7,22 @@ include(GNUInstallDirs)
 
 set(LIBRARY_SOURCES
         include/gie/Argument.h
-        include/gie/NodeDrawable.h
         include/gie/ScriptGraph/Execute.h
         include/gie/ScriptGraph/ScriptGraph.h
-        include/gie/NodeLogic.h
         include/gie/Node.h
-        src/Node.cpp
         include/gie/Program.h
         include/gie/PythonContext.h
         include/gie/Value.h
+        include/gie/NodeTypeManager.h
+        include/gie/NodeType.h
         src/Program.cpp
         src/PythonContext.cpp
         src/ScriptGraph/Execute.cpp
         src/ScriptGraph/ScriptGraph.cpp
-
         include/gie/Result.h
-        src/NodeTypeManager.cpp include/gie/NodeTypeManager.h include/gie/NodeType.h src/NodeType.cpp
+        src/NodeTypeManager.cpp
+        src/Node.cpp
+        src/NodeType.cpp
 )
 
 find_package(Boost COMPONENTS python3 REQUIRED)
