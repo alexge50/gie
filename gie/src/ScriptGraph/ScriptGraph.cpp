@@ -9,7 +9,7 @@
 #include <functional>
 #include <type_traits>
 
-static long lookup(const ScriptGraph& graph, NodeId id)
+static unsigned long long lookup(const ScriptGraph& graph, NodeId id)
 {
     auto it = std::lower_bound(graph.nodes.begin(), graph.nodes.end(), id, [](auto node, auto id)
     {
@@ -21,13 +21,13 @@ static long lookup(const ScriptGraph& graph, NodeId id)
 
 NodeCachePair getNode(ScriptGraph& graph, NodeId id)
 {
-    auto r = lookup(graph, id);
+    const auto r = lookup(graph, id);
     return {graph.nodes[r].first, graph.cache[r].first};
 }
 
 ConstNodeCachePair getNode(const ScriptGraph& graph, NodeId id)
 {
-    auto r = lookup(graph, id);
+    const auto r = lookup(graph, id);
     return {graph.nodes[r].first, graph.cache[r].first};
 }
 

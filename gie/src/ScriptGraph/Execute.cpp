@@ -28,7 +28,6 @@ std::optional<Value> executeNode(const Node& node)
         if(std::holds_alternative<Value>(argument))
             arguments.append(std::get<Value>(argument).m_object);
         else return std::nullopt;
-
     }
 
     auto p = PyEval_CallObject(node.function().ptr(), tuple{arguments}.ptr());
@@ -66,9 +65,7 @@ std::vector<Result> executeGraph(ScriptGraph &graph)
         cache.first = std::nullopt;
 
     for(const auto& node: graph.nodes)
-    {
         executeNode(graph, node.second);
-    }
 
     std::vector<Result> results;
 

@@ -25,11 +25,10 @@ const NodeType* NodeTypeManager::nodeType(const std::string& name)
         return &m_nodeTypes[it->second];
     else
     {
-        m_nodeTypes.push_back(fetchNodeType(m_pythonContext, name));
-        auto id = m_nodeTypes.size() - 1;
+        auto id = m_nodeTypes.size();
         m_nameToId[name] = id;
 
-        return &m_nodeTypes[id];
+        return &m_nodeTypes.emplace_back(fetchNodeType(m_pythonContext, name));
     }
 }
 

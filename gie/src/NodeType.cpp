@@ -6,7 +6,7 @@
 
 static bool hasattr(boost::python::object object, const char* name)//TODO: move to python utils
 {
-    return static_cast<bool>(PyObject_HasAttrString(object.ptr(), name));
+    return PyObject_HasAttrString(object.ptr(), name) != 0;
 }
 
 static std::vector<ArgumentMetadata> fetchArguments(const PythonContext& context, boost::python::object callable)
