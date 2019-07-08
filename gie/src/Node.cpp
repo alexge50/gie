@@ -14,6 +14,7 @@ std::optional<Node> makeNode(NodeTypeManager& typeManager, std::string name, Arg
     return Node
             {
                     {std::move(arguments)},
-                    *type
+                    *type,
+                    typeManager.nodeType(*type)->m_function
             };
 }

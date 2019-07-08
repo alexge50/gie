@@ -23,7 +23,7 @@ std::optional<Value> executeNode(const Node& node)
 
     list arguments;
 
-    for(const auto &argument: node.m_logic.m_argument)
+    for(const auto &argument: node.arguments)
     {
         if(std::holds_alternative<Value>(argument))
             arguments.append(std::get<Value>(argument).m_object);
@@ -31,7 +31,7 @@ std::optional<Value> executeNode(const Node& node)
 
     }
 
-    auto p = PyEval_CallObject(node.m_metadata.m_function.ptr(), tuple{arguments}.ptr());
+    auto p = PyEval_CallObject(node.function().ptr(), tuple{arguments}.ptr());
     return Value{object{handle(borrowed(p))}};
 }
 
@@ -42,7 +42,7 @@ void executeNode(ScriptGraph &graph, NodeId nodeId)
     auto node_ = getNode(graph, nodeId);
     list arguments;
 
-    for(const auto &argument: node_.node.m_logic.m_argument)
+    for(const auto &argument: node_.node.arguments)
     {
         if(std::holds_alternative<NodeId>(argument))
         {
@@ -54,7 +54,7 @@ void executeNode(ScriptGraph &graph, NodeId nodeId)
             arguments.append(std::get<Value>(argument).m_object);
     }
 
-    auto p = PyEval_CallObject(node_.node.m_metadata.m_function.ptr(), tuple{arguments}.ptr());
+    auto p = PyEval_CallObject(node_.node.function().ptr(), tuple{arguments}.ptr());
     object r{handle(borrowed(p))};
 
     node_.cache = Value{r};

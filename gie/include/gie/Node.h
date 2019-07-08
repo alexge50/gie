@@ -1,3 +1,7 @@
+#include <utility>
+
+#include <utility>
+
 //
 // Created by alex on 11/17/18.
 //
@@ -15,10 +19,27 @@
 
 using NodeId = std::size_t;
 
-struct Node
+class Node
 {
+private:
+    Node(Arguments arguments, NodeTypeId nodeTypeId, boost::python::object function):
+        arguments{std::move(arguments)},
+        m_nodeTypeId{nodeTypeId},
+        m_function{std::move(function)}
+    {}
+
+public:
     Arguments arguments;
-    NodeTypeId nodeTypeId;
+
+public:
+    const NodeTypeId& nodeTypeId() const { return m_nodeTypeId; }
+    const boost::python::object& function() const { return m_function; }
+
+private:
+    NodeTypeId m_nodeTypeId;
+    boost::python::object m_function;
+
+    friend std::optional<Node> makeNode(NodeTypeManager&, std::string name, Arguments);
 };
 
 std::optional<Node> makeNode(NodeTypeManager&, std::string name, Arguments);
