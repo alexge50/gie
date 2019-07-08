@@ -5,9 +5,7 @@
 
 #include <catch2/catch.hpp>
 
-#include <gie/Node.h>
 #include <gie/Program.h>
-#include <gie/NodeUtil.h>
 
 #include <boost/python.hpp>
 
@@ -34,7 +32,7 @@ TEST_CASE("GIE API tests", "[program]")
     SECTION("a couple of nodes")
     {
         NodeId castToString, castToInt;
-        castToString = program.addNode(makeNode(program.context(), "basic.to_string", {ArgumentValue{Value{input}}}));
+        castToString = program.addNode("basic.to_string", {ArgumentValue{Value{input}}});
         SECTION("1 node run") {
             program.addResult("1 node run", castToString);
             auto result = program.run();
@@ -42,7 +40,7 @@ TEST_CASE("GIE API tests", "[program]")
                     std::string{boost::python::extract<std::string>(result[0].value.m_object)});
         }
 
-        castToInt = program.addNode(makeNode(program.context(), "basic.to_int", {castToString}));
+        castToInt = program.addNode("basic.to_int", {castToString});
 
         SECTION("2 nodes run")
         {
@@ -73,12 +71,12 @@ TEST_CASE("GIE API tests", "[program]")
         std::vector<NodeId> castToInt;
 
         castToString.push_back(
-                program.addNode(makeNode(program.context(), "basic.to_string", {ArgumentValue{Value{input}}})));
-        castToInt.push_back(program.addNode(makeNode(program.context(), "basic.to_int", {castToString.back()})));
+                program.addNode("basic.to_string", {ArgumentValue{Value{input}}}));
+        castToInt.push_back(program.addNode("basic.to_int", {castToString.back()}));
         for (int i = 0; i < 100; i++)
         {
-            castToString.push_back(program.addNode(makeNode(program.context(), "basic.to_string", {castToInt.back()})));
-            castToInt.push_back(program.addNode(makeNode(program.context(), "basic.to_int", {castToString.back()})));
+            castToString.push_back(program.addNode("basic.to_string", {castToInt.back()}));
+            castToInt.push_back(program.addNode("basic.to_int", {castToString.back()}));
         }
 
         program.addResult("result", castToInt.back());
@@ -97,7 +95,7 @@ TEST_CASE("GIE API tests", "[program]")
             program.removeNode(stringId);
             program.removeNode(intId);
 
-            program.editNode(castToString[51], makeNode(program.context(), "basic.to_string", {castToInt[49]}));
+            program.editNode(castToString[51], 0, {castToInt[49]});
 
             auto result = program.run();
             REQUIRE(std::to_string(boost::python::extract<int>(input)) ==
