@@ -10,9 +10,6 @@
 #include <utility>
 #include <optional>
 
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/directed_graph.hpp>
-
 struct ScriptGraph
 {
     std::vector<std::pair<Node, NodeId>> nodes;
