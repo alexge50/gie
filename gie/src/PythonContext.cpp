@@ -28,6 +28,7 @@ PythonContext::PythonContext()
     m_importModule = m_importlib.attr("import_module");
 
     m_inspect = import("inspect");
+    m_copy = import("copy");
 }
 
 boost::python::object PythonContext::module(const std::string& name, bool exposeSymbols)
@@ -105,4 +106,9 @@ void PythonContext::discoverSymbols(const std::string& name, boost::python::obje
 boost::python::object PythonContext::inspect() const
 {
     return m_inspect;
+}
+
+boost::python::object PythonContext::copy() const
+{
+    return m_copy;
 }
