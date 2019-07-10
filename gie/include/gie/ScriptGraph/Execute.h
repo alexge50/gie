@@ -13,9 +13,9 @@
 
 #include <boost/python.hpp>
 
-std::optional<Value> executeNode(const Node& node);
+std::optional<Value> executeNode(const PythonContext&, const Node& node);
 
-void executeNode(ScriptGraph& graph, NodeId nodeId);
-std::vector<Result> executeGraph(ScriptGraph& graph);
+void executeNode(const PythonContext&, ScriptGraph& graph, NodeId nodeId);
+std::vector<Result> executeGraph(const PythonContext&, ScriptGraph& graph);
 
 #endif //GIE_LIBRARY_EXECUTE_H

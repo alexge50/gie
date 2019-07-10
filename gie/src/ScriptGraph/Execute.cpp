@@ -17,7 +17,13 @@
 #include <utility>
 #include <queue>
 
-std::optional<Value> executeNode(const Node& node)
+static boost::python::object copy(const PythonContext& context, boost::python::object o)
+{
+    using namespace boost::python;
+    return context.copy().attr("deepcopy")(o);
+}
+
+std::optional<Value> executeNode(const PythonContext& context, const Node& node)
 {
     using namespace boost::python;
 
@@ -26,7 +32,7 @@ std::optional<Value> executeNode(const Node& node)
     for(const auto &argument: node.arguments)
     {
         if(std::holds_alternative<Value>(argument))
-            arguments.append(std::get<Value>(argument).m_object);
+            arguments.append(copy(context, std::get<Value>(argument).m_object));
         else return std::nullopt;
     }
 
@@ -34,7 +40,7 @@ std::optional<Value> executeNode(const Node& node)
     return Value{object{handle(borrowed(p))}};
 }
 
-void executeNode(ScriptGraph &graph, NodeId nodeId)
+void executeNode(const PythonContext& context, ScriptGraph &graph, NodeId nodeId)
 {
     using namespace boost::python;
 
@@ -46,11 +52,11 @@ void executeNode(ScriptGraph &graph, NodeId nodeId)
         if(std::holds_alternative<NodeId>(argument))
         {
             if(!getNode(graph, std::get<NodeId>(argument)).cache.has_value())
-                executeNode(graph, std::get<NodeId>(argument));
-            arguments.append(object{getNode(graph, std::get<NodeId>(argument)).cache->m_object});
+                executeNode(context, graph, std::get<NodeId>(argument));
+            arguments.append(copy(context, getNode(graph, std::get<NodeId>(argument)).cache->m_object));
         }
         else
-            arguments.append(std::get<Value>(argument).m_object);
+            arguments.append(copy(context, std::get<Value>(argument).m_object));
     }
 
     auto p = PyEval_CallObject(node_.node.function().ptr(), tuple{arguments}.ptr());
@@ -59,13 +65,13 @@ void executeNode(ScriptGraph &graph, NodeId nodeId)
     node_.cache = Value{r};
 }
 
-std::vector<Result> executeGraph(ScriptGraph &graph)
+std::vector<Result> executeGraph(const PythonContext& context, ScriptGraph &graph)
 {
     for(auto& cache: graph.cache)
         cache.first = std::nullopt;
 
     for(const auto& node: graph.nodes)
-        executeNode(graph, node.second);
+        executeNode(context, graph, node.second);
 
     std::vector<Result> results;
 
