@@ -11,4 +11,5 @@ mkdir $BUILD_DIR
 cd $BUILD_DIR
 cmake ..
 cmake --build . --target gie_test
-./gie/gie_test
+cd gie
+./gie_test
