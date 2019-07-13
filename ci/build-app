@@ -5,11 +5,6 @@ cd $(dirname $0)/..
 SOURCE_DIR=$PWD
 DIST_DIR=$PWD/dist
 
-cd /tmp
-cd $(mktemp -d cibuild.XXXXXX)
-
-cp -R $(SOURCE_DIR)/* $PWD
-
 BUILD_DIR=$PWD/build
 
 mkdir $BUILD_DIR
