@@ -14,30 +14,17 @@
 
 std::vector<Result> Program::run()
 {
-    return executeGraph(m_graph);
-}
-
-NodeId Program::addNode(const Node &node)
-{
-    return ::addNode(m_graph, node);
+    return ::executeGraph(m_pythonContext, m_graph);
 }
 
 NodeId Program::addNode(std::string name, Arguments arguments)
 {
-    return ::addNode(m_graph, makeNode(m_typeManager, name, arguments).value());
+    return ::addNode(m_graph, makeNode(m_typeManager, std::move(name), std::move(arguments)).value());
 }
 
-void Program::editNode(NodeId id, const Node &node)
+void Program::editNode(NodeId id, size_t argumentId, ArgumentValue argument)
 {
-    return ::editNode(m_graph, id, node);
-}
-
-void Program::editNode(NodeId id, size_t argumentId, ArgumentValue argument) //TODO: add ::editNode overload
-{
-    auto node = ::getNode(m_graph, id).node;
-    node.arguments[argumentId] = std::move(argument);
-
-    return ::editNode(m_graph, id, node);
+    return ::editNode(m_graph, id, argumentId, std::move(argument));
 }
 
 void Program::removeNode(NodeId id)
@@ -52,17 +39,17 @@ const Node& Program::getNode(NodeId id) const
 
 void Program::addResult(std::string tag, NodeId id)
 {
-    ::addResult(m_graph, tag, id);
+    ::addResult(m_graph, std::move(tag), id);
 }
 
 void Program::editResult(std::string tag, NodeId id)
 {
-    ::editResult(m_graph, tag, id);
+    ::editResult(m_graph, std::move(tag), id);
 }
 
 void Program::removeResult(std::string tag)
 {
-    ::removeResult(m_graph, tag);
+    ::removeResult(m_graph, std::move(tag));
 }
 
 void Program::import(const std::string& name, const std::string& path)

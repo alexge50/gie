@@ -21,9 +21,17 @@ public:
 
     std::vector<Result> run();
 
-    NodeId addNode(const Node& node);
     NodeId addNode(std::string name, Arguments);
-    void editNode(NodeId, const Node& node);
+
+    template<typename Editor>
+    void editNode(NodeId id, Editor&& editor)
+    {
+        auto& node = ::getNode(m_graph, id).node;
+        editor(node);
+
+        ::updateNode(m_graph, id);
+    }
+
     void editNode(NodeId, size_t argumentId, ArgumentValue);
     void removeNode(NodeId);
     const Node& getNode(NodeId id) const;

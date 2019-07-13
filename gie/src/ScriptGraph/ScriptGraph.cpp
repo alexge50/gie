@@ -9,6 +9,8 @@
 #include <functional>
 #include <type_traits>
 
+const unsigned long long NotFound = -1;
+
 static unsigned long long lookup(const ScriptGraph& graph, NodeId id)
 {
     auto it = std::lower_bound(graph.nodes.begin(), graph.nodes.end(), id, [](auto node, auto id)
@@ -16,7 +18,7 @@ static unsigned long long lookup(const ScriptGraph& graph, NodeId id)
         return node.second < id;
     });
 
-    return it == graph.nodes.end() ? -1 : std::distance(graph.nodes.begin(), it);
+    return it == graph.nodes.end() ? NotFound : std::distance(graph.nodes.begin(), it);
 }
 
 NodeCachePair getNode(ScriptGraph& graph, NodeId id)
@@ -41,15 +43,17 @@ NodeId addNode(ScriptGraph& graph, const Node& node)
     return id;
 }
 
-void editNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id, [[maybe_unused]]const Node& newNode)
+void editNode(ScriptGraph& graph, NodeId id, size_t argumentId, ArgumentValue value)
 {
     auto r = lookup(graph, id);
 
-    if(r != -1)
-    {
-        Node& node = graph.nodes[r].first;
-        node = newNode;
-    }
+    if(r != NotFound)
+        graph.nodes[r].first.arguments[argumentId] = std::move(value);
+}
+
+void updateNode(ScriptGraph& graph, NodeId id)
+{
+
 }
 
 void removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)//BUG: boost doesn't delete the vertices

@@ -33,8 +33,10 @@ NodeCachePair getNode(ScriptGraph&, NodeId);
 ConstNodeCachePair getNode(const ScriptGraph&, NodeId);
 
 NodeId addNode(ScriptGraph&, const Node&);
-void editNode(ScriptGraph&, NodeId, const Node&);
 void removeNode(ScriptGraph&, NodeId);
+void editNode(ScriptGraph&, NodeId, size_t argumentId, ArgumentValue);
+void updateNode(ScriptGraph&, NodeId);
+
 void addResult(ScriptGraph&, std::string tag, NodeId);
 void editResult(ScriptGraph&, std::string tag, NodeId);
 void removeResult(ScriptGraph&, std::string tag);
