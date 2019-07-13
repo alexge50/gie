@@ -5,6 +5,7 @@ services:
   - docker
 
 install:
+  - chmod +x ./ci/build-docker
   - ./ci/build-docker
 
 script:
