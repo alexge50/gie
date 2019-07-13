@@ -1,0 +1,15 @@
+#!/bin/bash
+set -ev
+
+cd $(dirname $0)/..
+SOURCE_DIR=$PWD
+DIST_DIR=$PWD/dist
+
+BUILD_DIR=$PWD/build
+
+mkdir $BUILD_DIR
+cd $BUILD_DIR
+cmake ..
+cmake --build . --target gie_test
+cd gie
+./gie_test
