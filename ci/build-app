@@ -1,0 +1,16 @@
+#!/bin/bash
+set -ev
+
+cd $(dirname $0)/..
+SOURCE_DIR=$PWD
+DIST_DIR=$PWD/dist
+
+cd /tmp
+cd $(mktemp -d cibuild.XXXXXX)
+
+BUILD_DIR=$PWD/build
+
+cd $BUILD_DIR
+cmake ..
+cmake --build . --target gie_test
+./gie/gie_test
