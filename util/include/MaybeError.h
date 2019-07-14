@@ -9,29 +9,48 @@
 #include <utility>
 #include <exception>
 
-class unhandled_error: std::exception
+class maybe_error_bad_access: std::exception
 {
 public:
     const char* what() const noexcept override
     {
-        return "unhandled_error";
+        return "maybe_error_bad_access";
     }
 };
 
 template<typename ErrorType>
-class MaybeError
+class [[nodiscard]] MaybeError
 {
 public:
     MaybeError(): m_error{std::nullopt} {}
     MaybeError(ErrorType error): m_error{std::move(error)} {}
 
-    ~MaybeError() { throw unhandled_error{}; }
-
     operator bool() const { return m_error.has_value(); }
     bool errorSet() const { return m_error.has_value(); }
 
-    ErrorType& error() { return m_error.value(); }
-    const ErrorType& error() const { return m_error.value(); }
+    [[nodiscard]] ErrorType& error()
+    {
+        if(!errorSet())
+            return m_error.value();
+        else throw maybe_error_bad_access{};
+    }
+
+
+    [[nodiscard]] const ErrorType& error() const
+    {
+        if(!errorSet())
+            return m_error.value();
+        else throw maybe_error_bad_access{};
+    }
+
+    template <typename Handler>
+    void handle(Handler&& handler)
+    {
+        if(errorSet())
+            handler(m_error);
+    }
+
+    void discard() { }
 
 private:
     std::optional<ErrorType> m_error;
