@@ -9,6 +9,7 @@
 #include <gie/Node.h>
 #include <gie/PythonContext.h>
 #include <gie/Result.h>
+#include <gie/Error.h>
 
 #include <vector>
 
@@ -24,17 +25,20 @@ public:
     NodeId addNode(std::string name, Arguments);
 
     template<typename Editor>
-    void editNode(NodeId id, Editor&& editor)
+    MaybeError<NodeInterfaceError> editNode(NodeId id, Editor&& editor)
     {
-        auto& node = ::getNode(m_graph, id).node;
-        editor(node);
+        auto node = ::getNode(m_graph, id);
 
-        ::updateNode(m_graph, id);
+        if(node)
+            editor(*(node->node));
+        else return node.error();
+
+        return ::updateNode(m_graph, id);
     }
 
-    void editNode(NodeId, ArgumentId argumentId, ArgumentValue);
-    void removeNode(NodeId);
-    const Node& getNode(NodeId id) const;
+    MaybeError<NodeInterfaceError> editNode(NodeId, ArgumentId argumentId, ArgumentValue);
+    MaybeError<NodeInterfaceError> removeNode(NodeId);
+    Expected<const Node*, NodeInterfaceError> getNode(NodeId id) const;
 
     void addResult(std::string tag, NodeId);
     void editResult(std::string tag, NodeId);

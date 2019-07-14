@@ -22,19 +22,24 @@ NodeId Program::addNode(std::string name, Arguments arguments)
     return ::addNode(m_graph, makeNode(m_typeManager, std::move(name), std::move(arguments)).value());
 }
 
-void Program::editNode(NodeId id, ArgumentId argumentId, ArgumentValue argument)
+MaybeError<NodeInterfaceError> Program::editNode(NodeId id, ArgumentId argumentId, ArgumentValue argument)
 {
     return ::editNode(m_graph, id, argumentId, std::move(argument));
 }
 
-void Program::removeNode(NodeId id)
+MaybeError<NodeInterfaceError> Program::removeNode(NodeId id)
 {
     return ::removeNode(m_graph, id);
 }
 
-const Node& Program::getNode(NodeId id) const
+Expected<const Node*, NodeInterfaceError> Program::getNode(NodeId id) const
 {
-    return ::getNode(m_graph, id).node;
+    auto value = ::getNode(m_graph, id);
+
+    if(!value)
+        return Expected<const Node*, NodeInterfaceError>{makeUnexpected(value.error())};
+
+    return Expected<const Node*, NodeInterfaceError>{value->node};
 }
 
 void Program::addResult(std::string tag, NodeId id)

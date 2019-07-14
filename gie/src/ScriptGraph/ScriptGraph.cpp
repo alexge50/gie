@@ -28,7 +28,7 @@ Expected<NodeCachePair, NodeInterfaceError> getNode(ScriptGraph& graph, NodeId i
     if(r == NotFound)
         return Expected<NodeCachePair, NodeInterfaceError>{makeUnexpected(NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId})};
 
-    return Expected<NodeCachePair, NodeInterfaceError>{{graph.nodes[r].first, graph.cache[r].first}};
+    return Expected<NodeCachePair, NodeInterfaceError>{{&graph.nodes[r].first, &graph.cache[r].first}};
 }
 
 Expected<ConstNodeCachePair, NodeInterfaceError> getNode(const ScriptGraph& graph, NodeId id)
@@ -39,7 +39,7 @@ Expected<ConstNodeCachePair, NodeInterfaceError> getNode(const ScriptGraph& grap
         return Expected<ConstNodeCachePair, NodeInterfaceError>{makeUnexpected(NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId})};
 
 
-    return Expected<ConstNodeCachePair, NodeInterfaceError>{{graph.nodes[r].first, graph.cache[r].first}};
+    return Expected<ConstNodeCachePair, NodeInterfaceError>{{&graph.nodes[r].first, &graph.cache[r].first}};
 }
 
 NodeId addNode(ScriptGraph& graph, const Node& node)
@@ -79,6 +79,8 @@ MaybeError<NodeInterfaceError> removeNode([[maybe_unused]]ScriptGraph& graph, [[
 
     graph.nodes.erase(graph.nodes.begin() + r);
     graph.cache.erase(graph.cache.begin() + r);
+
+    return {};
 }
 
 void addResult(ScriptGraph& graph, std::string tag, NodeId id)
