@@ -10,6 +10,7 @@
 
 #include <MaybeError.h>
 #include <Expected.h>
+#include <Graph.h>
 
 #include <utility>
 #include <optional>
@@ -19,6 +20,8 @@ struct ScriptGraph
     std::vector<std::pair<Node, NodeId>> nodes;
     std::vector<std::pair<std::optional<Value>, NodeId>> cache;
     std::vector<std::pair<std::string, NodeId>> results;
+
+    Graph<NodeId> structure;
 };
 
 struct NodeCachePair
