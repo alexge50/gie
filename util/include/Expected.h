@@ -124,7 +124,7 @@ public:
 
 private:
     [[noreturn]]
-    void throwUnhandled()
+    void throwUnhandled() const
     {
         throw bad_expected_access{};
     }
