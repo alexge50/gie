@@ -120,6 +120,24 @@ MaybeError<NodeInterfaceError> removeNode([[maybe_unused]]ScriptGraph& graph, [[
     graph.nodes.erase(graph.nodes.begin() + r);
     graph.cache.erase(graph.cache.begin() + r);
 
+    graph.structure.iterateOutNeighbours(id, [&graph](NodeId other)
+    {
+        const auto& value = getNode(graph, other);
+
+        std::size_t argumentId = 0;
+
+        std::size_t i = 0;
+        for(const auto &argument: value->node->arguments)
+        {
+            if(std::holds_alternative<NodeId>(argument) && std::get<NodeId>(argument) == other)
+                argumentId = i;
+
+            i++;
+        }
+
+        editNode(graph, other, ArgumentId{argumentId}, {NoArgument{}}).discard();
+    });
+
     graph.structure.removeNode(id);
 
     return {};
