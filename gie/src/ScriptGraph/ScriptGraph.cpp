@@ -49,6 +49,10 @@ NodeId addNode(ScriptGraph& graph, const Node& node)
     graph.nodes.emplace_back(node, id);
     graph.cache.emplace_back(std::nullopt, id);
 
+    graph.structure.addNode(id);
+
+    updateNode(graph, id).discard();
+
     return id;
 }
 
@@ -58,7 +62,20 @@ MaybeError<NodeInterfaceError> editNode(ScriptGraph& graph, NodeId id, ArgumentI
 
     if(r != NotFound)
     {
-        graph.nodes[r].first.arguments[argumentId.get()] = std::move(value);
+        auto& argument = graph.nodes[r].first.arguments[argumentId.get()];
+        if(std::holds_alternative<NodeId>(argument))
+        {
+            auto otherId = std::get<NodeId>(argument);
+            graph.structure.removeEdge(otherId, id);
+        }
+
+        argument = std::move(value);
+        if(std::holds_alternative<NodeId>(argument))
+        {
+            auto otherId = std::get<NodeId>(argument);
+            graph.structure.addEdge(otherId, id);
+        }
+
         return {};
     }
 
@@ -67,10 +84,33 @@ MaybeError<NodeInterfaceError> editNode(ScriptGraph& graph, NodeId id, ArgumentI
 
 MaybeError<NodeInterfaceError> updateNode(ScriptGraph& graph, NodeId id)
 {
+    if(lookup(graph, id) == NotFound)
+        return {NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId}};
+
+    std::vector<NodeId> toRemove;
+    toRemove.reserve(graph.structure.inDegree(id));
+
+    graph.structure.iterateInNeighbours(id, [&toRemove](NodeId id)
+    {
+        toRemove.push_back(id);
+    });
+
+    for(auto otherId: toRemove)
+        graph.structure.removeEdge(id, otherId);
+
+    for(const auto &argument: getNode(graph, id)->node->arguments)
+    {
+        if(std::holds_alternative<NodeId>(argument))
+        {
+            auto otherId = std::get<NodeId>(argument);
+            graph.structure.addEdge(otherId, id);
+        }
+    }
+
     return {};
 }
 
-MaybeError<NodeInterfaceError> removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)//BUG: boost doesn't delete the vertices
+MaybeError<NodeInterfaceError> removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)
 {
     auto r = lookup(graph, id);
 
@@ -79,6 +119,8 @@ MaybeError<NodeInterfaceError> removeNode([[maybe_unused]]ScriptGraph& graph, [[
 
     graph.nodes.erase(graph.nodes.begin() + r);
     graph.cache.erase(graph.cache.begin() + r);
+
+    graph.structure.removeNode(id);
 
     return {};
 }
