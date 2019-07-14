@@ -6,6 +6,10 @@
 #define GIE_LIBRARY_SCENEGRAPH_H
 
 #include <gie/Node.h>
+#include <gie/Error.h>
+
+#include <MaybeError.h>
+#include <Expected.h>
 
 #include <utility>
 #include <optional>
@@ -29,13 +33,13 @@ struct ConstNodeCachePair
     const std::optional<Value>& cache;
 };
 
-NodeCachePair getNode(ScriptGraph&, NodeId);
-ConstNodeCachePair getNode(const ScriptGraph&, NodeId);
+Expected<NodeCachePair, NodeInterfaceError> getNode(ScriptGraph&, NodeId);
+Expected<ConstNodeCachePair, NodeInterfaceError> getNode(const ScriptGraph&, NodeId);
 
 NodeId addNode(ScriptGraph&, const Node&);
-void removeNode(ScriptGraph&, NodeId);
-void editNode(ScriptGraph&, NodeId, ArgumentId argumentId, ArgumentValue);
-void updateNode(ScriptGraph&, NodeId);
+MaybeError<NodeInterfaceError> removeNode(ScriptGraph&, NodeId);
+MaybeError<NodeInterfaceError> editNode(ScriptGraph&, NodeId, ArgumentId argumentId, ArgumentValue);
+MaybeError<NodeInterfaceError> updateNode(ScriptGraph&, NodeId);
 
 void addResult(ScriptGraph&, std::string tag, NodeId);
 void editResult(ScriptGraph&, std::string tag, NodeId);

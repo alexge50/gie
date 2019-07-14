@@ -9,7 +9,7 @@
 #include <functional>
 #include <type_traits>
 
-const unsigned long long NotFound = -1;
+static const unsigned long long NotFound = -1;
 
 static unsigned long long lookup(const ScriptGraph& graph, NodeId id)
 {
@@ -21,16 +21,25 @@ static unsigned long long lookup(const ScriptGraph& graph, NodeId id)
     return it == graph.nodes.end() ? NotFound : std::distance(graph.nodes.begin(), it);
 }
 
-NodeCachePair getNode(ScriptGraph& graph, NodeId id)
+Expected<NodeCachePair, NodeInterfaceError> getNode(ScriptGraph& graph, NodeId id)
 {
     const auto r = lookup(graph, id);
-    return {graph.nodes[r].first, graph.cache[r].first};
+
+    if(r == NotFound)
+        return Expected<NodeCachePair, NodeInterfaceError>{makeUnexpected(NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId})};
+
+    return Expected<NodeCachePair, NodeInterfaceError>{{graph.nodes[r].first, graph.cache[r].first}};
 }
 
-ConstNodeCachePair getNode(const ScriptGraph& graph, NodeId id)
+Expected<ConstNodeCachePair, NodeInterfaceError> getNode(const ScriptGraph& graph, NodeId id)
 {
     const auto r = lookup(graph, id);
-    return {graph.nodes[r].first, graph.cache[r].first};
+
+    if(r == NotFound)
+        return Expected<ConstNodeCachePair, NodeInterfaceError>{makeUnexpected(NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId})};
+
+
+    return Expected<ConstNodeCachePair, NodeInterfaceError>{{graph.nodes[r].first, graph.cache[r].first}};
 }
 
 NodeId addNode(ScriptGraph& graph, const Node& node)
@@ -43,22 +52,31 @@ NodeId addNode(ScriptGraph& graph, const Node& node)
     return id;
 }
 
-void editNode(ScriptGraph& graph, NodeId id, ArgumentId argumentId, ArgumentValue value)
+MaybeError<NodeInterfaceError> editNode(ScriptGraph& graph, NodeId id, ArgumentId argumentId, ArgumentValue value)
 {
     auto r = lookup(graph, id);
 
     if(r != NotFound)
+    {
         graph.nodes[r].first.arguments[argumentId.get()] = std::move(value);
+        return {};
+    }
+
+    return {NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId}};
 }
 
-void updateNode(ScriptGraph& graph, NodeId id)
+MaybeError<NodeInterfaceError> updateNode(ScriptGraph& graph, NodeId id)
 {
-
+    return {};
 }
 
-void removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)//BUG: boost doesn't delete the vertices
+MaybeError<NodeInterfaceError> removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)//BUG: boost doesn't delete the vertices
 {
     auto r = lookup(graph, id);
+
+    if(r == NotFound)
+        return {NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId}};
+
     graph.nodes.erase(graph.nodes.begin() + r);
     graph.cache.erase(graph.cache.begin() + r);
 }

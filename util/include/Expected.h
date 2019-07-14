@@ -21,11 +21,18 @@ public:
 template <typename ErrorType>
 class Unexpected
 {
+public:
     ErrorType error;
 
     ErrorType* operator->() { return error; }
     const ErrorType* operator->() const { return error; }
 };
+
+template <typename T>
+auto makeUnexpected(T&& t)
+{
+    return Unexpected<T>{std::forward<T>(t)};
+}
 
 template <typename ExpectedType, typename ErrorType>
 class Expected
