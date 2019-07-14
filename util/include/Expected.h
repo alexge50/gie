@@ -83,14 +83,14 @@ public:
     ExpectedType& value()
     {
         if(*this)
-            return &std::get<ExpectedType>(m_value);
+            return std::get<ExpectedType>(m_value);
         else throwUnhandled();
     }
 
     const ExpectedType& value() const
     {
         if(*this)
-            return &std::get<ExpectedType>(m_value);
+            return std::get<ExpectedType>(m_value);
         else throwUnhandled();
     }
 
