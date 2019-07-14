@@ -23,7 +23,7 @@ static boost::python::object copy(const PythonContext& context, boost::python::o
     return context.copy().attr("deepcopy")(o);
 }
 
-std::optional<Value> executeNode(const PythonContext& context, const Node& node)
+Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext& context, const Node& node)
 {
     using namespace boost::python;
 
@@ -33,14 +33,21 @@ std::optional<Value> executeNode(const PythonContext& context, const Node& node)
     {
         if(std::holds_alternative<Value>(argument))
             arguments.append(copy(context, std::get<Value>(argument).m_object));
-        else return std::nullopt;
+        else return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments})};
     }
 
-    auto p = PyEval_CallObject(node.function().ptr(), tuple{arguments}.ptr());
-    return Value{object{handle(borrowed(p))}};
+    try
+    {
+        auto p = PyEval_CallObject(node.function().ptr(), tuple{arguments}.ptr());
+        return Expected<Value, ExecutionInterfaceError>{Value{object{handle(borrowed(p))}}};
+    }
+    catch(...)
+    {
+        return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::PythonInternalError})};
+    }
 }
 
-void executeNode(const PythonContext& context, ScriptGraph &graph, NodeId nodeId)
+MaybeError<ExecutionInterfaceError> executeNode(const PythonContext& context, ScriptGraph &graph, NodeId nodeId)
 {
     using namespace boost::python;
 
@@ -54,26 +61,45 @@ void executeNode(const PythonContext& context, ScriptGraph &graph, NodeId nodeId
             auto& cache = *getNode(graph, std::get<NodeId>(argument))->cache;
 
             if(!cache.has_value())
-                executeNode(context, graph, std::get<NodeId>(argument));
+            {
+                auto error = executeNode(context, graph, std::get<NodeId>(argument));
+                if(error)
+                    return error;
+            }
             arguments.append(copy(context, cache->m_object));
         }
-        else
+        else if(std::holds_alternative<Value>(argument))
             arguments.append(copy(context, std::get<Value>(argument).m_object));
+        else return ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments};
     }
 
-    auto p = PyEval_CallObject(node_->node->function().ptr(), tuple{arguments}.ptr());
-    object r{handle(borrowed(p))};
+    try
+    {
+        auto p = PyEval_CallObject(node_->node->function().ptr(), tuple{arguments}.ptr());
+        object r{handle(borrowed(p))};
 
-    *(node_->cache) = Value{r};
+        *(node_->cache) = Value{r};
+
+    }
+    catch(...)
+    {
+        return ExecutionInterfaceError{ExecutionInterfaceError::errors::PythonInternalError};
+    }
+
+    return {};
 }
 
-std::vector<Result> executeGraph(const PythonContext& context, ScriptGraph &graph)
+Expected<std::vector<Result>, ExecutionInterfaceError> executeGraph(const PythonContext& context, ScriptGraph &graph)
 {
     for(auto& cache: graph.cache)
         cache.first = std::nullopt;
 
     for(const auto& node: graph.nodes)
-        executeNode(context, graph, node.second);
+    {
+        auto error = executeNode(context, graph, node.second);
+        if(error)
+            return Expected<std::vector<Result>, ExecutionInterfaceError>{makeUnexpected(error.error())};
+    }
 
     std::vector<Result> results;
 
@@ -82,5 +108,5 @@ std::vector<Result> executeGraph(const PythonContext& context, ScriptGraph &grap
     for(const auto& p: constGraph.results)
         results.push_back({p.first, getNode(constGraph, p.second)->cache->value()});
 
-    return results;
+    return Expected<std::vector<Result>, ExecutionInterfaceError>{results};
 }
