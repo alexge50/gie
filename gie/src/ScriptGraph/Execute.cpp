@@ -10,6 +10,8 @@
 
 #include <gie/PythonContext.h>
 
+#include <gie/detail/PythonUtils.h>
+
 #include <boost/python.hpp>
 #include <boost/graph/topological_sort.hpp>
 
@@ -17,11 +19,6 @@
 #include <utility>
 #include <queue>
 
-static boost::python::object copy(const PythonContext& context, boost::python::object o)
-{
-    using namespace boost::python;
-    return context.copy().attr("deepcopy")(o);
-}
 
 Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext& context, const Node& node)
 {

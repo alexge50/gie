@@ -4,10 +4,7 @@
 
 #include <gie/NodeType.h>
 
-static bool hasattr(boost::python::object object, const char* name)//TODO: move to python utils
-{
-    return PyObject_HasAttrString(object.ptr(), name) != 0;
-}
+#include <gie/detail/PythonUtils.h>
 
 static std::vector<ArgumentMetadata> fetchArguments(const PythonContext& context, boost::python::object callable)
 {
