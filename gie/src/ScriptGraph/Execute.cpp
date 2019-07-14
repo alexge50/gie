@@ -47,22 +47,24 @@ void executeNode(const PythonContext& context, ScriptGraph &graph, NodeId nodeId
     auto node_ = getNode(graph, nodeId);
     list arguments;
 
-    for(const auto &argument: node_.node.arguments)
+    for(const auto &argument: node_->node->arguments)
     {
         if(std::holds_alternative<NodeId>(argument))
         {
-            if(!getNode(graph, std::get<NodeId>(argument)).cache.has_value())
+            auto& cache = *getNode(graph, std::get<NodeId>(argument))->cache;
+
+            if(!cache.has_value())
                 executeNode(context, graph, std::get<NodeId>(argument));
-            arguments.append(copy(context, getNode(graph, std::get<NodeId>(argument)).cache->m_object));
+            arguments.append(copy(context, cache->m_object));
         }
         else
             arguments.append(copy(context, std::get<Value>(argument).m_object));
     }
 
-    auto p = PyEval_CallObject(node_.node.function().ptr(), tuple{arguments}.ptr());
+    auto p = PyEval_CallObject(node_->node->function().ptr(), tuple{arguments}.ptr());
     object r{handle(borrowed(p))};
 
-    node_.cache = Value{r};
+    *(node_->cache) = Value{r};
 }
 
 std::vector<Result> executeGraph(const PythonContext& context, ScriptGraph &graph)
@@ -78,7 +80,7 @@ std::vector<Result> executeGraph(const PythonContext& context, ScriptGraph &grap
     const auto& constGraph = graph;
     results.reserve(graph.results.size());
     for(const auto& p: constGraph.results)
-        results.push_back({p.first, getNode(constGraph, p.second).cache.value()});
+        results.push_back({p.first, getNode(constGraph, p.second)->cache->value()});
 
     return results;
 }
