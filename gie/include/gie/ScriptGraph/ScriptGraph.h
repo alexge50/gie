@@ -23,14 +23,14 @@ struct ScriptGraph
 
 struct NodeCachePair
 {
-    Node& node;
-    std::optional<Value>& cache;
+    Node* node;
+    std::optional<Value>* cache;
 };
 
 struct ConstNodeCachePair
 {
-    const Node& node;
-    const std::optional<Value>& cache;
+    const Node* node;
+    const std::optional<Value>* cache;
 };
 
 Expected<NodeCachePair, NodeInterfaceError> getNode(ScriptGraph&, NodeId);
