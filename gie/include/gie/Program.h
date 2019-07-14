@@ -32,7 +32,7 @@ public:
         ::updateNode(m_graph, id);
     }
 
-    void editNode(NodeId, size_t argumentId, ArgumentValue);
+    void editNode(NodeId, ArgumentId argumentId, ArgumentValue);
     void removeNode(NodeId);
     const Node& getNode(NodeId id) const;
 

@@ -15,7 +15,7 @@ static unsigned long long lookup(const ScriptGraph& graph, NodeId id)
 {
     auto it = std::lower_bound(graph.nodes.begin(), graph.nodes.end(), id, [](auto node, auto id)
     {
-        return node.second < id;
+        return node.second.get() < id.get();
     });
 
     return it == graph.nodes.end() ? NotFound : std::distance(graph.nodes.begin(), it);
@@ -35,7 +35,7 @@ ConstNodeCachePair getNode(const ScriptGraph& graph, NodeId id)
 
 NodeId addNode(ScriptGraph& graph, const Node& node)
 {
-    NodeId id = graph.nodes.empty() ? 0 : graph.nodes.back().second + 1;
+    NodeId id{graph.nodes.empty() ? 0 : graph.nodes.back().second.get() + 1};
 
     graph.nodes.emplace_back(node, id);
     graph.cache.emplace_back(std::nullopt, id);
@@ -43,12 +43,12 @@ NodeId addNode(ScriptGraph& graph, const Node& node)
     return id;
 }
 
-void editNode(ScriptGraph& graph, NodeId id, size_t argumentId, ArgumentValue value)
+void editNode(ScriptGraph& graph, NodeId id, ArgumentId argumentId, ArgumentValue value)
 {
     auto r = lookup(graph, id);
 
     if(r != NotFound)
-        graph.nodes[r].first.arguments[argumentId] = std::move(value);
+        graph.nodes[r].first.arguments[argumentId.get()] = std::move(value);
 }
 
 void updateNode(ScriptGraph& graph, NodeId id)

@@ -22,7 +22,7 @@ NodeId Program::addNode(std::string name, Arguments arguments)
     return ::addNode(m_graph, makeNode(m_typeManager, std::move(name), std::move(arguments)).value());
 }
 
-void Program::editNode(NodeId id, size_t argumentId, ArgumentValue argument)
+void Program::editNode(NodeId id, ArgumentId argumentId, ArgumentValue argument)
 {
     return ::editNode(m_graph, id, argumentId, std::move(argument));
 }

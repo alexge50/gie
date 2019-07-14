@@ -7,6 +7,9 @@
 
 #include <gie/Type.h>
 #include <gie/Value.h>
+#include <gie/NodeId.h>
+
+#include <StrongAlias.h>
 
 #include <string>
 #include <vector>
@@ -23,7 +26,7 @@ struct ArgumentMetadata
 
 struct NoArgument {};
 
-using NodeId = std::size_t;
+using ArgumentId = StrongAlias<std::size_t, struct ArgumentIdTag>;
 using ArgumentValue = std::variant<NodeId, Value, NoArgument>;
 
 using Arguments = std::vector<ArgumentValue>;

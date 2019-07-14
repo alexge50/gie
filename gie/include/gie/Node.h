@@ -10,14 +10,13 @@
 #define GIE_LIBRARY_NODE_H
 
 #include <gie/Argument.h>
+#include <gie/NodeId.h>
 #include <gie/NodeType.h>
 #include <gie/NodeTypeManager.h>
 
 #include <vector>
 #include <memory>
 #include <cstddef>
-
-using NodeId = std::size_t;
 
 class Node
 {
