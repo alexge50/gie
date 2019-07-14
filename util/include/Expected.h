@@ -31,7 +31,8 @@ public:
 template <typename T>
 auto makeUnexpected(T&& t)
 {
-    return Unexpected<T>{std::forward<T>(t)};
+    using CleanT = std::remove_cv_t<std::remove_reference_t<T>>;
+    return Unexpected<CleanT>{std::forward<CleanT>(t)};
 }
 
 template <typename ExpectedType, typename ErrorType>
@@ -40,7 +41,7 @@ class Expected
 public:
     explicit Expected(): m_value{ExpectedType{}} {}
     explicit Expected(ExpectedType value): m_value{std::move(value)} {}
-    explicit Expected(Unexpected<ErrorType> error): m_value{{std::move(error)}} {}
+    explicit Expected(Unexpected<ErrorType> error): m_value{std::move(error)} {}
 
     void swap(Expected<ExpectedType, ErrorType>& other) noexcept
     {
@@ -96,28 +97,28 @@ public:
     ErrorType& error()
     {
         if(!*this)
-            return &std::get<ErrorType>(m_value);
+            return std::get<Unexpected<ErrorType>>(m_value).error;
         else throwUnhandled();
     }
 
     const ErrorType& error() const
     {
         if(!*this)
-            return &std::get<ErrorType>(m_value);
+            return std::get<Unexpected<ErrorType>>(m_value).error;
         else throwUnhandled();
     }
 
     ExpectedType valueOr(ExpectedType&& value)
     {
         if(*this)
-            return std::get<ErrorType>(m_value);
+            return std::get<ExpectedType>(m_value);
         else return std::move(value);
     }
 
     ExpectedType valueOr(ExpectedType&& value) const
     {
         if(*this)
-            return std::get<ErrorType>(m_value);
+            return std::get<ExpectedType>(m_value);
         else return std::move(value);
     }
 
