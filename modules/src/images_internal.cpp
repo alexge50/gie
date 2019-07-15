@@ -24,10 +24,10 @@ T clamp(T x, T a, T b)
 
 Image separate_blue_channel(const Image& image)
 {
-    Image new_image(image.width, image.height);
+    Image new_image(image.width(), image.height());
 
-    for(int row = 0; row < static_cast<int>(image.height); row++)
-        for(int column = 0; column < static_cast<int>(image.width); column++)
+    for(int row = 0; row < static_cast<int>(image.height()); row++)
+        for(int column = 0; column < static_cast<int>(image.width()); column++)
         {
             auto color = image.pixelAt(row, column);
             new_image.setPixel(row, column, Color(0, 0, color.b));
@@ -38,10 +38,10 @@ Image separate_blue_channel(const Image& image)
 
 Image separate_red_channel(const Image& image)
 {
-    Image new_image(image.width, image.height);
+    Image new_image(image.width(), image.height());
 
-    for(int row = 0; row < static_cast<int>(image.height); row++)
-        for(int column = 0; column < static_cast<int>(image.width); column++)
+    for(int row = 0; row < static_cast<int>(image.height()); row++)
+        for(int column = 0; column < static_cast<int>(image.width()); column++)
         {
             auto color = image.pixelAt(row, column);
             new_image.setPixel(row, column, Color(color.r, 0, 0));
@@ -52,10 +52,10 @@ Image separate_red_channel(const Image& image)
 
 Image separate_green_channel(const Image& image)
 {
-    Image new_image(image.width, image.height);
+    Image new_image(image.width(), image.height());
 
-    for(int row = 0; row < static_cast<int>(image.height); row++)
-        for(int column = 0; column < static_cast<int>(image.width); column++)
+    for(int row = 0; row < static_cast<int>(image.height()); row++)
+        for(int column = 0; column < static_cast<int>(image.width()); column++)
         {
             auto color = image.pixelAt(row, column);
             new_image.setPixel(row, column, Color(0, color.g, 0));
@@ -66,10 +66,10 @@ Image separate_green_channel(const Image& image)
 
 Image luminance_map(const Image& image)
 {
-    Image new_image(image.width, image.height);
+    Image new_image(image.width(), image.height());
 
-    for(int row = 0; row < static_cast<int>(image.height); row++)
-        for(int column = 0; column < static_cast<int>(image.width); column++)
+    for(int row = 0; row < static_cast<int>(image.height()); row++)
+        for(int column = 0; column < static_cast<int>(image.width()); column++)
         {
             auto color = image.pixelAt(row, column);
             auto luminance = static_cast<long long int>(color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722);
@@ -84,17 +84,17 @@ Image pixel_sort(const Image& source, const Image& mask)
     struct Interval {int column, row_start, row_end; };
 
     std::vector<Interval> intervals;
-    for(int column = 0; column < static_cast<int>(source.width); column++)
+    for(int column = 0; column < static_cast<int>(source.width()); column++)
     {
         int row = 0;
-        while(row < static_cast<int>(source.height))
+        while(row < static_cast<int>(source.height()))
         {
             int row_begin = row;
-            while(row < static_cast<int>(source.height) && mask.pixelAt(row, column).r == 255u)
+            while(row < static_cast<int>(source.height()) && mask.pixelAt(row, column).r == 255u)
                 row ++;
             intervals.push_back({column, row_begin, row - 1});
 
-            while(row < static_cast<int>(source.height) && mask.pixelAt(row, column).r != 255u)
+            while(row < static_cast<int>(source.height()) && mask.pixelAt(row, column).r != 255u)
                 row ++;
         }
     }
@@ -126,25 +126,25 @@ Image pixel_sort(const Image& source, const Image& mask)
 
 Image pixel_distort_displace(const Image& source, const Image& map, double row_factor, double column_factor)
 {
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
         {
             double displacement = row_factor * (map.pixelAt(row, column).r / 255. * 2. - 1.);
             long long int column_displaced = static_cast<long long int>(displacement * column_factor) + column;
             long long int row_displaced= static_cast<long long int>(displacement * row_factor) + row;
 
-            if((row_displaced >= 0 && row_displaced < static_cast<int>(source.height)) &&
-               (column_displaced >= 0 && column_displaced < static_cast<int>(source.width))
+            if((row_displaced >= 0 && row_displaced < static_cast<int>(source.height())) &&
+               (column_displaced >= 0 && column_displaced < static_cast<int>(source.width()))
                     )
             {
                 new_image.setPixel(row_displaced, column_displaced, source.pixelAt(row, column));
             }
         }
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
         {
             if(new_image.pixelAt(row, column).r == 0 &&
                new_image.pixelAt(row, column).g == 0 &&
@@ -157,19 +157,19 @@ Image pixel_distort_displace(const Image& source, const Image& map, double row_f
 
 Image displacement(const Image& source, const Image& map, double row_factor, double column_factor)
 {
-    Image new_image(source.width, source.height);
-    Image known_pixels(source.width, source.height);
+    Image new_image(source.width(), source.height());
+    Image known_pixels(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
     {
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
         {
             double displacement = (map.pixelAt(row, column).r / 255. * 2. - 1.);
             long long int column_displaced = static_cast<long long int>(displacement * column_factor) + column;
             long long int row_displaced= static_cast<long long int>(displacement * row_factor) + row;
 
-            row_displaced = (row_displaced + static_cast<int>(source.height)) % static_cast<int>(source.height);
-            column_displaced = (column_displaced + static_cast<int>(source.width)) % static_cast<int>(source.width);
+            row_displaced = (row_displaced + static_cast<int>(source.height())) % static_cast<int>(source.height());
+            column_displaced = (column_displaced + static_cast<int>(source.width())) % static_cast<int>(source.width());
 
             new_image.setPixel(row_displaced, column_displaced, source.pixelAt(row, column));
             known_pixels.setPixel(row_displaced, column_displaced, Color(1, 0, 0));
@@ -178,9 +178,9 @@ Image displacement(const Image& source, const Image& map, double row_factor, dou
 
     std::ostringstream out;
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
     {
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
         {
             if(!known_pixels.pixelAt(row,column).r)
             {
@@ -196,7 +196,7 @@ Image displacement(const Image& source, const Image& map, double row_factor, dou
                     int row_ = row, column_ = column;
                     int dist = 0;
 
-                    while(row_ >= 0 && row_ < static_cast<int>(source.height) && column_ >= 0 && column_ < static_cast<int>(source.width) && !known_pixels.pixelAt(row_,column_).r)
+                    while(row_ >= 0 && row_ < static_cast<int>(source.height()) && column_ >= 0 && column_ < static_cast<int>(source.width()) && !known_pixels.pixelAt(row_,column_).r)
                     {
                         row_ += rowDir[i];
                         column_ += colDir[i];
@@ -204,7 +204,7 @@ Image displacement(const Image& source, const Image& map, double row_factor, dou
                         dist ++;
                     }
 
-                    if(row_ >= 0 && row_ < static_cast<int>(source.height) && column_ >= 0 && column_ < static_cast<int>(source.width))
+                    if(row_ >= 0 && row_ < static_cast<int>(source.height()) && column_ >= 0 && column_ < static_cast<int>(source.width()))
                     {
                         samples[i] = source.pixelAt(row_, column_);
                         weights[i] = 1. / dist;
@@ -242,10 +242,10 @@ Image displacement(const Image& source, const Image& map, double row_factor, dou
 
 Image lift_gain(const Image& source, double lift, double gain)
 {
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
         {
             auto color = source.pixelAt(static_cast<int>(row), static_cast<int>(column));
             auto r = color.r * (gain - lift) + lift;
@@ -265,10 +265,10 @@ Image lift_gain(const Image& source, double lift, double gain)
 
 Image gamma_(const Image& source, double gamma)
 {
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
         {
             auto color = source.pixelAt(static_cast<int>(row), static_cast<int>(column));
             auto r = pow(color.r, 1. / gamma);
@@ -283,10 +283,10 @@ Image gamma_(const Image& source, double gamma)
 
 Image contrast(const Image& source, double contrast)
 {
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
         {
             auto color = source.pixelAt(static_cast<int>(row), static_cast<int>(column));
             auto r = color.r * (1. + contrast) * (-1.) - contrast / 2.;
@@ -306,10 +306,10 @@ Image contrast(const Image& source, double contrast)
 
 Image brightness(const Image& source, double brightness)
 {
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
         {
             auto color = source.pixelAt(static_cast<int>(row), static_cast<int>(column));
             auto r = color.r + brightness * 255;
@@ -331,17 +331,17 @@ Image box_blur(const Image& source, double row_factor, double column_factor)
 {
     static auto get_pixel_or_black = [](const Image& image, int row, int column)
     {
-        if(row < static_cast<int>(image.height) && column < static_cast<int>(image.width) && row >= 0 && column >= 0)
+        if(row < static_cast<int>(image.height()) && column < static_cast<int>(image.width()) && row >= 0 && column >= 0)
             return image.pixelAt(row, column);
         return Color();
     };
 
-    Image tmp(source.width, source.height);
+    Image tmp(source.width(), source.height());
     {
         double weight = 1.0f / column_factor;
         int half = static_cast<int>(column_factor / 2);
-        for(int row = 0; row < static_cast<int>(source.height); row++)
-            for(int column = 0; column < static_cast<int>(source.width); column++)
+        for(int row = 0; row < static_cast<int>(source.height()); row++)
+            for(int column = 0; column < static_cast<int>(source.width()); column++)
             {
                 double r = 0., g = 0., b = 0.;
                 for(int i = -half; i <= half; i++)
@@ -360,13 +360,13 @@ Image box_blur(const Image& source, double row_factor, double column_factor)
             }
     }
 
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
     {
         double weight = 1.0f / row_factor;
         int half = static_cast<int>(column_factor / 2);
-        for(int row = 0; row < static_cast<int>(source.height); row++)
-            for(int column = 0; column < static_cast<int>(source.width); column++)
+        for(int row = 0; row < static_cast<int>(source.height()); row++)
+            for(int column = 0; column < static_cast<int>(source.width()); column++)
             {
                 double r = 0., g = 0., b = 0.;
                 for(int i = -half; i <= half; i++)
@@ -390,11 +390,11 @@ Image box_blur(const Image& source, double row_factor, double column_factor)
 
 Image mask(const Image& source, const Image& mask)
 {
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
     {
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
             if(mask.pixelAt(row, column).r == 255u)
                 new_image.setPixel(row, column, source.pixelAt(row, column));
             else new_image.setPixel(row, column, Color(0, 0, 0));
@@ -405,11 +405,11 @@ Image mask(const Image& source, const Image& mask)
 
 Image add(const Image& a, const Image& b)
 {
-    Image new_image(a.width, a.height);
+    Image new_image(a.width(), a.height());
 
-    for(int row = 0; row < static_cast<int>(a.height); row++)
+    for(int row = 0; row < static_cast<int>(a.height()); row++)
     {
-        for(int column = 0; column < static_cast<int>(a.width); column++)
+        for(int column = 0; column < static_cast<int>(a.width()); column++)
         {
             uint8_t r_ = a.pixelAt(row, column).r + b.pixelAt(row, column).r;
             uint8_t g_ = a.pixelAt(row, column).g + b.pixelAt(row, column).g;
@@ -424,11 +424,11 @@ Image add(const Image& a, const Image& b)
 
 Image strict_add(const Image& a, const Image& b)
 {
-    Image new_image(a.width, a.height);
+    Image new_image(a.width(), a.height());
 
-    for(int row = 0; row < static_cast<int>(a.height); row++)
+    for(int row = 0; row < static_cast<int>(a.height()); row++)
     {
-        for(int column = 0; column < static_cast<int>(a.width); column++)
+        for(int column = 0; column < static_cast<int>(a.width()); column++)
         {
             int r_ = static_cast<int>(a.pixelAt(row, column).r) + static_cast<int>(b.pixelAt(row, column).r);
             int g_ = static_cast<int>(a.pixelAt(row, column).g) + static_cast<int>(b.pixelAt(row, column).g);
@@ -447,11 +447,11 @@ Image strict_add(const Image& a, const Image& b)
 
 Image multiply(const Image& a, const Image& b)
 {
-    Image new_image(a.width, a.height);
+    Image new_image(a.width(), a.height());
 
-    for(int row = 0; row < static_cast<int>(a.height); row++)
+    for(int row = 0; row < static_cast<int>(a.height()); row++)
     {
-        for (int column = 0; column < static_cast<int>(a.width); column++)
+        for (int column = 0; column < static_cast<int>(a.width()); column++)
         {
             int r_ = static_cast<int>(a.pixelAt(row, column).r) * static_cast<int>(b.pixelAt(row, column).r);
             int g_ = static_cast<int>(a.pixelAt(row, column).g) * static_cast<int>(b.pixelAt(row, column).g);
@@ -546,7 +546,7 @@ namespace PerlinNoise
 
     Image perlin_noise(const Image& source, long long int seed, double z, long long int octaves, double persistence)
     {
-        Image new_image(source.width, source.height);
+        Image new_image(source.width(), source.height());
 
         std::mt19937 engine(seed);
 
@@ -557,17 +557,17 @@ namespace PerlinNoise
 
         permutation.insert(permutation.end(), permutation.begin(), permutation.end());
 
-        for(int row = 0; row < static_cast<int>(source.height); row++)
+        for(int row = 0; row < static_cast<int>(source.height()); row++)
         {
-            for(int column = 0; column < static_cast<int>(source.width); column++)
+            for(int column = 0; column < static_cast<int>(source.width()); column++)
             {
                 double frequency = 1;
                 double amplitude = 1;
                 double max_value = 0;
                 double total = 0;
 
-                const double x = static_cast<double>(row) / static_cast<int>(source.height);
-                const double y = static_cast<double>(column) / static_cast<int>(source.width);
+                const double x = static_cast<double>(row) / static_cast<int>(source.height());
+                const double y = static_cast<double>(column) / static_cast<int>(source.width());
 
                 for(int i = 0; i < octaves; i++)
                 {
@@ -590,11 +590,11 @@ namespace PerlinNoise
 
 Image discriminator_greater_than(const Image& source, long long int threshold)
 {
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
     {
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
             if(source.pixelAt(row, column).r >= threshold)
                 new_image.setPixel(row, column, Color(255, 255, 255));
             else new_image.setPixel(row, column, Color(0, 0, 0));
@@ -605,11 +605,11 @@ Image discriminator_greater_than(const Image& source, long long int threshold)
 
 Image discriminator_lesser_than(const Image& source, long long int threshold)
 {
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
     {
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
             if(source.pixelAt(row, column).r <= threshold)
                 new_image.setPixel(row, column, Color(255, 255, 255));
             else new_image.setPixel(row, column, Color(0, 0, 0));
@@ -620,11 +620,11 @@ Image discriminator_lesser_than(const Image& source, long long int threshold)
 
 Image discriminator_range(const Image& source, long long int a, long long int b)
 {
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
     {
-        for(int column = 0; column < static_cast<int>(source.width); column++)
+        for(int column = 0; column < static_cast<int>(source.width()); column++)
             if(source.pixelAt(row, column).r >= a && source.pixelAt(row, column).r <= b)
                 new_image.setPixel(row, column, Color(255, 255, 255));
             else new_image.setPixel(row, column, Color(0, 0, 0));
@@ -636,11 +636,11 @@ Image discriminator_range(const Image& source, long long int a, long long int b)
 
 Image solid_color(const Image& source, Color color)
 {
-    Image new_image(source.width, source.height);
+    Image new_image(source.width(), source.height());
 
-    for(int row = 0; row < static_cast<int>(source.height); row++)
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
     {
-        for (int column = 0; column < static_cast<int>(source.width); column++)
+        for (int column = 0; column < static_cast<int>(source.width()); column++)
             new_image.setPixel(row, column, color);
     }
 
