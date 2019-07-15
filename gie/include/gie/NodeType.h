@@ -1,9 +1,9 @@
 //
-// Created by alex on 4/26/19.
+// Created by alex on 7/7/19.
 //
 
-#ifndef GIE_LIBRARY_NODEMETADATA_H
-#define GIE_LIBRARY_NODEMETADATA_H
+#ifndef GIE_NODETYPE_H
+#define GIE_NODETYPE_H
 
 #include <gie/Argument.h>
 #include <gie/Type.h>
@@ -13,7 +13,9 @@
 #include <string>
 #include <boost/python.hpp>
 
-struct NodeMetadata
+using NodeTypeId = size_t;
+
+struct NodeType
 {
     boost::python::object m_function;
     std::vector<ArgumentMetadata> m_arguments;
@@ -21,4 +23,6 @@ struct NodeMetadata
     Symbol m_symbol;
 };
 
-#endif //GIE_LIBRARY_NODEMETADATA_H
+NodeType fetchNodeType(const PythonContext&, std::string qualifiedFunctionName);
+
+#endif //GIE_NODETYPE_H

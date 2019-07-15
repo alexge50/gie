@@ -5,9 +5,7 @@
 
 #include <catch2/catch.hpp>
 
-#include <gie/Node.h>
 #include <gie/Program.h>
-#include <gie/NodeUtil.h>
 
 #include <boost/python.hpp>
 
@@ -27,42 +25,42 @@ TEST_CASE("GIE API tests", "[program]")
 
     sys.attr("path").attr("insert")(1, os.attr("getcwd")());
 
-    program.import("test_modules.basic");
+    program.import("basic", "test_modules/basic.py");
 
     boost::python::object input(10);
 
     SECTION("a couple of nodes")
     {
         NodeId castToString, castToInt;
-        castToString = program.addNode(makeNode(program.context(), "basic.to_string", {ArgumentValue{Value{input}}}));
+        castToString = program.addNode("basic.to_string", {ArgumentValue{Value{input}}});
         SECTION("1 node run") {
             program.addResult("1 node run", castToString);
-            auto result = program.run();
+            auto result = program.run().value();
             REQUIRE(std::to_string(boost::python::extract<int>(input)) ==
                     std::string{boost::python::extract<std::string>(result[0].value.m_object)});
         }
 
-        castToInt = program.addNode(makeNode(program.context(), "basic.to_int", {castToString}));
+        castToInt = program.addNode("basic.to_int", {castToString});
 
         SECTION("2 nodes run")
         {
             program.addResult("1 nodes run", castToInt);
-            auto result = program.run();
+            auto result = program.run().value();
             REQUIRE(boost::python::extract<int>(input) == boost::python::extract<int>(result[0].value.m_object));
         }
 
         SECTION("removing node")
         {
-            program.removeNode(castToInt);
+            program.removeNode(castToInt).discard();
             program.addResult("toString", castToString);
-            auto result = program.run();
+            auto result = program.run().value();
             REQUIRE(std::to_string(boost::python::extract<int>(input)) ==
                     std::string{boost::python::extract<std::string>(result[0].value.m_object)});
 
             program.removeResult("toString");
-            program.removeNode(castToString);
+            program.removeNode(castToString).discard();
             auto result2 = program.run();
-            REQUIRE(result2.size() == 0);
+            REQUIRE(result2->size() == 0);
         }
     }
 
@@ -73,19 +71,19 @@ TEST_CASE("GIE API tests", "[program]")
         std::vector<NodeId> castToInt;
 
         castToString.push_back(
-                program.addNode(makeNode(program.context(), "basic.to_string", {ArgumentValue{Value{input}}})));
-        castToInt.push_back(program.addNode(makeNode(program.context(), "basic.to_int", {castToString.back()})));
+                program.addNode("basic.to_string", {ArgumentValue{Value{input}}}));
+        castToInt.push_back(program.addNode("basic.to_int", {castToString.back()}));
         for (int i = 0; i < 100; i++)
         {
-            castToString.push_back(program.addNode(makeNode(program.context(), "basic.to_string", {castToInt.back()})));
-            castToInt.push_back(program.addNode(makeNode(program.context(), "basic.to_int", {castToString.back()})));
+            castToString.push_back(program.addNode("basic.to_string", {castToInt.back()}));
+            castToInt.push_back(program.addNode("basic.to_int", {castToString.back()}));
         }
 
         program.addResult("result", castToInt.back());
 
         SECTION("run")
         {
-            auto result = program.run();
+            auto result = program.run().value();
             REQUIRE(boost::python::extract<int>(input) == boost::python::extract<int>(result[0].value.m_object));
         }
 
@@ -94,12 +92,12 @@ TEST_CASE("GIE API tests", "[program]")
             auto stringId = castToString[50];
             auto intId = castToInt[50];
 
-            program.removeNode(stringId);
-            program.removeNode(intId);
+            program.removeNode(stringId).discard();
+            program.removeNode(intId).discard();
 
-            program.editNode(castToString[51], makeNode(program.context(), "basic.to_string", {castToInt[49]}));
+            program.editNode(castToString[51], ArgumentId{0}, ArgumentValue{castToInt[49]}).discard();
 
-            auto result = program.run();
+            auto result = program.run().value();
             REQUIRE(std::to_string(boost::python::extract<int>(input)) ==
                     std::to_string(boost::python::extract<int>(result[0].value.m_object)));
         }
@@ -109,12 +107,12 @@ TEST_CASE("GIE API tests", "[program]")
             program.removeResult("result");
 
             for (auto i: castToString)
-                program.removeNode(i);
+                program.removeNode(i).discard();
             for (auto i: castToInt)
-                program.removeNode(i);
+                program.removeNode(i).discard();
 
             auto result = program.run();
-            REQUIRE(result.size() == 0);
+            REQUIRE(result->size() == 0);
         }
     }
 }

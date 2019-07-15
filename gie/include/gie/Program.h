@@ -9,6 +9,7 @@
 #include <gie/Node.h>
 #include <gie/PythonContext.h>
 #include <gie/Result.h>
+#include <gie/Error.h>
 
 #include <vector>
 
@@ -19,12 +20,25 @@ public:
     Program(const Program&) = default;
     Program(Program&&) = default;
 
-    std::vector<Result> run();
+    Expected<std::vector<Result>, ExecutionInterfaceError> run();
 
-    NodeId addNode(const Node& node);
-    void editNode(NodeId, const Node& node);
-    void removeNode(NodeId);
-    const Node& getNode(NodeId id) const;
+    NodeId addNode(std::string name, Arguments);
+
+    template<typename Editor>
+    MaybeError<NodeInterfaceError> editNode(NodeId id, Editor&& editor)
+    {
+        auto node = ::getNode(m_graph, id);
+
+        if(node)
+            editor(*(node->node));
+        else return node.error();
+
+        return ::updateNode(m_graph, id);
+    }
+
+    MaybeError<NodeInterfaceError> editNode(NodeId, ArgumentId argumentId, ArgumentValue);
+    MaybeError<NodeInterfaceError> removeNode(NodeId);
+    Expected<const Node*, NodeInterfaceError> getNode(NodeId id) const;
 
     void addResult(std::string tag, NodeId);
     void editResult(std::string tag, NodeId);
@@ -38,6 +52,7 @@ public:
 private:
     ScriptGraph m_graph;
     PythonContext m_pythonContext;
+    NodeTypeManager m_typeManager{m_pythonContext};
 };
 
 

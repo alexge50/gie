@@ -12,47 +12,53 @@
 
 #include <iostream>
 
-std::vector<Result> Program::run()
+Expected<std::vector<Result>, ExecutionInterfaceError> Program::run()
 {
-    return executeGraph(m_graph);
+    return ::executeGraph(m_pythonContext, m_graph);
 }
 
-NodeId Program::addNode(const Node &node)
+NodeId Program::addNode(std::string name, Arguments arguments)
 {
-    return ::addNode(m_graph, node);
+    return ::addNode(m_graph, makeNode(m_typeManager, std::move(name), std::move(arguments)).value());
 }
 
-void Program::editNode(NodeId id, const Node &node)
+MaybeError<NodeInterfaceError> Program::editNode(NodeId id, ArgumentId argumentId, ArgumentValue argument)
 {
-    return ::editNode(m_graph, id, node);
+    return ::editNode(m_graph, id, argumentId, std::move(argument));
 }
 
-void Program::removeNode(NodeId id)
+MaybeError<NodeInterfaceError> Program::removeNode(NodeId id)
 {
     return ::removeNode(m_graph, id);
 }
 
-const Node& Program::getNode(NodeId id) const
+Expected<const Node*, NodeInterfaceError> Program::getNode(NodeId id) const
 {
-    return ::getNode(m_graph, id).node;
+    auto value = ::getNode(m_graph, id);
+
+    if(!value)
+        return Expected<const Node*, NodeInterfaceError>{makeUnexpected(value.error())};
+
+    return Expected<const Node*, NodeInterfaceError>{value->node};
 }
 
 void Program::addResult(std::string tag, NodeId id)
 {
-    ::addResult(m_graph, tag, id);
+    ::addResult(m_graph, std::move(tag), id);
 }
 
 void Program::editResult(std::string tag, NodeId id)
 {
-    ::editResult(m_graph, tag, id);
+    ::editResult(m_graph, std::move(tag), id);
 }
 
 void Program::removeResult(std::string tag)
 {
-    ::removeResult(m_graph, tag);
+    ::removeResult(m_graph, std::move(tag));
 }
 
 void Program::import(const std::string& name, const std::string& path)
 {
     m_pythonContext.module(name, path);
 }
+

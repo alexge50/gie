@@ -9,54 +9,138 @@
 #include <functional>
 #include <type_traits>
 
-static long lookup(const ScriptGraph& graph, NodeId id)
+static const unsigned long long NotFound = -1;
+
+static unsigned long long lookup(const ScriptGraph& graph, NodeId id)
 {
     auto it = std::lower_bound(graph.nodes.begin(), graph.nodes.end(), id, [](auto node, auto id)
     {
-        return node.second < id;
+        return node.second.get() < id.get();
     });
 
-    return it == graph.nodes.end() ? -1 : std::distance(graph.nodes.begin(), it);
+    return it == graph.nodes.end() ? NotFound : std::distance(graph.nodes.begin(), it);
 }
 
-NodeCachePair getNode(ScriptGraph& graph, NodeId id)
+Expected<NodeCachePair, NodeInterfaceError> getNode(ScriptGraph& graph, NodeId id)
 {
-    auto r = lookup(graph, id);
-    return {graph.nodes[r].first, graph.cache[r].first};
+    const auto r = lookup(graph, id);
+
+    if(r == NotFound)
+        return Expected<NodeCachePair, NodeInterfaceError>{makeUnexpected(NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId})};
+
+    return Expected<NodeCachePair, NodeInterfaceError>{{&graph.nodes[r].first, &graph.cache[r].first}};
 }
 
-ConstNodeCachePair getNode(const ScriptGraph& graph, NodeId id)
+Expected<ConstNodeCachePair, NodeInterfaceError> getNode(const ScriptGraph& graph, NodeId id)
 {
-    auto r = lookup(graph, id);
-    return {graph.nodes[r].first, graph.cache[r].first};
+    const auto r = lookup(graph, id);
+
+    if(r == NotFound)
+        return Expected<ConstNodeCachePair, NodeInterfaceError>{makeUnexpected(NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId})};
+
+
+    return Expected<ConstNodeCachePair, NodeInterfaceError>{{&graph.nodes[r].first, &graph.cache[r].first}};
 }
 
 NodeId addNode(ScriptGraph& graph, const Node& node)
 {
-    NodeId id = graph.nodes.empty() ? 0 : graph.nodes.back().second + 1;
+    NodeId id{graph.nodes.empty() ? 0 : graph.nodes.back().second.get() + 1};
 
     graph.nodes.emplace_back(node, id);
     graph.cache.emplace_back(std::nullopt, id);
 
+    graph.structure.addNode(id);
+
+    updateNode(graph, id).discard();
+
     return id;
 }
 
-void editNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id, [[maybe_unused]]const Node& newNode)
+MaybeError<NodeInterfaceError> editNode(ScriptGraph& graph, NodeId id, ArgumentId argumentId, ArgumentValue value)
 {
     auto r = lookup(graph, id);
 
-    if(r != -1)
+    if(r != NotFound)
     {
-        Node& node = graph.nodes[r].first;
-        node = newNode;
+        auto& argument = graph.nodes[r].first.arguments[argumentId.get()];
+        if(std::holds_alternative<NodeId>(argument))
+        {
+            auto otherId = std::get<NodeId>(argument);
+            graph.structure.removeEdge(otherId, id);
+        }
+
+        argument = std::move(value);
+        if(std::holds_alternative<NodeId>(argument))
+        {
+            auto otherId = std::get<NodeId>(argument);
+            graph.structure.addEdge(otherId, id);
+        }
+
+        return {};
     }
+
+    return {NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId}};
 }
 
-void removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)//BUG: boost doesn't delete the vertices
+MaybeError<NodeInterfaceError> updateNode(ScriptGraph& graph, NodeId id)
+{
+    if(lookup(graph, id) == NotFound)
+        return {NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId}};
+
+    std::vector<NodeId> toRemove;
+    toRemove.reserve(graph.structure.inDegree(id));
+
+    graph.structure.iterateInNeighbours(id, [&toRemove](NodeId id)
+    {
+        toRemove.push_back(id);
+    });
+
+    for(auto otherId: toRemove)
+        graph.structure.removeEdge(id, otherId);
+
+    for(const auto &argument: getNode(graph, id)->node->arguments)
+    {
+        if(std::holds_alternative<NodeId>(argument))
+        {
+            auto otherId = std::get<NodeId>(argument);
+            graph.structure.addEdge(otherId, id);
+        }
+    }
+
+    return {};
+}
+
+MaybeError<NodeInterfaceError> removeNode([[maybe_unused]]ScriptGraph& graph, [[maybe_unused]]NodeId id)
 {
     auto r = lookup(graph, id);
+
+    if(r == NotFound)
+        return {NodeInterfaceError{NodeInterfaceError::errors::IncorrectNodeId}};
+
     graph.nodes.erase(graph.nodes.begin() + r);
     graph.cache.erase(graph.cache.begin() + r);
+
+    graph.structure.iterateOutNeighbours(id, [&graph](NodeId other)
+    {
+        const auto& value = getNode(graph, other);
+
+        std::size_t argumentId = 0;
+
+        std::size_t i = 0;
+        for(const auto &argument: value->node->arguments)
+        {
+            if(std::holds_alternative<NodeId>(argument) && std::get<NodeId>(argument) == other)
+                argumentId = i;
+
+            i++;
+        }
+
+        editNode(graph, other, ArgumentId{argumentId}, {NoArgument{}}).discard();
+    });
+
+    graph.structure.removeNode(id);
+
+    return {};
 }
 
 void addResult(ScriptGraph& graph, std::string tag, NodeId id)

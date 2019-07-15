@@ -10,12 +10,15 @@
 #include <gie/Node.h>
 #include <gie/PythonContext.h>
 #include <gie/Result.h>
+#include <gie/Error.h>
+
+#include <Expected.h>
 
 #include <boost/python.hpp>
 
-std::optional<Value> executeNode(const Node& node);
+Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext&, const Node& node);
 
-void executeNode(ScriptGraph& graph, NodeId nodeId);
-std::vector<Result> executeGraph(ScriptGraph& graph);
+MaybeError<ExecutionInterfaceError> executeNode(const PythonContext&, ScriptGraph& graph, NodeId nodeId);
+Expected<std::vector<Result>, ExecutionInterfaceError> executeGraph(const PythonContext&, ScriptGraph& graph);
 
 #endif //GIE_LIBRARY_EXECUTE_H

@@ -1,0 +1,12 @@
+dist: xenial
+language: minimal
+
+services:
+  - docker
+
+install:
+  - chmod +x ./ci/build-docker
+  - ./ci/build-docker
+
+script:
+  - docker run -v $PWD:/root/gie gie:1 /root/gie/ci/build-app

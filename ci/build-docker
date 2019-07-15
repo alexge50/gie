@@ -1,0 +1,4 @@
+#!/bin/bash
+set -ev
+cd $(dirname $0)
+docker build -t gie:1 .
