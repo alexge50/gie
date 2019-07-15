@@ -8,6 +8,12 @@
 #include <gie/NodeId.h>
 #include <nodes/NodeData>
 
+#include <types/Image.h>
+#include <types/Color.h>
+
+#include <variant>
+#include <string>
+
 class TypeData: public QtNodes::NodeData
 {
 public:
@@ -67,6 +73,8 @@ public:
         return {"Color", "Color"};
     }
 };
+
+using Data = std::variant<double, long long int, Color, Image, std::string>;
 
 
 #endif //GUI_TYPEDATA_H
