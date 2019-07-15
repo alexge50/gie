@@ -55,7 +55,7 @@ class ImageTypeData: public TypeData
 public:
     QtNodes::NodeDataType type() const override
     {
-        return {"image", "image"};
+        return {"Image", "Image"};
     }
 };
 
@@ -64,7 +64,7 @@ class ColorTypeData: public TypeData
 public:
     QtNodes::NodeDataType type() const override
     {
-        return {"color", "color"};
+        return {"Color", "Color"};
     }
 };
 
