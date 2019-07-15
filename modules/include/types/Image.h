@@ -61,6 +61,33 @@ public:
         delete[] data;
     }
 
+    Image& operator=(const Image& other)
+    {
+        delete[] data;
+        data = new uint8_t[N_CHANNELS * m_width * m_height];
+        m_width = other.m_width;
+        m_height = other.m_height;
+
+        std::memcpy(data, other.data, N_CHANNELS * m_width * m_height);
+
+        return *this;
+    }
+
+    Image& operator=(Image&& other)
+    {
+        delete[] data;
+
+        data = nullptr;
+        m_width = 0;
+        m_height = 0;
+
+        std::swap(other.m_width, m_width);
+        std::swap(other.m_height, m_height);
+        std::swap(other.data, data);
+
+        return *this;
+    }
+
     Color pixelAt(unsigned row, unsigned column) const
     {
         const uint8_t* pixel = &data[index(row, column)];
