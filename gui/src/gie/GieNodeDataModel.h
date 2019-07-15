@@ -50,10 +50,10 @@ public:
     auto nodeId() const { return m_nodeId; }
 
 private:
-    Program& m_program;
     NodeId m_nodeId;
-    NodeMetadata m_metadata;
-    NodeLogic m_logic;
+    std::vector<ArgumentMetadata> m_arguments;
+    Type m_returnType;
+    Symbol m_symbol;
 
     std::shared_ptr<QtNodes::NodeData> m_result;
 

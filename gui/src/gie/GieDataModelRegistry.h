@@ -5,8 +5,7 @@
 #ifndef GUI_GIEDATAMODELREGISTRY_H
 #define GUI_GIEDATAMODELREGISTRY_H
 
-#include <gie/NodeUtil.h>
-#include <gie/NodeMetadata.h>
+#include <gie/Node.h>
 #include <gie/Program.h>
 #undef B0
 
@@ -30,7 +29,7 @@ class GieDataModelRegistry: public QtNodes::DataModelRegistry
 public:
     GieDataModelRegistry(Program& program): m_program{program} {}
 
-    void registerModel(const NodeMetadata&, const QString& category);
+    void registerModel(const Symbol& symbol, const QString& category);
 
 private:
     Program& m_program;
@@ -44,7 +43,7 @@ static std::shared_ptr<GieDataModelRegistry> registerDataModels(Program& program
     });
 
     for(const auto& symbol: program.context().importedSymbols())
-        registry->registerModel(fetchMetadata(program.context(), symbol.qualifiedName), QString::fromStdString(symbol.module));
+        registry->registerModel(symbol, QString::fromStdString(symbol.module));
 
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<StringSourceDataModel>("source");
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<NumberSourceDataModel>("source");

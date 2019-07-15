@@ -5,7 +5,7 @@
 #include <utility>
 #include <memory>
 
-#include <gie/NodeLogic.h>
+#include <gie/Node.h>
 
 #include "editor.h"
 #include <QVBoxLayout>
@@ -92,14 +92,11 @@ void Editor::onConnectionCreated(const QtNodes::Connection& c)
 
     if(giver != nullptr && receiver != nullptr)
     {
-        auto portIndex = c.getPortIndex(QtNodes::PortType::In);
+        auto portIndex = static_cast<std::size_t>(c.getPortIndex(QtNodes::PortType::In));
 
-        auto node = m_program.getNode(receiver->nodeId());
-        node.m_logic.m_argument[portIndex] = giver->nodeId();
+        m_program.editNode(receiver->nodeId(), ArgumentId{portIndex}, giver->nodeId()).discard();
 
-        m_program.editNode(receiver->nodeId(), node);
-
-        std::cout << "onConnectionCreated: connected " << giver->nodeId() << " with " << receiver->nodeId() << std::endl;
+        std::cout << "onConnectionCreated: connected " << giver->nodeId().get() << " with " << receiver->nodeId().get() << std::endl;
     }
     if(giver != nullptr)
     {
@@ -115,16 +112,14 @@ void Editor::onConnectionDeleted(const QtNodes::Connection& c)
 {
     if(auto receiver = dynamic_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
     {
-        auto portIndex = c.getPortIndex(QtNodes::PortType::In);
+        auto portIndex = static_cast<std::size_t>(c.getPortIndex(QtNodes::PortType::In));
 
-        auto node = m_program.getNode(receiver->nodeId());
-        node.m_logic.m_argument[portIndex] = NoArgument{};
+        m_program.editNode(receiver->nodeId(), ArgumentId{portIndex}, NoArgument{}).discard();
 
-        m_program.editNode(receiver->nodeId(), node);
-
-        std::cout << "onConnectionRemoved: removed argument from " << receiver->nodeId() << std::endl;
+        std::cout << "onConnectionRemoved: removed argument from " << receiver->nodeId().get() << std::endl;
     }
-    else if(auto receiver = dynamic_cast<TargetExportImageDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
+
+    if(auto receiver = dynamic_cast<TargetExportImageDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
     {
         m_targets.erase(receiver->getId());
         m_program.removeResult(receiver->getId().toUtf8().constData());
@@ -240,7 +235,7 @@ void Editor::onExportImage()
 
 void Editor::onExportImage_(const QUuid& uuid, const QString& filename)
 {
-    auto results = m_program.run();
+    auto results = m_program.run().value();
     std::string id = uuid.toString().toUtf8().constData();
 
     auto it = std::find_if(results.begin(), results.end(), [&id](const auto& x)
