@@ -17,16 +17,21 @@
 class TypeData: public QtNodes::NodeData
 {
 public:
-    explicit TypeData(): m_nodeId{std::nullopt} {}
-    explicit TypeData(NodeId id): m_nodeId{id} {}
+    explicit TypeData() = default;
+    explicit TypeData(NodeId id): m_id{id} {}
+    explicit TypeData(QUuid id): m_id{id} {}
 
     TypeData(const TypeData&) = default;
     TypeData(TypeData&&) = default;
 
-    const auto& nodeId() { return m_nodeId; }
+    const auto& nodeId() { return std::get<NodeId>(m_id); }
+    const auto& valueId() { return std::get<QUuid>(m_id); }
+
+    bool isValueId() { return std::holds_alternative<QUuid>(m_id); }
+    bool isNodeId() { return std::holds_alternative<NodeId>(m_id); }
 
 private:
-    std::optional<NodeId> m_nodeId;
+    std::variant<NodeId, QUuid> m_id;
 };
 
 class StringTypeData: public TypeData
