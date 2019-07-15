@@ -138,6 +138,13 @@ void Editor::nodeCreated(QtNodes::Node& node)
         connect(p, &TargetExportImageDataModel::targetNameChanged, this, &Editor::onTargetNameChanged);
         Q_EMIT(attachDockWindow(p->dockWidget()));
     }
+
+    if(auto* p = dynamic_cast<GieNodeDataModel*>(node.nodeDataModel()); p != nullptr)
+    {
+        p->m_nodeId = m_program.addNode(p->m_symbol.qualifiedName, {});
+
+        std::cout << "created node [" << p->m_nodeId.get() << "]" << std::endl;
+    }
 }
 
 void Editor::nodeDeleted(QtNodes::Node& node)
@@ -145,6 +152,12 @@ void Editor::nodeDeleted(QtNodes::Node& node)
     if(auto* p = dynamic_cast<TargetExportImageDataModel*>(node.nodeDataModel()); p != nullptr)
     {
         Q_EMIT(detachDockWindow(p->dockWidget()));
+    }
+
+    if(auto* p = dynamic_cast<GieNodeDataModel*>(node.nodeDataModel()); p != nullptr)
+    {
+        m_program.removeNode(p->m_nodeId).discard();
+        std::cout << "removed node [" << p->m_nodeId.get() << "]" << std::endl;
     }
 }
 

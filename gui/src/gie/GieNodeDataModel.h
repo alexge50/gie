@@ -6,9 +6,7 @@
 #define GUI_GIENODEDATAMODEL_H
 
 #include <gie/Node.h>
-#include <gie/NodeLogic.h>
 #include <gie/Program.h>
-#undef B0
 
 #include <nodes/NodeDataModel>
 #include <QString>
@@ -18,19 +16,17 @@ class GieNodeDataModel: public QtNodes::NodeDataModel
     Q_OBJECT
 
 public:
-    explicit GieNodeDataModel(Program& program, NodeMetadata metadata):
-        m_program{program},
-        m_metadata(std::move(metadata)),
-        m_logic{std::vector<ArgumentValue>(m_metadata.m_arguments.size(), {NoArgument{}})}
-    {
-        m_nodeId = program.addNode({{}, m_logic, m_metadata});
-    };
+
+    explicit GieNodeDataModel(Symbol symbol, const NodeType* type):
+        m_arguments{type->m_arguments},
+        m_returnType{type->m_returnType},
+        m_symbol{std::move(symbol)}
+    {}
 
     GieNodeDataModel() = delete;
 
     ~GieNodeDataModel() override
     {
-        m_program.removeNode(m_nodeId);
     }
 
     unsigned int nPorts(QtNodes::PortType portType) const override;
