@@ -16,6 +16,12 @@ class Image
 {
     static const int N_CHANNELS = 3;
 public:
+    Image():
+        m_width{0},
+        m_height{0},
+        data{nullptr}
+    {}
+
     Image(unsigned width, unsigned height):
             m_width{width},
             m_height{height},
