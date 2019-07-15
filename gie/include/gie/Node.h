@@ -38,9 +38,9 @@ private:
     NodeTypeId m_nodeTypeId;
     boost::python::object m_function;
 
-    friend std::optional<Node> makeNode(NodeTypeManager&, std::string name, Arguments);
+    friend std::optional<Node> makeNode(NodeTypeManager&, const std::string& name, Arguments);
 };
 
-std::optional<Node> makeNode(NodeTypeManager&, std::string name, Arguments);
+std::optional<Node> makeNode(NodeTypeManager&, const std::string& name, Arguments);
 
 #endif //GIE_LIBRARY_NODE_H

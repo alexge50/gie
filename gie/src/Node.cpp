@@ -4,7 +4,7 @@
 
 #include <gie/Node.h>
 
-std::optional<Node> makeNode(NodeTypeManager& typeManager, std::string name, Arguments arguments)
+std::optional<Node> makeNode(NodeTypeManager& typeManager, const std::string& name, Arguments arguments)
 {
     auto type = typeManager.nodeType(name);
 
