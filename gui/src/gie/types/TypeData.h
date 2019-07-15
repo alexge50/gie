@@ -23,7 +23,7 @@ private:
     std::optional<NodeId> m_nodeId;
 };
 
-class StringData: public TypeData
+class StringTypeData: public TypeData
 {
 public:
     QtNodes::NodeDataType type() const override
@@ -32,7 +32,7 @@ public:
     }
 };
 
-class NumberData: public TypeData
+class NumberTypeData: public TypeData
 {
 public:
     QtNodes::NodeDataType type() const override
@@ -41,7 +41,7 @@ public:
     }
 };
 
-class IntegerData: public TypeData
+class IntegerTypeData: public TypeData
 {
 public:
     QtNodes::NodeDataType type() const override
@@ -50,7 +50,7 @@ public:
     }
 };
 
-class ImageData: public TypeData
+class ImageTypeData: public TypeData
 {
 public:
     QtNodes::NodeDataType type() const override
@@ -59,7 +59,7 @@ public:
     }
 };
 
-class ColorData: public TypeData
+class ColorTypeData: public TypeData
 {
 public:
     QtNodes::NodeDataType type() const override
