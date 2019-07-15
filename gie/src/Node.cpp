@@ -6,15 +6,17 @@
 
 std::optional<Node> makeNode(NodeTypeManager& typeManager, std::string name, Arguments arguments)
 {
-    auto type = typeManager.getId(name);
+    auto type = typeManager.nodeType(name);
 
-    if(!type.has_value())
+    if(type == nullptr)
         return std::nullopt;
+
+    arguments.resize(type->m_arguments.size(), NoArgument{});
 
     return Node
             {
                     {std::move(arguments)},
-                    *type,
-                    typeManager.nodeType(*type)->m_function
+                    *typeManager.getId(name),
+                    type->m_function
             };
 }
