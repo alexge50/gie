@@ -32,6 +32,8 @@ private:
 class StringTypeData: public TypeData
 {
 public:
+    using TypeData::TypeData;
+
     QtNodes::NodeDataType type() const override
     {
         return {"string", "string"};
@@ -41,6 +43,8 @@ public:
 class NumberTypeData: public TypeData
 {
 public:
+    using TypeData::TypeData;
+
     QtNodes::NodeDataType type() const override
     {
         return {"double", "double"};
@@ -50,6 +54,8 @@ public:
 class IntegerTypeData: public TypeData
 {
 public:
+    using TypeData::TypeData;
+
     QtNodes::NodeDataType type() const override
     {
         return {"integer", "integer"};
@@ -59,6 +65,8 @@ public:
 class ImageTypeData: public TypeData
 {
 public:
+    using TypeData::TypeData;
+
     QtNodes::NodeDataType type() const override
     {
         return {"Image", "Image"};
@@ -68,6 +76,8 @@ public:
 class ColorTypeData: public TypeData
 {
 public:
+    using TypeData::TypeData;
+
     QtNodes::NodeDataType type() const override
     {
         return {"Color", "Color"};
