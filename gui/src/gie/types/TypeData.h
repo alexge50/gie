@@ -43,7 +43,7 @@ class NumberTypeData: public TypeData
 public:
     QtNodes::NodeDataType type() const override
     {
-        return {"number", "number"};
+        return {"double", "double"};
     }
 };
 
