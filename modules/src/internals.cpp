@@ -26,6 +26,6 @@ BOOST_PYTHON_MODULE(internals)
             .def("__copy__", copyObject<Image>)
             .def("pixel_at", &Image::pixelAt)
             .def("set_pixel", &Image::setPixel)
-            .def("width", &Image::width_)
-            .def("height", &Image::height_);
+            .def("width", &Image::width)
+            .def("height", &Image::height);
 }
