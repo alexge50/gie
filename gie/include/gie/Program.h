@@ -39,6 +39,7 @@ public:
     MaybeError<NodeInterfaceError> editNode(NodeId, ArgumentId argumentId, ArgumentValue);
     MaybeError<NodeInterfaceError> removeNode(NodeId);
     Expected<const Node*, NodeInterfaceError> getNode(NodeId id) const;
+    Expected<std::optional<Value>, NodeInterfaceError> getCache(NodeId id) const;
 
     void addResult(std::string tag, NodeId);
     void editResult(std::string tag, NodeId);

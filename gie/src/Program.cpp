@@ -42,6 +42,17 @@ Expected<const Node*, NodeInterfaceError> Program::getNode(NodeId id) const
     return Expected<const Node*, NodeInterfaceError>{value->node};
 }
 
+Expected<std::optional<Value>, NodeInterfaceError> Program::getCache(NodeId id) const
+{
+    auto value = ::getNode(m_graph, id);
+
+    if(!value)
+        return Expected<std::optional<Value>, NodeInterfaceError>{makeUnexpected(value.error())};
+
+    return Expected<std::optional<Value>, NodeInterfaceError>{*value->cache};
+}
+
+
 void Program::addResult(std::string tag, NodeId id)
 {
     ::addResult(m_graph, std::move(tag), id);
