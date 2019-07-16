@@ -213,6 +213,7 @@ void Editor::nodeCreated(QtNodes::Node& node)
         });
 
         p->m_valueId = node.id();
+        m_values[node.id()] = p->getData();
     }
 
     if(auto* p = dynamic_cast<ManagedImageSourceDataModel*>(node.nodeDataModel()); p != nullptr)
