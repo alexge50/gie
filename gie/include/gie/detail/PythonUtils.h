@@ -10,7 +10,7 @@
 inline boost::python::object copy(const PythonContext& context, const boost::python::object& o)
 {
     using namespace boost::python;
-    return context.copy().attr("deepcopy")(o);
+    return context.copy().attr("copy")(o);
 }
 
 inline bool hasattr(const boost::python::object& object, const char* name)
