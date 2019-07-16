@@ -10,12 +10,31 @@
 #include <string>
 #include <boost/python.hpp>
 
+#include <gie/detail/PythonUtils.h>
+
 struct Value
 {
 public:
     Value() {}
-    explicit Value(boost::python::object object): m_object(std::move(object)) {}
+    explicit Value(boost::python::object object): m_typeName{::type(object)}, m_object(std::move(object)) {}
 
+    const Type& type() const
+    {
+        return m_typeName;
+    }
+
+    boost::python::object object() const
+    {
+        return m_object;
+    }
+
+    template <typename T>
+    T extract() const
+    {
+        return boost::python::extract<T>(m_object);
+    }
+
+private:
     Type m_typeName;
     boost::python::object m_object;
 };
