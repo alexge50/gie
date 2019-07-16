@@ -31,7 +31,7 @@
 #include "Project.h"
 
 
-Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{program}
+Editor::Editor(QWidget* parent): QWidget(parent)
 {
     QtNodes::ConnectionStyle::setConnectionStyle(R"({
     "ConnectionStyle": {
@@ -83,6 +83,24 @@ Editor::Editor(Program& program, QWidget* parent): QWidget(parent), m_program{pr
     connect(m_scene, &QtNodes::FlowScene::nodeMoved, this, &Editor::sceneChanged);
     connect(m_scene, &QtNodes::FlowScene::nodeDoubleClicked, this, &Editor::sceneChanged);
     connect(m_scene, &QtNodes::FlowScene::connectionHovered, this, &Editor::sceneChanged);
+
+    auto thread = new QThread;
+    m_gie = new Gie{};
+
+    m_gie->moveToThread(thread);
+    connect(m_gie, &Gie::finished, thread, &QThread::quit);
+    connect(m_gie, &Gie::finished, m_gie, &QThread::deleteLater);
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+
+    thread->start();
+
+    QMetaObject::invokeMethod(
+            m_gie,
+            "init"
+            );
+
+    connect(m_gie, &Gie::reloadedSymbols, this, &Editor::reloadedSymbols);
+    connect(m_gie, &Gie::resultUpdated, this, &Editor::resultUpdated);
 }
 
 void Editor::onConnectionCreated(const QtNodes::Connection& c)
@@ -92,18 +110,35 @@ void Editor::onConnectionCreated(const QtNodes::Connection& c)
 
     if(giver != nullptr && receiver != nullptr)
     {
-        auto portIndex = static_cast<std::size_t>(c.getPortIndex(QtNodes::PortType::In));
+        [[maybe_unused]]auto portIndex = static_cast<std::size_t>(c.getPortIndex(QtNodes::PortType::In));
 
-        m_program.editNode(receiver->nodeId(), ArgumentId{portIndex}, giver->nodeId()).discard();
-
-        std::cout << "onConnectionCreated: connected " << giver->nodeId().get() << " with " << receiver->nodeId().get() << std::endl;
+        QMetaObject::invokeMethod(
+                m_gie,
+                "editNode",
+                Q_ARG(GieNodeId, receiver->m_nodeId),
+                Q_ARG(ArgumentId, ArgumentId{portIndex}),
+                Q_ARG(GieNodeId, giver->m_nodeId)
+                );
     }
+
     if(giver != nullptr)
     {
         if(auto receiver = dynamic_cast<TargetExportImageDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
         {
             m_targets.insert({receiver->getId(), receiver->getTargetName()});
-            m_program.addResult(receiver->getId().toUtf8().constData(), giver->nodeId());
+        }
+    }
+
+    if(auto receiver = dynamic_cast<GieDisplayDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
+    {
+        if(giver != nullptr)
+        {
+            QMetaObject::invokeMethod(
+                    m_gie,
+                    "addResultNotify",
+                    Q_ARG(QUuid, c.getNode(QtNodes::PortType::In)->id()),
+                    Q_ARG(GieNodeId, giver->m_nodeId)
+            );
         }
     }
 }
@@ -112,18 +147,30 @@ void Editor::onConnectionDeleted(const QtNodes::Connection& c)
 {
     if(auto receiver = dynamic_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
     {
-        auto portIndex = static_cast<std::size_t>(c.getPortIndex(QtNodes::PortType::In));
+        [[maybe_unused]]auto portIndex = static_cast<std::size_t>(c.getPortIndex(QtNodes::PortType::In));
 
-        m_program.editNode(receiver->nodeId(), ArgumentId{portIndex}, NoArgument{}).discard();
-
-        std::cout << "onConnectionRemoved: removed argument from " << receiver->nodeId().get() << std::endl;
+        QMetaObject::invokeMethod(
+                m_gie,
+                "removeArgument",
+                Q_ARG(GieNodeId, receiver->m_nodeId),
+                Q_ARG(ArgumentId, ArgumentId{portIndex})
+                );
     }
 
     if(auto receiver = dynamic_cast<TargetExportImageDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
     {
         m_targets.erase(receiver->getId());
-        m_program.removeResult(receiver->getId().toUtf8().constData());
     }
+
+    if(auto receiver = dynamic_cast<GieDisplayDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
+    {
+        QMetaObject::invokeMethod(
+                m_gie,
+                "removeResultNotify",
+                Q_ARG(QUuid, c.getNode(QtNodes::PortType::In)->id())
+                );
+    }
+
 }
 
 void Editor::nodeCreated(QtNodes::Node& node)
@@ -136,9 +183,47 @@ void Editor::nodeCreated(QtNodes::Node& node)
 
     if(auto* p = dynamic_cast<GieNodeDataModel*>(node.nodeDataModel()); p != nullptr)
     {
-        p->m_nodeId = m_program.addNode(p->m_symbol.qualifiedName, {});
+        p->m_nodeId = node.id();
 
-        std::cout << "created node [" << p->m_nodeId.get() << "]" << std::endl;
+        QMetaObject::invokeMethod(
+                m_gie,
+                "addNode",
+                Q_ARG(GieNodeId, p->m_nodeId),
+                Q_ARG(std::string, p->m_symbol.qualifiedName)
+                );
+
+        connect(p, &GieNodeDataModel::edit, [this, p](QUuid value, int port)
+        {
+            QMetaObject::invokeMethod(
+                    m_gie,
+                    "editNode",
+                    Q_ARG(GieNodeId, p->m_nodeId),
+                    Q_ARG(ArgumentId, ArgumentId{static_cast<std::size_t>(port)}),
+                    Q_ARG(Data, m_values[value])
+            );
+        });
+
+    }
+
+    if(auto* p = dynamic_cast<GieSourceDataModel*>(node.nodeDataModel()); p != nullptr)
+    {
+        connect(p, &GieSourceDataModel::valueChanged, [this, &node](Data data)
+        {
+            m_values[node.id()] = std::move(data);
+        });
+
+        p->m_valueId = node.id();
+    }
+
+    if(auto* p = dynamic_cast<ManagedImageSourceDataModel*>(node.nodeDataModel()); p != nullptr)
+    {
+        m_values[node.id()] = p->m_image;
+        p->m_valueId = node.id();
+    }
+
+    if(auto* p = dynamic_cast<GieDisplayDataModel*>(node.nodeDataModel()); p != nullptr)
+    {
+
     }
 }
 
@@ -151,9 +236,22 @@ void Editor::nodeDeleted(QtNodes::Node& node)
 
     if(auto* p = dynamic_cast<GieNodeDataModel*>(node.nodeDataModel()); p != nullptr)
     {
-        m_program.removeNode(p->m_nodeId).discard();
-        std::cout << "removed node [" << p->m_nodeId.get() << "]" << std::endl;
+        QMetaObject::invokeMethod(
+                m_gie,
+                "removeNode",
+                Q_ARG(GieNodeId, p->m_nodeId)
+                );
     }
+
+    if(auto* p = dynamic_cast<GieSourceDataModel*>(node.nodeDataModel()); p != nullptr)
+    {
+        m_values.erase(node.id());
+    }
+}
+
+void Editor::resultUpdated(QUuid displayerId, Data data)
+{
+    dynamic_cast<GieDisplayDataModel*>(m_scene->nodes().at(displayerId)->nodeDataModel())->displayData(std::move(data));
 }
 
 void Editor::onTargetNameChanged(const QUuid& id, const QString& name)
@@ -164,7 +262,8 @@ void Editor::onTargetNameChanged(const QUuid& id, const QString& name)
 
 void Editor::addImageNode(const ProjectImage& projectImage)
 {
-    m_scene->createNode(std::make_unique<ManagedImageSourceDataModel>(projectImage));
+    auto& node = m_scene->createNode(std::make_unique<ManagedImageSourceDataModel>(projectImage));
+    m_values[node.id()] = dynamic_cast<ManagedImageSourceDataModel*>(node.nodeDataModel())->m_image;
 }
 
 void Editor::onNewProject()
@@ -235,24 +334,6 @@ void Editor::onExportImage()
 
 void Editor::onExportImage_(const QUuid& uuid, const QString& filename)
 {
-    auto results = m_program.run().value();
-    std::string id = uuid.toString().toUtf8().constData();
-
-    auto it = std::find_if(results.begin(), results.end(), [&id](const auto& x)
-    {
-        return x.tag == id;
-    });
-
-    if(it != results.end())
-    {
-        auto image = boost::python::extract<Image>(it->value.m_object)();
-
-        auto imageData = new uint8_t[image.width * image.height * 3];
-        std::memcpy(imageData, image.raw(), image.width * image.height * 3);
-
-        QImage qImage(imageData, image.width, image.height, QImage::Format_RGB888, [](auto p){ delete static_cast<uint8_t*>(p); });
-        qImage.save(filename);
-    }
 }
 
 void Editor::setRegistry(std::shared_ptr<QtNodes::DataModelRegistry> registry)
@@ -276,4 +357,14 @@ QString Editor::getProjectName()
     if(m_project)
         return m_project->projectName();
     return QString("");
+}
+
+void Editor::loadModule(const QString& name, const QString& path)
+{
+    QMetaObject::invokeMethod(
+            m_gie,
+            "loadModule",
+            Q_ARG(std::string, name.toStdString()),
+            Q_ARG(std::string, path.toStdString())
+            );
 }
