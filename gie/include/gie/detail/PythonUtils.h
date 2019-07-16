@@ -18,12 +18,9 @@ inline bool hasattr(const boost::python::object& object, const char* name)
     return PyObject_HasAttrString(object.ptr(), name) != 0;
 }
 
-inline std::string type(const boost::python::object& object)
+inline std::string type(const boost::python::object& o)
 {
-    using namespace boost::python;
-
-    auto type = getattr(object, "__class__");
-    return extract<std::string>(getattr(type, "__name__"));
+    return {o.ptr()->ob_type->tp_name};
 }
 
 #endif //GIE_PYTHONUTILS_H
