@@ -38,6 +38,12 @@ void ColorSourceDataModel::restore(QJsonObject const &p)
             g.toInt(),
             b.toInt()
         });
+
+        onColorChanged(QColor{
+            r.toInt(),
+            g.toInt(),
+            b.toInt()
+        });
     }
 }
 
