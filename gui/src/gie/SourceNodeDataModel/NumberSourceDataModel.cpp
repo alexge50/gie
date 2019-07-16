@@ -25,8 +25,7 @@ QJsonObject NumberSourceDataModel::save() const
 {
     QJsonObject modelJson = NodeDataModel::save();
 
-    if (m_data)
-        modelJson["number"] = QString::number(m_data->number());
+    modelJson["number"] = QString::number(0);
 
     return modelJson;
 }
@@ -40,12 +39,11 @@ void NumberSourceDataModel::restore(QJsonObject const &p)
     {
         QString str = v.toString();
 
-        bool ok;
-        double number = str.toDouble(&ok);
+        bool ok{};
+        str.toDouble(&ok);
 
         if(ok)
         {
-            m_data = std::make_shared<NumberData>(number);
             m_lineEdit->setText(str);
         }
     }
@@ -65,13 +63,12 @@ void NumberSourceDataModel::onTextEdited(QString const &string)
     Q_UNUSED(string);
 
     bool ok;
-    double number = string.toDouble(&ok);
+    [[maybe_unused]]double number = string.toDouble(&ok);
 
     if(ok)
     {
-        m_data = std::make_shared<NumberData>(number);
+        Q_EMIT valueChanged(number);
         Q_EMIT dataUpdated(0);
-        Q_EMIT onValueChanged(m_data);
     }
     else Q_EMIT dataInvalidated(0);
 }
@@ -79,11 +76,11 @@ void NumberSourceDataModel::onTextEdited(QString const &string)
 
 QtNodes::NodeDataType NumberSourceDataModel::dataType(QtNodes::PortType, QtNodes::PortIndex) const
 {
-    return NumberData().type();
+    return NumberTypeData().type();
 }
 
 
 std::shared_ptr<QtNodes::NodeData> NumberSourceDataModel::outData(QtNodes::PortIndex)
 {
-    return m_data;
+    return std::make_shared<NumberTypeData>(m_valueId);
 }
