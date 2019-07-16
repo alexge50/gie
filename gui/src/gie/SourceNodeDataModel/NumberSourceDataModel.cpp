@@ -84,3 +84,8 @@ std::shared_ptr<QtNodes::NodeData> NumberSourceDataModel::outData(QtNodes::PortI
 {
     return std::make_shared<NumberTypeData>(m_valueId);
 }
+
+Data NumberSourceDataModel::getData()
+{
+    return m_lineEdit->text().toDouble();
+}

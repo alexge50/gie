@@ -40,6 +40,8 @@ public:
 
     QWidget* embeddedWidget() override { return m_lineEdit; }
 
+    Data getData() override;
+
 private Q_SLOTS:
     void onTextEdited(QString const &string);
 

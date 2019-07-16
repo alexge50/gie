@@ -35,6 +35,8 @@ public:
 
     QWidget* embeddedWidget() override { return m_filePicker; }
 
+    Data getData() override;
+
 private Q_SLOTS:
     void onFileChanged(QString);
 

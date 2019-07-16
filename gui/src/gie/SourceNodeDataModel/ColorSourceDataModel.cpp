@@ -69,3 +69,12 @@ std::shared_ptr<QtNodes::NodeData> ColorSourceDataModel::outData(QtNodes::PortIn
 {
     return std::make_shared<ColorTypeData>(m_valueId);
 }
+
+Data ColorSourceDataModel::getData()
+{
+    return Data(Color{
+            static_cast<uint8_t>(m_colorPicker->color().red()),
+            static_cast<uint8_t>(m_colorPicker->color().green()),
+            static_cast<uint8_t>(m_colorPicker->color().blue())
+    });
+}

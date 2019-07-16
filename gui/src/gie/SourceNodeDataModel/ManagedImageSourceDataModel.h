@@ -35,6 +35,8 @@ public:
 
     QWidget* embeddedWidget() override { return nullptr; }
 
+    Data getData() override { return {}; }
+
 private:
     QString m_filename;
     QString m_uuid;

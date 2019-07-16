@@ -69,3 +69,8 @@ std::shared_ptr<QtNodes::NodeData> StringSourceDataModel::outData(QtNodes::PortI
 {
     return std::make_shared<StringTypeData>(m_valueId);
 }
+
+Data StringSourceDataModel::getData()
+{
+    return m_lineEdit->text().toStdString();
+}

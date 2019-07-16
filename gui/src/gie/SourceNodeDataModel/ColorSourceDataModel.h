@@ -35,6 +35,8 @@ public:
 
     QWidget* embeddedWidget() override { return m_colorPicker; }
 
+    Data getData() override;
+
 private Q_SLOTS:
     void onColorChanged(QColor);
 

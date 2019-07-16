@@ -84,3 +84,8 @@ std::shared_ptr<QtNodes::NodeData> IntegerSourceDataModel::outData(QtNodes::Port
 {
     return std::make_shared<IntegerTypeData>(m_valueId);
 }
+
+Data IntegerSourceDataModel::getData()
+{
+    return m_lineEdit->text().toLongLong();
+}

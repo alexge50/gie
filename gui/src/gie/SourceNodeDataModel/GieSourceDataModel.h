@@ -19,6 +19,8 @@ public:
 
     }
 
+    virtual Data getData() = 0;
+
 Q_SIGNALS:
     void valueChanged(Data);
 

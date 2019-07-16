@@ -80,3 +80,11 @@ std::shared_ptr<QtNodes::NodeData> ImageSourceDataModel::outData(QtNodes::PortIn
 {
     return std::make_shared<ImageTypeData>(m_valueId);
 }
+
+Data ImageSourceDataModel::getData()
+{
+    QImage image = QImage(m_filename).convertToFormat(QImage::Format_RGB888);
+
+    return Image{imageToRawData(image), static_cast<unsigned int>(image.width()),
+                 static_cast<unsigned int>(image.height())};
+}
