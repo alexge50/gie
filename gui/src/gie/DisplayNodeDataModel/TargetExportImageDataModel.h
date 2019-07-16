@@ -10,8 +10,9 @@
 #include "src/imageviewer/imageviewer.h"
 
 #include <QDockWidget>
+#include "GieDisplayDataModel.h"
 
-class TargetExportImageDataModel: public QtNodes::NodeDataModel
+class TargetExportImageDataModel: public GieDisplayDataModel
 {
     Q_OBJECT
 public:
@@ -27,20 +28,16 @@ public:
     QJsonObject save() const override;
     void restore(const QJsonObject& p) override;
 
-    unsigned int nPorts(QtNodes::PortType portType) const override;
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
-    std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex portIndex) override { return {}; }
-    void setInData(std::shared_ptr<QtNodes::NodeData>, QtNodes::PortIndex portIndex) override;
-
     QWidget* embeddedWidget() override { return m_targetNameEdit; }
-
-    QtNodes::NodeValidationState validationState() const override { return modelValidationState; }
-    QString validationMessage() const override { return modelValidationError; }
 
     const QString& getTargetName() const { return m_targetName; }
     QString getId() const { return m_id.toString(); };
     QDockWidget* dockWidget() { return m_dock; }
+
+public Q_SLOTS:
+    void displayData(Data data) override;
 
 Q_SIGNALS:
     void targetNameChanged(const QUuid& id, const QString&);
@@ -49,9 +46,6 @@ private Q_SLOTS:
     void onTargetNameChanged(const QString&);
 
 private:
-    QtNodes::NodeValidationState modelValidationState = QtNodes::NodeValidationState::Warning;
-    QString modelValidationError = QString("Missing or incorrect inputs");
-
     QLineEdit* m_targetNameEdit;
     QString m_targetName;
     QUuid m_id;

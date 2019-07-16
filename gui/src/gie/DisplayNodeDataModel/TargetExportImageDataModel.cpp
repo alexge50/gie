@@ -3,7 +3,7 @@
 //
 
 #include "TargetExportImageDataModel.h"
-#include "src/gie/types/ImageData.h"
+#include "src/gie/types/TypeData.h"
 
 TargetExportImageDataModel::TargetExportImageDataModel():
         m_targetNameEdit{new QLineEdit()},
@@ -42,42 +42,28 @@ void TargetExportImageDataModel::restore(const QJsonObject& p)
     }
 }
 
-
-unsigned int TargetExportImageDataModel::nPorts(QtNodes::PortType portType) const
-{
-    if(portType == QtNodes::PortType::In)
-        return 1;
-    return 0;
-}
-
 QtNodes::NodeDataType TargetExportImageDataModel::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
-    return ImageData().type();
+    return ImageTypeData().type();
 }
 
-void TargetExportImageDataModel::setInData(std::shared_ptr<QtNodes::NodeData> input, QtNodes::PortIndex)
+void TargetExportImageDataModel::displayData(Data data)
 {
-    if(auto* data = dynamic_cast<ImageData*>(input.get()); data)
-    {
-        modelValidationState = QtNodes::NodeValidationState::Valid;
-        modelValidationError = QString();
+    const auto& image = std::get<Image>(data);
+    
+    auto bufferSize = image.width() * image.height() * 3;
+    auto imageData = new uint8_t[bufferSize];
+    std::memcpy(imageData, image.raw(), bufferSize);
 
-        const auto& image = data->image();
-        auto imageData = new uint8_t[image.width * image.height * 3];
-        std::memcpy(imageData, image.raw(), image.width * image.height * 3);
+    QImage qImage(
+            imageData, 
+            image.width(), 
+            image.height(), 
+            QImage::Format_RGB888, 
+            [](auto p){ delete static_cast<uint8_t*>(p); });
 
-        QImage qImage(imageData, image.width, image.height, QImage::Format_RGB888, [](auto p){ delete static_cast<uint8_t*>(p); });
-
-        m_imageViewer->setDisplayType(image.width > image.height ? ImageViewer::FixedHeight : ImageViewer::FixedWidth);
-        m_imageViewer->setImage(std::move(qImage));
-    }
-    else
-    {
-        modelValidationState = QtNodes::NodeValidationState::Valid;
-        modelValidationError = QStringLiteral("Missing or incorrect inputs");
-
-        m_imageViewer->setImage(QImage{});
-    }
+    m_imageViewer->setDisplayType(image.width() > image.height() ? ImageViewer::FixedHeight : ImageViewer::FixedWidth);
+    m_imageViewer->setImage(std::move(qImage));
 }
 
 void TargetExportImageDataModel::onTargetNameChanged(const QString& name)
