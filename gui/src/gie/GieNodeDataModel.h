@@ -19,7 +19,9 @@ public:
         m_arguments{std::move(symbol.arguments)},
         m_returnType{std::move(symbol.returnType)},
         m_symbol{std::move(symbol.symbol)}
-    {}
+    {
+        m_portAssign.resize(m_arguments.size(), PortAssigned::No);
+    }
 
     GieNodeDataModel() = delete;
 
@@ -56,7 +58,13 @@ private:
     Type m_returnType;
     Symbol m_symbol;
 
-    std::shared_ptr<QtNodes::NodeData> m_result;
+    enum class PortAssigned: char
+    {
+        Yes,
+        No
+    };
+
+    std::vector<PortAssigned> m_portAssign;
 
     QtNodes::NodeValidationState modelValidationState = QtNodes::NodeValidationState::Warning;
     QString modelValidationError = QString("Missing or incorrect inputs");

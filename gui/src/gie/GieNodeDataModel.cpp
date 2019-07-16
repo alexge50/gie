@@ -47,18 +47,36 @@ QString GieNodeDataModel::portCaption(QtNodes::PortType portType, QtNodes::PortI
 
 std::shared_ptr<QtNodes::NodeData> GieNodeDataModel::outData(QtNodes::PortIndex port)
 {
-    return m_result;
+    return makeTypeData(m_returnType, m_nodeId);
 }
 
 void GieNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> data, QtNodes::PortIndex port)
 {
-    if(!data)
+    if(data == nullptr)
+    {
+        m_portAssign[port] = PortAssigned::No;
         return;
+    }
 
     auto* typeData = dynamic_cast<TypeData*>(data.get());
 
     if(typeData->isValueId())
         Q_EMIT edit(typeData->valueId(), port);
+
+    m_portAssign[port] = PortAssigned::Yes;
+
+    if(std::find(m_portAssign.begin(), m_portAssign.end(), PortAssigned::No) == m_portAssign.end())
+    {
+        modelValidationState = QtNodes::NodeValidationState::Valid;
+        modelValidationError = QString();
+    }
+    else
+    {
+        modelValidationState = QtNodes::NodeValidationState::Warning;
+        modelValidationError = QStringLiteral("Missing or incorrect inputs");
+    }
+
+    Q_EMIT dataUpdated(0);
 }
 
 QtNodes::NodeValidationState GieNodeDataModel::validationState() const
