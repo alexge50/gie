@@ -10,9 +10,10 @@
 
 #include <nodes/NodeDataModel>
 
-#include "src/gie/types/IntegerData.h"
+#include "src/gie/types/TypeData.h"
+#include "GieSourceDataModel.h"
 
-class IntegerSourceDataModel: public QtNodes::NodeDataModel
+class IntegerSourceDataModel: public GieSourceDataModel
 {
 Q_OBJECT
 
@@ -35,18 +36,13 @@ public:
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
     std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
-    void setInData(std::shared_ptr<QtNodes::NodeData>, int) override { }
 
     QWidget* embeddedWidget() override { return m_lineEdit; }
-
-Q_SIGNALS:
-    void onValueChanged(std::shared_ptr<QtNodes::NodeData>);
 
 private Q_SLOTS:
     void onTextEdited(QString const &string);
 
 private:
-    std::shared_ptr<IntegerData> m_data;
     QLineEdit * m_lineEdit;
 };
 
