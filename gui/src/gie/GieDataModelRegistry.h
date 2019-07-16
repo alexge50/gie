@@ -24,26 +24,23 @@
 #include "DisplayNodeDataModel/ImageDisplayDataModel.h"
 #include "DisplayNodeDataModel/TargetExportImageDataModel.h"
 
+#include "src/Gie.h"
+
 class GieDataModelRegistry: public QtNodes::DataModelRegistry
 {
 public:
-    GieDataModelRegistry(Program& program): m_program{program} {}
-
-    void registerModel(const Symbol& symbol, const QString& category);
-
-private:
-    Program& m_program;
+    void registerModel(const GieSymbol& symbol);
 };
 
 [[maybe_unused]]
-static std::shared_ptr<GieDataModelRegistry> registerDataModels(Program& program)
+static std::shared_ptr<GieDataModelRegistry> registerDataModels(const std::vector<GieSymbol>& symbols)
 {
-    std::shared_ptr<GieDataModelRegistry> registry(new GieDataModelRegistry(program), [](auto p){
+    std::shared_ptr<GieDataModelRegistry> registry(new GieDataModelRegistry{}, [](auto p){
         delete reinterpret_cast<GieDataModelRegistry*>(p);
     });
 
-    for(const auto& symbol: program.context().importedSymbols())
-        registry->registerModel(symbol, QString::fromStdString(symbol.module));
+    for(const auto& symbol: symbols)
+        registry->registerModel(symbol);
 
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<StringSourceDataModel>("source");
     static_cast<QtNodes::DataModelRegistry*>(registry.get())->registerModel<NumberSourceDataModel>("source");

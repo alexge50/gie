@@ -7,11 +7,14 @@
 #include <nodes/NodeDataModel>
 #include "GieNodeDataModel.h"
 
-void GieDataModelRegistry::registerModel(const Symbol& symbol, const QString& category)
+void GieDataModelRegistry::registerModel(const GieSymbol& symbol)
 {
-    RegistryItemCreator creator = [this, symbol](){ return std::make_unique<GieNodeDataModel>(symbol, m_program.nodeTypeManager().nodeType(symbol)); };
+    RegistryItemCreator creator = [symbol](){
+        return std::make_unique<GieNodeDataModel>(symbol);
+    };
 
-    const QString name = QString::fromStdString(symbol.qualifiedName);
+    const QString name = QString::fromStdString(symbol.symbol.qualifiedName);
+    const QString category = QString::fromStdString(symbol.symbol.module);
 
     /*
      * the members that were required to be accessed are private, but they have const qualified accessors
