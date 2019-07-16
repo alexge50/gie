@@ -55,39 +55,10 @@ void GieNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> data, QtNode
     if(!data)
         return;
 
-    /*if(!std::holds_alternative<NodeId>(m_program.getNode(m_nodeId).m_logic.m_argument[port]))
-    {
-        //... emit value change
-    }
+    auto* typeData = dynamic_cast<TypeData*>(data.get());
 
-    // all ports assigned
-
-    //only validation, data will be given directly to the viewer
-
-    if(allPortsAssigned)
-    {
-        modelValidationState = QtNodes::NodeValidationState::Valid;
-        modelValidationError = QString();
-
-        auto result = executeNode({{}, m_logic, m_metadata});
-
-        if(result.has_value())
-            m_result = extractNodeData(m_metadata.m_returnType, result.value());
-        else
-        {
-            modelValidationState = QtNodes::NodeValidationState::Warning;
-            modelValidationError = QString("Missing or incorrect inputs");
-            m_result = std::shared_ptr<QtNodes::NodeData>();
-        }
-    }
-    else
-    {
-        modelValidationState = QtNodes::NodeValidationState::Warning;
-        modelValidationError = QString("Missing or incorrect inputs");
-    }
-
-    Q_EMIT dataUpdated(0);*/
-
+    if(typeData->isValueId())
+        Q_EMIT edit(typeData->valueId(), port);
 }
 
 QtNodes::NodeValidationState GieNodeDataModel::validationState() const

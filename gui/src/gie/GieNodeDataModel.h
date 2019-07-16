@@ -5,11 +5,9 @@
 #ifndef GUI_GIENODEDATAMODEL_H
 #define GUI_GIENODEDATAMODEL_H
 
-#include <gie/Node.h>
-#include <gie/Program.h>
-
 #include <nodes/NodeDataModel>
 #include <QString>
+#include <src/Gie.h>
 
 class GieNodeDataModel: public QtNodes::NodeDataModel
 {
@@ -17,10 +15,10 @@ class GieNodeDataModel: public QtNodes::NodeDataModel
 
 public:
 
-    explicit GieNodeDataModel(Symbol symbol, const NodeType* type):
-        m_arguments{type->m_arguments},
-        m_returnType{type->m_returnType},
-        m_symbol{std::move(symbol)}
+    explicit GieNodeDataModel(GieSymbol symbol):
+        m_arguments{std::move(symbol.arguments)},
+        m_returnType{std::move(symbol.returnType)},
+        m_symbol{std::move(symbol.symbol)}
     {}
 
     GieNodeDataModel() = delete;
@@ -49,8 +47,11 @@ public:
 
     auto nodeId() const { return m_nodeId; }
 
+Q_SIGNALS:
+    void edit(QUuid, int port);
+
 private:
-    NodeId m_nodeId;
+    GieNodeId m_nodeId;
     std::vector<ArgumentMetadata> m_arguments;
     Type m_returnType;
     Symbol m_symbol;
