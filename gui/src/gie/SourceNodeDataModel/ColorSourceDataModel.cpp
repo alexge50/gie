@@ -18,12 +18,9 @@ QJsonObject ColorSourceDataModel::save() const
 {
     QJsonObject modelJson = NodeDataModel::save();
 
-    if (m_data)
-    {
-        modelJson["R"] = m_data->color().r;
-        modelJson["G"] = m_data->color().g;
-        modelJson["B"] = m_data->color().b;
-    }
+    modelJson["R"] = m_colorPicker->color().red();
+    modelJson["G"] = m_colorPicker->color().green();
+    modelJson["B"] = m_colorPicker->color().blue();
 
     return modelJson;
 }
@@ -36,8 +33,11 @@ void ColorSourceDataModel::restore(QJsonObject const &p)
 
     if (!r.isUndefined() && !g.isUndefined() && !b.isUndefined())
     {
-        Color color{static_cast<uint8_t>(r.toInt()), static_cast<uint8_t>(g.toInt()), static_cast<uint8_t>(b.toInt())};
-        m_data = std::make_shared<ColorData>(color);
+        m_colorPicker->setColor(QColor{
+            r.toInt(),
+            g.toInt(),
+            b.toInt()
+        });
     }
 }
 
@@ -50,22 +50,22 @@ unsigned int ColorSourceDataModel::nPorts(QtNodes::PortType portType) const
 
 void ColorSourceDataModel::onColorChanged(QColor color)
 {
-    m_data = std::make_shared<ColorData>(Color{
-        static_cast<uint8_t>(color.red()),
-        static_cast<uint8_t>(color.green()),
-        static_cast<uint8_t>(color.blue())
-    });
+    Q_EMIT valueChanged(Color{
+                static_cast<uint8_t>(color.red()),
+                static_cast<uint8_t>(color.green()),
+                static_cast<uint8_t>(color.blue())
+            });
     Q_EMIT dataUpdated(0);
-    Q_EMIT onValueChanged(m_data);
+
 }
 
 QtNodes::NodeDataType ColorSourceDataModel::dataType(QtNodes::PortType, QtNodes::PortIndex) const
 {
-    return ColorData().type();
+    return ColorTypeData().type();
 }
 
 
 std::shared_ptr<QtNodes::NodeData> ColorSourceDataModel::outData(QtNodes::PortIndex)
 {
-    return m_data;
+    return std::make_shared<ColorTypeData>(m_valueId);
 }

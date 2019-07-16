@@ -8,9 +8,10 @@
 #include <nodes/NodeDataModel>
 
 #include "src/colorpicker/colorpicker.h"
-#include "src/gie/types/ColorData.h"
+#include "src/gie/types/TypeData.h"
+#include "GieSourceDataModel.h"
 
-class ColorSourceDataModel: public QtNodes::NodeDataModel
+class ColorSourceDataModel: public GieSourceDataModel
 {
     Q_OBJECT
 public:
@@ -31,19 +32,14 @@ public:
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
     std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
-    void setInData(std::shared_ptr<QtNodes::NodeData>, int) override { }
 
     QWidget* embeddedWidget() override { return m_colorPicker; }
-
-Q_SIGNALS:
-    void onValueChanged(std::shared_ptr<QtNodes::NodeData>);
 
 private Q_SLOTS:
     void onColorChanged(QColor);
 
 private:
     ColorPicker* m_colorPicker;
-    std::shared_ptr<ColorData> m_data;
 };
 
 
