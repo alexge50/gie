@@ -18,34 +18,11 @@ MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow)
 {
+    qRegisterMetaType<std::vector<GieSymbol>>("std::vector<GieSymbol>");
+
     ui->setupUi(this);
 
-    auto builtins = m_program.context().module("builtins", false);
-
-    auto sys = m_program.context().module("sys", false);
-    auto os = m_program.context().module("os", false);
-
-    sys.attr("path").attr("insert")(1, os.attr("getcwd")());
-
-    auto internals = m_program.context().module("modules.internals", false);
-
-    builtins.attr("Color") = internals.attr("Color");
-    builtins.attr("Image") = internals.attr("Image");
-
-    QFile file("config");
-    file.open(QIODevice::ReadOnly);
-
-    QJsonObject config = QJsonDocument::fromJson(file.readAll()).object();
-
-    std::string rootPath = QFileInfo(file).absoluteDir().absolutePath().toUtf8().constData();
-    for(const auto& module: config["modules"].toArray())
-    {
-        std::string name = module.toObject()["name"].toString().toUtf8().constData();
-        std::string path = rootPath + "/" + module.toObject()["path"].toString().toUtf8().constData();
-        m_program.import(name, path);
-    }
-
-    setCentralWidget(m_editor = new Editor(m_program));
+    setCentralWidget(m_editor = new Editor());
 
     QObject::connect(
             ui->actionNewProject, &QAction::triggered,
@@ -94,7 +71,6 @@ MainWindow::MainWindow(QWidget *parent) :
             m_symbolViewer, &SymbolViewer::onSymbolsUpdate
     );
 
-    reloadSymbols();
 
     QDockWidget* imageViewerDock = new QDockWidget("ImportedImages", this);
     m_imageViewer = new ImportedImagesViewer(imageViewerDock);
@@ -117,6 +93,26 @@ MainWindow::MainWindow(QWidget *parent) :
             m_editor, &Editor::onExportImage
     );
 
+    QObject::connect(
+            m_editor, &Editor::reloadedSymbols,
+            this, &MainWindow::reloadedSymbols
+    );
+
+    QFile file("config");
+    file.open(QIODevice::ReadOnly);
+
+    QJsonObject config = QJsonDocument::fromJson(file.readAll()).object();
+
+    QString rootPath = QFileInfo(file).absoluteDir().absolutePath();
+    for(const auto& module: config["modules"].toArray())
+    {
+        QString name = module.toObject()["name"].toString();
+        QString path = rootPath + "/" + module.toObject()["path"].toString();
+
+        m_editor->loadModule(name, path);
+    }
+
+
     this->setWindowTitle("GIE");
 }
 
@@ -125,9 +121,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::reloadSymbols()
+void MainWindow::reloadedSymbols(std::vector<GieSymbol> gieSymbols)
 {
-    m_modelRegistry = registerDataModels(m_program);
+    m_modelRegistry = registerDataModels(gieSymbols);
     m_editor->setRegistry(m_modelRegistry);
 
     std::map<QString, std::vector<QString>> symbols;

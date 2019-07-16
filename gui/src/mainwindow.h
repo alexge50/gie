@@ -36,12 +36,11 @@ private Q_SLOTS:
     void onChanged();
     void onSaved();
 
-private:
-    void reloadSymbols();
+private Q_SLOTS:
+    void reloadedSymbols(std::vector<GieSymbol>);
 
 private:
     Ui::MainWindow *ui;
-    Program m_program;
     Editor* m_editor;
 
     SymbolViewer* m_symbolViewer;
