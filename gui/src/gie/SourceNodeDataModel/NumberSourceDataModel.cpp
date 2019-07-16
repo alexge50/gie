@@ -25,7 +25,7 @@ QJsonObject NumberSourceDataModel::save() const
 {
     QJsonObject modelJson = NodeDataModel::save();
 
-    modelJson["number"] = QString::number(0);
+    modelJson["number"] = m_lineEdit->text();
 
     return modelJson;
 }
