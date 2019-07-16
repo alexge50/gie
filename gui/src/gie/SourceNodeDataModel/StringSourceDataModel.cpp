@@ -24,8 +24,7 @@ QJsonObject StringSourceDataModel::save() const
 {
     QJsonObject modelJson = NodeDataModel::save();
 
-    if (m_data)
-        modelJson["string"] = m_data->asText();
+    modelJson["string"] = m_lineEdit->text();
 
     return modelJson;
 }
@@ -38,8 +37,6 @@ void StringSourceDataModel::restore(QJsonObject const &p)
     if (!v.isUndefined())
     {
         QString str = v.toString();
-
-        m_data = std::make_shared<StringData>(str);
         m_lineEdit->setText(str);
     }
 }
@@ -57,19 +54,18 @@ void StringSourceDataModel::onTextEdited(QString const &string)
 {
     Q_UNUSED(string);
 
-    m_data = std::make_shared<StringData>(string);
+    Q_EMIT valueChanged(string.toStdString());
     Q_EMIT dataUpdated(0);
-    Q_EMIT onValueChanged(m_data);
 }
 
 
 QtNodes::NodeDataType StringSourceDataModel::dataType(QtNodes::PortType, QtNodes::PortIndex) const
 {
-    return StringData().type();
+    return StringTypeData().type();
 }
 
 
 std::shared_ptr<QtNodes::NodeData> StringSourceDataModel::outData(QtNodes::PortIndex)
 {
-    return m_data;
+    return std::make_shared<StringTypeData>(m_valueId);
 }
