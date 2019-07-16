@@ -18,10 +18,7 @@ QJsonObject ImageSourceDataModel::save() const
 {
     QJsonObject modelJson = NodeDataModel::save();
 
-    if (m_data)
-    {
-        modelJson["file"] = m_filename;
-    }
+    modelJson["file"] = m_filename;
 
     return modelJson;
 }
@@ -67,19 +64,19 @@ void ImageSourceDataModel::onFileChanged(QString filename)
     m_filename = std::move(filename);
     QImage image = QImage(m_filename).convertToFormat(QImage::Format_RGB888);
 
-    m_data = std::make_shared<ImageData>(Image{imageToRawData(image), static_cast<unsigned int>(image.width()),
-                                               static_cast<unsigned int>(image.height())});
+
+    Q_EMIT valueChanged(Data{Image{imageToRawData(image), static_cast<unsigned int>(image.width()),
+                                   static_cast<unsigned int>(image.height())}});
     Q_EMIT dataUpdated(0);
-    Q_EMIT onValueChanged(m_data);
 }
 
 QtNodes::NodeDataType ImageSourceDataModel::dataType(QtNodes::PortType, QtNodes::PortIndex) const
 {
-    return ImageData().type();
+    return ImageTypeData().type();
 }
 
 
 std::shared_ptr<QtNodes::NodeData> ImageSourceDataModel::outData(QtNodes::PortIndex)
 {
-    return m_data;
+    return std::make_shared<ImageTypeData>(m_valueId);
 }

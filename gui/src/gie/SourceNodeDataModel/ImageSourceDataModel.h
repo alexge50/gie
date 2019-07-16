@@ -8,9 +8,10 @@
 #include <nodes/NodeDataModel>
 
 #include "src/filepicker/filepicker.h"
-#include "src/gie/types/ImageData.h"
+#include "src/gie/types/TypeData.h"
+#include "GieSourceDataModel.h"
 
-class ImageSourceDataModel: public QtNodes::NodeDataModel
+class ImageSourceDataModel: public GieSourceDataModel
 {
     Q_OBJECT
 public:
@@ -31,19 +32,14 @@ public:
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
     std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
-    void setInData(std::shared_ptr<QtNodes::NodeData>, int) override { }
 
     QWidget* embeddedWidget() override { return m_filePicker; }
-
-Q_SIGNALS:
-    void onValueChanged(std::shared_ptr<QtNodes::NodeData>);
 
 private Q_SLOTS:
     void onFileChanged(QString);
 
 private:
     FilePicker* m_filePicker;
-    std::shared_ptr<ImageData> m_data;
     QString m_filename;
 };
 
