@@ -11,84 +11,10 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt5Core)
 
-set(SOURCE
-        src/mainwindow.ui
-        src/mainwindow.cpp
-        src/mainwindow.h
-        src/main.cpp
-        src/editor.h
-        src/editor.cpp
-        src/gie/GieDataModelRegistry.cpp
-        src/gie/GieDataModelRegistry.h
-        src/gie/GieNodeDataModel.cpp
-        src/gie/GieNodeDataModel.h
-        src/gie/types/StringData.h
-        src/gie/types/NumberData.h
-        src/gie/types/TypeData.h
-        src/gie/SourceNodeDataModel/StringSourceDataModel.cpp
-        src/gie/SourceNodeDataModel/StringSourceDataModel.h
-        src/gie/SourceNodeDataModel/NumberSourceDataModel.cpp
-        src/gie/SourceNodeDataModel/NumberSourceDataModel.h
-        src/gie/SourceNodeDataModel/NumberSourceDataModel.h
-        src/gie/types/ColorData.h
-        src/serialisation/serialisation.cpp
-        src/serialisation/serialisation.h
-        src/colorpicker/colorpicker.cpp
-        src/colorpicker/colorpicker.h
-        src/gie/SourceNodeDataModel/ColorSourceDataModel.cpp
-        src/gie/SourceNodeDataModel/ColorSourceDataModel.h
-        src/serialisation/serialisation.h
-        src/symbolviewer/symbolviewer.cpp
-        src/symbolviewer/symbolviewer.h
-        src/gie/DisplayNodeDataModel/NumberDisplayDataModel.cpp
-        src/gie/DisplayNodeDataModel/NumberDisplayDataModel.h
-        src/colorsample/colorsample.cpp
-        src/colorsample/colorsample.h
-        src/gie/DisplayNodeDataModel/StringDisplayDataModel.cpp
-        src/gie/DisplayNodeDataModel/StringDisplayDataModel.h
-        src/gie/DisplayNodeDataModel/ColorDisplayDataModel.cpp
-        src/gie/DisplayNodeDataModel/ColorDisplayDataModel.h
-        src/gie/types/ImageData.h
-        src/gie/types/IntegerData.h
-        src/gie/SourceNodeDataModel/IntegerSourceDataModel.cpp
-        src/gie/SourceNodeDataModel/IntegerSourceDataModel.h
-        src/gie/DisplayNodeDataModel/IntegerDisplayDataModel.cpp
-        src/gie/DisplayNodeDataModel/IntegerDisplayDataModel.h
-        src/filepicker/filepicker.cpp
-        src/filepicker/filepicker.h
-        src/gie/SourceNodeDataModel/ImageSourceDataModel.cpp
-        src/gie/SourceNodeDataModel/ImageSourceDataModel.h
-        src/gie/DisplayNodeDataModel/ImageDisplayDataModel.cpp
-        src/gie/DisplayNodeDataModel/ImageDisplayDataModel.h
-        src/imageviewer/imageviewer.cpp
-        src/imageviewer/imageviewer.h
-        src/Project.cpp
-        src/Project.h
-        src/newproject/newproject.cpp
-        src/newproject/newproject.h
-        src/newproject/newproject.ui
-        src/directorypicker/directorypicker.cpp
-        src/directorypicker/directorypicker.h
-        src/importimage/importimage.cpp
-        src/importimage/importimage.h
-        src/importimage/importimage.ui
-        src/importedimagesviewer/importedimagesviewer.cpp
-        src/importedimagesviewer/importedimagesviewer.h
-        src/importedimagesviewer/imagecell.cpp
-        src/importedimagesviewer/imagecell.h
-        src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.cpp
-        src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.h
-        resources/gui.qrc
-        src/gie/DisplayNodeDataModel/TargetExportImageDataModel.cpp
-        src/gie/DisplayNodeDataModel/TargetExportImageDataModel.h
-        src/exportimage/exportimage.cpp
-        src/exportimage/exportimage.h
-        src/exportimage/exportimage.ui
-        src/savefilepicker/savefilepicker.cpp
-        src/savefilepicker/savefilepicker.h
-        src/gie/types/ExtractTypes.h
-)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*)
+file(GLOB_RECURSE RESOURCES CONFIGURE_DEPENDS resources/*)
 
+set(SOURCE ${SOURCES} ${RESOURCES})
 
 add_definitions(-DQT_NO_KEYWORDS)
 
