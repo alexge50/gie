@@ -3,7 +3,7 @@
 //
 
 #include "NumberDisplayDataModel.h"
-#include "src/gie/types/NumberData.h"
+#include "src/gie/types/TypeData.h"
 
 NumberDisplayDataModel::NumberDisplayDataModel():
     m_label{new QLabel()}
@@ -11,34 +11,15 @@ NumberDisplayDataModel::NumberDisplayDataModel():
     m_label->setMargin(3);
 }
 
-unsigned int NumberDisplayDataModel::nPorts(QtNodes::PortType portType) const
-{
-    if(portType == QtNodes::PortType::In)
-        return 1;
-    return 0;
-}
 
 QtNodes::NodeDataType NumberDisplayDataModel::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
-    return NumberData().type();
+    return NumberTypeData().type();
 }
 
-void NumberDisplayDataModel::setInData(std::shared_ptr<QtNodes::NodeData> input, QtNodes::PortIndex portIndex)
+void NumberDisplayDataModel::displayData(Data data)
 {
-    if(auto* data = dynamic_cast<NumberData*>(input.get()); data)
-    {
-        modelValidationState = QtNodes::NodeValidationState::Valid;
-        modelValidationError = QString();
+    double number = std::get<double>(data);
 
-        m_label->setText(data->asText());
-    }
-    else
-    {
-        modelValidationState = QtNodes::NodeValidationState::Valid;
-        modelValidationError = QStringLiteral("Missing or incorrect inputs");
-
-        m_label->clear();
-    }
-
-    m_label->adjustSize();
+    m_label->setText(QString::number(number));
 }
