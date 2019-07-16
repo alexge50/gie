@@ -29,7 +29,7 @@ Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext& contex
     for(const auto &argument: node.arguments)
     {
         if(std::holds_alternative<Value>(argument))
-            arguments.append(copy(context, std::get<Value>(argument).m_object));
+            arguments.append(copy(context, std::get<Value>(argument).object()));
         else return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments})};
     }
 
@@ -63,10 +63,10 @@ MaybeError<ExecutionInterfaceError> executeNode(const PythonContext& context, Sc
                 if(error)
                     return error;
             }
-            arguments.append(copy(context, cache->m_object));
+            arguments.append(copy(context, cache->object()));
         }
         else if(std::holds_alternative<Value>(argument))
-            arguments.append(copy(context, std::get<Value>(argument).m_object));
+            arguments.append(copy(context, std::get<Value>(argument).object()));
         else return ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments};
     }
 
