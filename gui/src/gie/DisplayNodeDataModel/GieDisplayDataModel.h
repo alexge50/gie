@@ -28,15 +28,11 @@ public:
         {
             modelValidationState = QtNodes::NodeValidationState::Valid;
             modelValidationError = QString();
-
-            Q_EMIT dataUpdated(0);
         }
         else
         {
             modelValidationState = QtNodes::NodeValidationState::Valid;
             modelValidationError = QStringLiteral("Missing or incorrect inputs");
-
-            Q_EMIT dataInvalidated(0);
         }
     }
 
