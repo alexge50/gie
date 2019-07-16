@@ -30,7 +30,7 @@ public:
 
     [[nodiscard]] ErrorType& error()
     {
-        if(!errorSet())
+        if(errorSet())
             return m_error.value();
         else throw maybe_error_bad_access{};
     }
@@ -38,7 +38,7 @@ public:
 
     [[nodiscard]] const ErrorType& error() const
     {
-        if(!errorSet())
+        if(errorSet())
             return m_error.value();
         else throw maybe_error_bad_access{};
     }
