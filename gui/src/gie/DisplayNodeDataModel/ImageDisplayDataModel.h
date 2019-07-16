@@ -8,7 +8,9 @@
 #include <nodes/NodeDataModel>
 #include "src/imageviewer/imageviewer.h"
 
-class ImageDisplayDataModel: public QtNodes::NodeDataModel
+#include "GieDisplayDataModel.h"
+
+class ImageDisplayDataModel: public GieDisplayDataModel
 {
     Q_OBJECT
 public:
@@ -21,22 +23,14 @@ public:
     QString name() const override { return QString("ImageDisplay"); }
 
 public:
-    unsigned int nPorts(QtNodes::PortType portType) const override;
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
-
-    std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex portIndex) override { return {}; }
-    void setInData(std::shared_ptr<QtNodes::NodeData>, QtNodes::PortIndex portIndex) override;
 
     QWidget* embeddedWidget() override { return m_imageViewer; }
 
-    QtNodes::NodeValidationState validationState() const override { return modelValidationState; }
-    QString validationMessage() const override { return modelValidationError; }
-
+public Q_SLOTS:
+    virtual void displayData(Data data) override;
 
 private:
-    QtNodes::NodeValidationState modelValidationState = QtNodes::NodeValidationState::Warning;
-    QString modelValidationError = QString("Missing or incorrect inputs");
-
     ImageViewer* m_imageViewer;
 };
 
