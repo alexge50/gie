@@ -7,8 +7,9 @@
 
 #include <nodes/NodeDataModel>
 #include "src/colorsample/colorsample.h"
+#include "GieDisplayDataModel.h"
 
-class ColorDisplayDataModel: public QtNodes::NodeDataModel
+class ColorDisplayDataModel: public GieDisplayDataModel
 {
     Q_OBJECT
 public:
@@ -21,22 +22,13 @@ public:
     QString name() const override { return QString("ColorDisplay"); }
 
 public:
-    unsigned int nPorts(QtNodes::PortType portType) const override;
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
-
-    std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex portIndex) override { return {}; }
-    void setInData(std::shared_ptr<QtNodes::NodeData>, QtNodes::PortIndex portIndex) override;
-
     QWidget* embeddedWidget() override { return m_colorSample; }
 
-    QtNodes::NodeValidationState validationState() const override { return modelValidationState; }
-    QString validationMessage() const override { return modelValidationError; }
-
+public Q_SLOTS:
+    void displayData(Data data) override;
 
 private:
-    QtNodes::NodeValidationState modelValidationState = QtNodes::NodeValidationState::Warning;
-    QString modelValidationError = QString("Missing or incorrect inputs");
-
     ColorSample* m_colorSample;
 };
 
