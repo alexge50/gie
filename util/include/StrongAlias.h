@@ -20,6 +20,21 @@ public:
 
     explicit operator T() { return m_value; }
     explicit operator T() const { return m_value; }
+
+    auto& operator=(const T& t)
+    {
+        m_value = t;
+
+        return *this;
+    }
+
+    auto& operator=(T&& t)
+    {
+        m_value = std::move(t);
+
+        return *this;
+    }
+
 private:
     T m_value;
 };
