@@ -27,19 +27,17 @@ ManagedImageSourceDataModel::ManagedImageSourceDataModel(const ProjectImage& pro
     m_uuid{projectImage.id.toString()}
 {
     QImage image = projectImage.image.convertToFormat(QImage::Format_RGB888);
+    auto gieImage = Image{imageToRawData(image), static_cast<unsigned int>(image.width()),
+                          static_cast<unsigned int>(image.height())};
 
-    m_data = std::make_shared<ImageData>(Image{imageToRawData(image), static_cast<unsigned int>(image.width()),
-                                               static_cast<unsigned int>(image.height())});
+    m_image = std::move(gieImage);
 }
 
 QJsonObject ManagedImageSourceDataModel::save() const
 {
     QJsonObject modelJson = NodeDataModel::save();
 
-    if (m_data)
-    {
-        modelJson["uuid"] = m_uuid;
-    }
+    modelJson["uuid"] = m_uuid;
 
     return modelJson;
 }
@@ -56,11 +54,11 @@ unsigned int ManagedImageSourceDataModel::nPorts(QtNodes::PortType portType) con
 
 QtNodes::NodeDataType ManagedImageSourceDataModel::dataType(QtNodes::PortType, QtNodes::PortIndex) const
 {
-    return ImageData().type();
+    return ImageTypeData().type();
 }
 
 
 std::shared_ptr<QtNodes::NodeData> ManagedImageSourceDataModel::outData(QtNodes::PortIndex)
 {
-    return m_data;
+    return std::make_shared<ImageTypeData>(m_valueId);
 }

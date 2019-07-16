@@ -6,15 +6,16 @@
 #define GUI_MANAGEDIMAGESOURCEDATAMODEL_H
 
 #include <nodes/NodeDataModel>
-#include "src/gie/types/ImageData.h"
+#include "src/gie/types/TypeData.h"
+#include "GieSourceDataModel.h"
 
 #include "src/Project.h"
 
-class ManagedImageSourceDataModel: public QtNodes::NodeDataModel
+class ManagedImageSourceDataModel: public GieSourceDataModel
 {
     Q_OBJECT
 public:
-    ManagedImageSourceDataModel(const ProjectImage&);
+    explicit ManagedImageSourceDataModel(const ProjectImage&);
     ~ManagedImageSourceDataModel() override = default;
 
 public:
@@ -31,14 +32,15 @@ public:
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
     std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
-    void setInData(std::shared_ptr<QtNodes::NodeData>, int) override { }
 
     QWidget* embeddedWidget() override { return nullptr; }
 
 private:
-    std::shared_ptr<ImageData> m_data;
     QString m_filename;
     QString m_uuid;
+    Image m_image;
+
+    friend class Editor;
 };
 
 
