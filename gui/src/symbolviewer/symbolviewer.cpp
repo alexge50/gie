@@ -20,7 +20,7 @@ SymbolViewer::SymbolViewer(QWidget* parent):
 
 void SymbolViewer::onSymbolsUpdate(const std::map<QString, std::vector<QString>>& modules)
 {
-    m_treeWidget->reset();
+    m_treeWidget->clear();
 
     QList<QTreeWidgetItem*> list;
 
