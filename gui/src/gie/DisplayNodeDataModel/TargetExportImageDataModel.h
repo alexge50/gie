@@ -36,6 +36,8 @@ public:
     QString getId() const { return m_id.toString(); };
     QDockWidget* dockWidget() { return m_dock; }
 
+    const QImage& getImage() const { return m_image; }
+
 public Q_SLOTS:
     void displayData(Data data) override;
 
@@ -49,6 +51,8 @@ private:
     QLineEdit* m_targetNameEdit;
     QString m_targetName;
     QUuid m_id;
+
+    QImage m_image;
 
     QDockWidget* m_dock;
     ImageViewer* m_imageViewer;

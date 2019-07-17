@@ -125,7 +125,7 @@ void Editor::onConnectionCreated(const QtNodes::Connection& c)
     {
         if(auto receiver = dynamic_cast<TargetExportImageDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
         {
-            m_targets.insert({receiver->getId(), receiver->getTargetName()});
+            m_targets.insert({c.getNode(QtNodes::PortType::In)->id(), receiver->getTargetName()});
         }
     }
 
@@ -335,6 +335,8 @@ void Editor::onExportImage()
 
 void Editor::onExportImage_(const QUuid& uuid, const QString& filename)
 {
+    if(auto* p = dynamic_cast<TargetExportImageDataModel*>(m_scene->nodes().at(uuid)->nodeDataModel()); p != nullptr)
+        p->getImage().save(filename);
 }
 
 void Editor::setRegistry(std::shared_ptr<QtNodes::DataModelRegistry> registry)

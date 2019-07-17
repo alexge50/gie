@@ -55,15 +55,15 @@ void TargetExportImageDataModel::displayData(Data data)
     auto imageData = new uint8_t[bufferSize];
     std::memcpy(imageData, image.raw(), bufferSize);
 
-    QImage qImage(
-            imageData, 
+    m_image = QImage(
+            imageData,
             image.width(), 
             image.height(), 
             QImage::Format_RGB888, 
             [](auto p){ delete static_cast<uint8_t*>(p); });
 
     m_imageViewer->setDisplayType(image.width() > image.height() ? ImageViewer::FixedHeight : ImageViewer::FixedWidth);
-    m_imageViewer->setImage(std::move(qImage));
+    m_imageViewer->setImage(m_image);
 }
 
 void TargetExportImageDataModel::onTargetNameChanged(const QString& name)
