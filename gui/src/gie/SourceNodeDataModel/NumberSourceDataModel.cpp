@@ -60,10 +60,8 @@ unsigned int NumberSourceDataModel::nPorts(QtNodes::PortType portType) const
 
 void NumberSourceDataModel::onTextEdited(QString const &string)
 {
-    Q_UNUSED(string);
-
     bool ok;
-    [[maybe_unused]]double number = string.toDouble(&ok);
+    double number = string.toDouble(&ok);
 
     if(ok)
     {

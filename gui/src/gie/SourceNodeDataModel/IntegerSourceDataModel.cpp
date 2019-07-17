@@ -60,10 +60,8 @@ unsigned int IntegerSourceDataModel::nPorts(QtNodes::PortType portType) const
 
 void IntegerSourceDataModel::onTextEdited(QString const &string)
 {
-    Q_UNUSED(string);
-
     bool ok;
-    [[maybe_unused]]long long number = string.toLongLong(&ok);
+    long long number = string.toLongLong(&ok);
 
     if(ok)
     {
