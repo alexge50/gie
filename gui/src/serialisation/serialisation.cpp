@@ -13,7 +13,7 @@
 #include <QtCore/QJsonValueRef>
 
 #include <nodes/Node>
-#include <src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.h>
+#include <src/nodes/ManagedImageSourceNode.h>
 
 QJsonObject serialise(const QtNodes::FlowScene& scene)
 {
@@ -59,7 +59,7 @@ void deserialise(QtNodes::FlowScene& scene, const Project& project, const QJsonO
                     node.toObject()["position"].toObject()["y"].toDouble()
             };
 
-            auto& node = scene.createNode(std::make_unique<ManagedImageSourceDataModel>(projectImage));
+            auto& node = scene.createNode(std::make_unique<ManagedImageSourceNode>(projectImage));
             managedNodes[id] = &node;
             scene.setNodePosition(node, position);
         }
@@ -82,6 +82,5 @@ void deserialise(QtNodes::FlowScene& scene, const Project& project, const QJsonO
         }
     }
 }
-
 
 #endif //GUI_SERIALISE_H
