@@ -172,8 +172,27 @@ Editor::Editor(QWidget* parent): QWidget(parent)
         }
     });
 
-    connect(m_nodeEditor, &NodeEditor::sourceDataChanged, [](QUuid, Data){
+    connect(m_nodeEditor, &NodeEditor::sourceDataChanged, [this](QUuid nodeId, Data data){
+        m_values[nodeId] = std::move(data);
 
+        for(auto toUpdate: m_toUpdate[nodeId])
+        {
+            QMetaObject::invokeMethod(
+                    m_gie,
+                    "editNode",
+                    Q_ARG(GieNodeId, GieNodeId{toUpdate.id}),
+                    Q_ARG(ArgumentId, ArgumentId{static_cast<std::size_t>(toUpdate.port)}),
+                    Q_ARG(Data, m_values[nodeId])
+            );
+        }
+
+        for(auto displayId: m_displaysToUpdate[nodeId])
+        {
+            if(auto* display = dynamic_cast<DisplayNode*>(
+                        m_nodeEditor->scene()->nodes().at(displayId)->nodeDataModel()
+                ); display != nullptr)
+            display->displayData(m_values[nodeId]);
+        }
     });
 
     auto thread = new QThread;
