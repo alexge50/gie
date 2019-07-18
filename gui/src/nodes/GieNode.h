@@ -71,6 +71,8 @@ public:
 
     QWidget* embeddedWidget() override { return nullptr; }
 
+    const auto& symbol() const { return m_symbol; }
+
 private:
     GieNodeId m_nodeId;
     std::vector<ArgumentMetadata> m_arguments;
