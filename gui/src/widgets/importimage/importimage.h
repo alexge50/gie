@@ -10,8 +10,8 @@
 
 #include <QDir>
 #include <QString>
-#include "src/filepicker/filepicker.h"
-#include "src/imageviewer/imageviewer.h"
+#include "src/widgets/filepicker/filepicker.h"
+#include "src/widgets/imageviewer/imageviewer.h"
 
 namespace Ui
 {

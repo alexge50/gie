@@ -11,7 +11,7 @@
 
 #include <map>
 
-#include "src/savefilepicker/savefilepicker.h"
+#include "src/widgets/savefilepicker/savefilepicker.h"
 
 namespace Ui
 {

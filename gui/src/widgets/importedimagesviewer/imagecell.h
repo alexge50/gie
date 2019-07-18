@@ -8,7 +8,7 @@
 #include <QWidget>
 #include <QLabel>
 
-#include "src/imageviewer/imageviewer.h"
+#include "src/widgets/imageviewer/imageviewer.h"
 
 class ImageCell: public QWidget
 {

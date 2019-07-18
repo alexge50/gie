@@ -10,7 +10,7 @@
 
 #include <QDir>
 #include <QString>
-#include "src/directorypicker/directorypicker.h"
+#include "src/widgets/directorypicker/directorypicker.h"
 
 namespace Ui
 {
