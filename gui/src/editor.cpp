@@ -120,8 +120,56 @@ Editor::Editor(QWidget* parent): QWidget(parent)
         }
     });
 
-    connect(m_nodeEditor, &NodeEditor::argumentEdited, [](BaseNode*, QUuid argumentId, std::size_t port){
+    connect(m_nodeEditor, &NodeEditor::argumentEdited, [this](BaseNode* node, QUuid argumentId, std::size_t port){
+        if(auto* p = dynamic_cast<GieNode*>(node); p != nullptr)
+        {
 
+            if(auto* other = dynamic_cast<SourceNode*>(
+                    m_nodeEditor->scene()->nodes().at(argumentId)->nodeDataModel()
+                    ); other != nullptr)
+            {
+                m_toUpdate[argumentId].insert({node->id(), port});
+
+                QMetaObject::invokeMethod(
+                        m_gie,
+                        "editNode",
+                        Q_ARG(GieNodeId, GieNodeId{node->id()}),
+                        Q_ARG(ArgumentId, ArgumentId{port}),
+                        Q_ARG(Data, other->getData())
+                );
+            }
+            else
+            {
+                QMetaObject::invokeMethod(
+                        m_gie,
+                        "editNode",
+                        Q_ARG(GieNodeId, GieNodeId{node->id()}),
+                        Q_ARG(ArgumentId, ArgumentId{port}),
+                        Q_ARG(GieNodeId, GieNodeId{argumentId})
+                );
+            }
+        }
+
+        if(auto* p = dynamic_cast<DisplayNode*>(node); p != nullptr)
+        {
+            if(auto* other = dynamic_cast<SourceNode*>(
+                        m_nodeEditor->scene()->nodes().at(argumentId)->nodeDataModel()
+                ); other != nullptr)
+            {
+                m_displaysToUpdate[argumentId].insert(p->id());
+            }
+            else if(auto* gieNode = dynamic_cast<GieNode*>(
+                        m_nodeEditor->scene()->nodes().at(argumentId)->nodeDataModel()
+                ); gieNode != nullptr)
+            {
+                QMetaObject::invokeMethod(
+                        m_gie,
+                        "addResultNotify",
+                        Q_ARG(QUuid, p->id()),
+                        Q_ARG(GieNodeId, GieNodeId{gieNode->id()})
+                );
+            }
+        }
     });
 
     connect(m_nodeEditor, &NodeEditor::sourceDataChanged, [](QUuid, Data){
