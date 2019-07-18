@@ -15,11 +15,10 @@
 #include <QLabel>
 #include <QUuid>
 
-#include <nodes/FlowScene>
-#include <nodes/FlowView>
-#include <src/gie/types/TypeData.h>
 #include "Project.h"
 #include "Gie.h"
+
+#include <src/nodeeditor/NodeEditor.h>
 
 class Editor: public QWidget
 {
@@ -28,11 +27,11 @@ public:
     explicit Editor(QWidget* parent = nullptr);
 
 public:
-    void setRegistry(std::shared_ptr<QtNodes::DataModelRegistry>);
-
     QString getProjectName();
 
     void loadModule(const QString&, const QString&);
+
+    NodeEditor* nodeEditor() { return m_nodeEditor; }
 
 Q_SIGNALS:
     void attachDockWindow(QDockWidget*);
@@ -57,11 +56,6 @@ private Q_SLOTS:
     void onImportImage_(QString name);
     void onExportImage_(const QUuid&, const QString&);
 
-    void onConnectionCreated(const QtNodes::Connection& c);
-    void onConnectionDeleted(const QtNodes::Connection& c);
-    void nodeCreated(QtNodes::Node &node);
-    void nodeDeleted(QtNodes::Node &node);
-
     void onTargetNameChanged(const QUuid& id, const QString&);
 
     void resultUpdated(QUuid, Data);
@@ -73,9 +67,8 @@ private:
 private:
     std::unique_ptr<Project> m_project;
     Gie* m_gie;
+    NodeEditor* m_nodeEditor;
 
-    QtNodes::FlowScene* m_scene;
-    QtNodes::FlowView* m_view;
     QLabel* m_noProjectMessage;
 
     std::map<QUuid, QString> m_targets;

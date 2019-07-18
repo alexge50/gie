@@ -11,22 +11,27 @@
 #include <QVBoxLayout>
 #include <QKeyEvent>
 
-#include "gie/GieDataModelRegistry.h"
-#include "gie/GieNodeDataModel.h"
-#include "gie/SourceNodeDataModel/ManagedImageSourceDataModel.h"
-
-#include <nodes/Connection>
-#include <nodes/Node>
-#include <nodes/FlowViewStyle>
-#include <nodes/ConnectionStyle>
-#include <nodes/NodeStyle>
 #include <QtWidgets/QFileDialog>
+#include <src/nodes/GieNode.h>
+
+#include <src/nodes/ColorSourceNode.h>
+#include <src/nodes/ImageSourceNode.h>
+#include <src/nodes/IntegerSourceNode.h>
+#include <src/nodes/NumberSourceNode.h>
+#include <src/nodes/StringSourceNode.h>
+#include <src/nodes/ColorDisplayNode.h>
+#include <src/nodes/ImageDisplayNode.h>
+#include <src/nodes/IntegerDisplayNode.h>
+#include <src/nodes/NumberDisplayNode.h>
+#include <src/nodes/StringDisplayNode.h>
+#include <src/nodes/TargetExportImageNode.h>
+#include <src/nodes/ManagedImageSourceNode.h>
 
 #include "src/serialisation/serialisation.h"
 
-#include "src/newproject/newproject.h"
-#include "src/importimage/importimage.h"
-#include "src/exportimage/exportimage.h"
+#include "src/widgets/newproject/newproject.h"
+#include "src/widgets/importimage/importimage.h"
+#include "src/widgets/exportimage/exportimage.h"
 
 #include "Project.h"
 
@@ -44,45 +49,43 @@ Editor::Editor(QWidget* parent): QWidget(parent)
     vlayout->setMargin(0);
     vlayout->setSpacing(0);
 
-    m_scene = new QtNodes::FlowScene();
-
-    m_view = new QtNodes::FlowView(m_scene);
-    m_view->setSceneRect(-640000, -640000, 640000, 640000);
-    m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_view->hide();
-
-    vlayout->addWidget(m_view);
-
-    QObject::connect(
-        m_scene, &QtNodes::FlowScene::connectionCreated,
-        this, &Editor::onConnectionCreated
-    );
-
-    QObject::connect(
-            m_scene, &QtNodes::FlowScene::connectionDeleted,
-            this, &Editor::onConnectionDeleted
-    );
-
-    QObject::connect(
-            m_scene, &QtNodes::FlowScene::nodeCreated,
-            this, &Editor::nodeCreated
-    );
-
-    QObject::connect(
-            m_scene, &QtNodes::FlowScene::nodeDeleted,
-            this, &Editor::nodeDeleted
-    );
+    m_nodeEditor = new NodeEditor{};
 
     vlayout->addWidget(m_noProjectMessage = new QLabel("No project loaded.\nNew Project: File > New Project\nOpen Project: File > Open Project"));
+    vlayout->addWidget(m_nodeEditor);
+    m_nodeEditor->hide();
 
-    connect(m_scene, &QtNodes::FlowScene::nodePlaced, this, &Editor::sceneChanged);
-    connect(m_scene, &QtNodes::FlowScene::nodeDeleted, this, &Editor::sceneChanged);
-    connect(m_scene, &QtNodes::FlowScene::connectionCreated, this, &Editor::sceneChanged);
-    connect(m_scene, &QtNodes::FlowScene::connectionDeleted, this, &Editor::sceneChanged);
-    connect(m_scene, &QtNodes::FlowScene::nodeMoved, this, &Editor::sceneChanged);
-    connect(m_scene, &QtNodes::FlowScene::nodeDoubleClicked, this, &Editor::sceneChanged);
-    connect(m_scene, &QtNodes::FlowScene::connectionHovered, this, &Editor::sceneChanged);
+    m_nodeEditor->registerNodeType<ColorSourceNode>("sources");
+    m_nodeEditor->registerNodeType<ImageSourceNode>("sources");
+    m_nodeEditor->registerNodeType<IntegerSourceNode>("sources");
+    m_nodeEditor->registerNodeType<NumberSourceNode>("sources");
+    m_nodeEditor->registerNodeType<StringSourceNode>("sources");
+    m_nodeEditor->registerNodeType<ColorDisplayNode>("displays");
+    m_nodeEditor->registerNodeType<ImageDisplayNode>("displays");
+    m_nodeEditor->registerNodeType<IntegerDisplayNode>("displays");
+    m_nodeEditor->registerNodeType<NumberDisplayNode>("displays");
+    m_nodeEditor->registerNodeType<StringDisplayNode>("displays");
+    m_nodeEditor->registerNodeType<TargetExportImageNode>("displays");
+
+    connect(m_nodeEditor, &NodeEditor::nodeCreated, [](BaseNode* node){
+
+    });
+
+    connect(m_nodeEditor, &NodeEditor::nodeDeleted, [](BaseNode* node){
+
+    });
+
+    connect(m_nodeEditor, &NodeEditor::argumentRemoved, [](BaseNode*, std::size_t port){
+
+    });
+
+    connect(m_nodeEditor, &NodeEditor::argumentEdited, [](BaseNode*, QUuid argumentId, std::size_t port){
+
+    });
+
+    connect(m_nodeEditor, &NodeEditor::sourceDataChanged, [](QUuid, Data){
+
+    });
 
     auto thread = new QThread;
     m_gie = new Gie{};
@@ -99,160 +102,23 @@ Editor::Editor(QWidget* parent): QWidget(parent)
             "init"
             );
 
-    connect(m_gie, &Gie::reloadedSymbols, this, &Editor::reloadedSymbols);
+    connect(m_gie, &Gie::symbolsAdded, this, &Editor::reloadedSymbols);
+
+    connect(m_gie, &Gie::symbolsAdded, [this](const std::vector<GieSymbol>& symbols)
+    {
+        for(const auto& symbol: symbols)
+        {
+            m_nodeEditor->registerNodeType([symbol]{
+                return std::make_unique<GieNode>(symbol);
+            }, QString::fromStdString(symbol.symbol.module));
+        }
+    });
+
     connect(m_gie, &Gie::resultUpdated, this, &Editor::resultUpdated);
-}
-
-void Editor::onConnectionCreated(const QtNodes::Connection& c)
-{
-    auto giver = dynamic_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::Out)->nodeDataModel());
-    auto receiver = dynamic_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel());
-
-    if(giver != nullptr && receiver != nullptr)
-    {
-        [[maybe_unused]]auto portIndex = static_cast<std::size_t>(c.getPortIndex(QtNodes::PortType::In));
-
-        QMetaObject::invokeMethod(
-                m_gie,
-                "editNode",
-                Q_ARG(GieNodeId, receiver->m_nodeId),
-                Q_ARG(ArgumentId, ArgumentId{portIndex}),
-                Q_ARG(GieNodeId, giver->m_nodeId)
-                );
-    }
-
-    if(giver != nullptr)
-    {
-        if(auto receiver = dynamic_cast<TargetExportImageDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
-        {
-            m_targets.insert({c.getNode(QtNodes::PortType::In)->id(), receiver->getTargetName()});
-        }
-    }
-
-    if(auto receiver = dynamic_cast<GieDisplayDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
-    {
-        if(giver != nullptr)
-        {
-            QMetaObject::invokeMethod(
-                    m_gie,
-                    "addResultNotify",
-                    Q_ARG(QUuid, c.getNode(QtNodes::PortType::In)->id()),
-                    Q_ARG(GieNodeId, giver->m_nodeId)
-            );
-        }
-    }
-}
-
-void Editor::onConnectionDeleted(const QtNodes::Connection& c)
-{
-    if(auto receiver = dynamic_cast<GieNodeDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
-    {
-        [[maybe_unused]]auto portIndex = static_cast<std::size_t>(c.getPortIndex(QtNodes::PortType::In));
-
-        QMetaObject::invokeMethod(
-                m_gie,
-                "removeArgument",
-                Q_ARG(GieNodeId, receiver->m_nodeId),
-                Q_ARG(ArgumentId, ArgumentId{portIndex})
-                );
-    }
-
-    if(auto receiver = dynamic_cast<TargetExportImageDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
-    {
-        m_targets.erase(receiver->getId());
-    }
-
-    if(auto receiver = dynamic_cast<GieDisplayDataModel*>(c.getNode(QtNodes::PortType::In)->nodeDataModel()); receiver != nullptr)
-    {
-        QMetaObject::invokeMethod(
-                m_gie,
-                "removeResultNotify",
-                Q_ARG(QUuid, c.getNode(QtNodes::PortType::In)->id())
-                );
-    }
-
-}
-
-void Editor::nodeCreated(QtNodes::Node& node)
-{
-    if(auto* p = dynamic_cast<TargetExportImageDataModel*>(node.nodeDataModel()); p != nullptr)
-    {
-        connect(p, &TargetExportImageDataModel::targetNameChanged, this, &Editor::onTargetNameChanged);
-        Q_EMIT(attachDockWindow(p->dockWidget()));
-    }
-
-    if(auto* p = dynamic_cast<GieNodeDataModel*>(node.nodeDataModel()); p != nullptr)
-    {
-        p->m_nodeId = node.id();
-
-        QMetaObject::invokeMethod(
-                m_gie,
-                "addNode",
-                Q_ARG(GieNodeId, p->m_nodeId),
-                Q_ARG(std::string, p->m_symbol.qualifiedName)
-                );
-
-        connect(p, &GieNodeDataModel::edit, [this, p](QUuid value, int port)
-        {
-            QMetaObject::invokeMethod(
-                    m_gie,
-                    "editNode",
-                    Q_ARG(GieNodeId, p->m_nodeId),
-                    Q_ARG(ArgumentId, ArgumentId{static_cast<std::size_t>(port)}),
-                    Q_ARG(Data, m_values[value])
-            );
-        });
-
-    }
-
-    if(auto* p = dynamic_cast<GieSourceDataModel*>(node.nodeDataModel()); p != nullptr)
-    {
-        connect(p, &GieSourceDataModel::valueChanged, [this, &node](Data data)
-        {
-            m_values[node.id()] = std::move(data);
-        });
-
-        p->m_valueId = node.id();
-        m_values[node.id()] = p->getData();
-    }
-
-    if(auto* p = dynamic_cast<ManagedImageSourceDataModel*>(node.nodeDataModel()); p != nullptr)
-    {
-        m_values[node.id()] = p->m_image;
-        p->m_valueId = node.id();
-    }
-
-    if(auto* p = dynamic_cast<GieDisplayDataModel*>(node.nodeDataModel()); p != nullptr)
-    {
-
-    }
-}
-
-void Editor::nodeDeleted(QtNodes::Node& node)
-{
-    if(auto* p = dynamic_cast<TargetExportImageDataModel*>(node.nodeDataModel()); p != nullptr)
-    {
-        Q_EMIT(detachDockWindow(p->dockWidget()));
-    }
-
-    if(auto* p = dynamic_cast<GieNodeDataModel*>(node.nodeDataModel()); p != nullptr)
-    {
-        QMetaObject::invokeMethod(
-                m_gie,
-                "removeNode",
-                Q_ARG(GieNodeId, p->m_nodeId)
-                );
-    }
-
-    if(auto* p = dynamic_cast<GieSourceDataModel*>(node.nodeDataModel()); p != nullptr)
-    {
-        m_values.erase(node.id());
-    }
 }
 
 void Editor::resultUpdated(QUuid displayerId, Data data)
 {
-    dynamic_cast<GieDisplayDataModel*>(m_scene->nodes().at(displayerId)->nodeDataModel())->displayData(std::move(data));
 }
 
 void Editor::onTargetNameChanged(const QUuid& id, const QString& name)
@@ -263,8 +129,8 @@ void Editor::onTargetNameChanged(const QUuid& id, const QString& name)
 
 void Editor::addImageNode(const ProjectImage& projectImage)
 {
-    auto& node = m_scene->createNode(std::make_unique<ManagedImageSourceDataModel>(projectImage));
-    m_values[node.id()] = dynamic_cast<ManagedImageSourceDataModel*>(node.nodeDataModel())->m_image;
+    auto& node = m_nodeEditor->scene()->createNode(std::make_unique<ManagedImageSourceNode>(projectImage));
+    m_values[node.id()] = dynamic_cast<ManagedImageSourceNode*>(node.nodeDataModel())->m_image;
 }
 
 void Editor::onNewProject()
@@ -276,9 +142,9 @@ void Editor::onNewProject()
 
 void Editor::onNewProject_(QDir directory, QString name)
 {
-    m_project = std::make_unique<Project>(newProject(directory, std::move(name), *m_scene));
+    m_project = std::make_unique<Project>(newProject(directory, std::move(name), *(m_nodeEditor->scene())));
     m_noProjectMessage->hide();
-    m_view->show();
+    m_nodeEditor->show();
 
     reloadImages();
     Q_EMIT savedProject();
@@ -292,10 +158,10 @@ void Editor::onOpenProject()
             QDir::homePath()
     );
 
-    m_project = std::make_unique<Project>(loadProject(directory, *m_scene));
+    m_project = std::make_unique<Project>(loadProject(directory, *(m_nodeEditor->scene())));
 
     m_noProjectMessage->hide();
-    m_view->show();
+    m_nodeEditor->show();
 
     reloadImages();
     Q_EMIT savedProject();
@@ -335,13 +201,8 @@ void Editor::onExportImage()
 
 void Editor::onExportImage_(const QUuid& uuid, const QString& filename)
 {
-    if(auto* p = dynamic_cast<TargetExportImageDataModel*>(m_scene->nodes().at(uuid)->nodeDataModel()); p != nullptr)
+    if(auto* p = dynamic_cast<TargetExportImageNode*>(m_nodeEditor->scene()->nodes().at(uuid)->nodeDataModel()); p != nullptr)
         p->getImage().save(filename);
-}
-
-void Editor::setRegistry(std::shared_ptr<QtNodes::DataModelRegistry> registry)
-{
-    m_scene->setRegistry(std::move(registry));
 }
 
 void Editor::reloadImages()
