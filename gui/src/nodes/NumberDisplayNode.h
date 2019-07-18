@@ -21,9 +21,9 @@ public:
     virtual ~NumberDisplayNode() override = default;
 
 public:
-    QString caption() const override { return QString("ColorDisplay"); }
+    QString caption() const override { return QString("NumberDisplay"); }
     bool captionVisible() const override { return false; }
-    QString name() const override { return QString("ColorDisplay"); }
+    QString name() const override { return QString("NumberDisplay"); }
 
 public:
     QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override
