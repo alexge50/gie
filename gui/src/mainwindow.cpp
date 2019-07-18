@@ -8,7 +8,6 @@
 
 #include "editor.h"
 #include <QDockWidget>
-#include "colorpicker/colorpicker.h"
 
 #include <QJsonDocument>
 #include <QJsonArray>

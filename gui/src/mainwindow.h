@@ -6,14 +6,12 @@
 #define GUI_MAINWINDOW_H
 
 #include <gie/Program.h>
-#undef B0
 
 #include <QMainWindow>
 #include <QMenuBar>
 #include "editor.h"
-#include "symbolviewer/symbolviewer.h"
-#include "importedimagesviewer/importedimagesviewer.h"
-#include "src/gie/GieDataModelRegistry.h"
+#include "widgets/symbolviewer/symbolviewer.h"
+#include "widgets/importedimagesviewer/importedimagesviewer.h"
 
 namespace Ui {
     class MainWindow;
@@ -45,7 +43,6 @@ private:
 
     SymbolViewer* m_symbolViewer;
     ImportedImagesViewer* m_imageViewer;
-    std::shared_ptr<GieDataModelRegistry> m_modelRegistry;
 };
 
 #endif //GUI_MAINWINDOW_H
