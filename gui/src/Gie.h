@@ -13,8 +13,8 @@
 #include <gie/Program.h>
 #include <StrongAlias.h>
 
-#include "src/gie/types/TypeData.h"
 #include "GieNodeId.h"
+#include "src/nodeeditor/TypeData.h"
 
 #include <iostream>
 
