@@ -99,8 +99,25 @@ Editor::Editor(QWidget* parent): QWidget(parent)
 
     });
 
-    connect(m_nodeEditor, &NodeEditor::argumentRemoved, [](BaseNode*, std::size_t port){
+    connect(m_nodeEditor, &NodeEditor::argumentRemoved, [this](BaseNode* node, std::size_t port){
+        QMetaObject::invokeMethod(
+                m_gie,
+                "removeArgument",
+                Q_ARG(GieNodeId, GieNodeId{node->id()}),
+                Q_ARG(ArgumentId, ArgumentId{port})
+        );
 
+        if(auto* p = dynamic_cast<DisplayNode*>(node); p != nullptr)
+        {
+            m_toUpdate.erase(node->id());
+            m_displaysToUpdate.erase(node->id());
+
+            QMetaObject::invokeMethod(
+                    m_gie,
+                    "removeResultNotify",
+                    Q_ARG(QUuid, p->id())
+            );
+        }
     });
 
     connect(m_nodeEditor, &NodeEditor::argumentEdited, [](BaseNode*, QUuid argumentId, std::size_t port){
