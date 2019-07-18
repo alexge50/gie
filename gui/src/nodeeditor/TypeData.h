@@ -5,7 +5,6 @@
 #ifndef GUI_TYPEDATA_H
 #define GUI_TYPEDATA_H
 
-#include <gie/NodeId.h>
 #include <nodes/NodeData>
 
 #include <types/Image.h>
@@ -14,27 +13,8 @@
 #include <variant>
 #include <string>
 
-#include <src/GieNodeId.h>
-
 class TypeData: public QtNodes::NodeData
-{
-public:
-    explicit TypeData() = default;
-    explicit TypeData(GieNodeId id): m_id{id} {}
-    explicit TypeData(QUuid id): m_id{id} {}
-
-    TypeData(const TypeData&) = default;
-    TypeData(TypeData&&) = default;
-
-    const auto& nodeId() { return std::get<GieNodeId>(m_id); }
-    const auto& valueId() { return std::get<QUuid>(m_id); }
-
-    bool isValueId() { return std::holds_alternative<QUuid>(m_id); }
-    bool isNodeId() { return std::holds_alternative<GieNodeId>(m_id); }
-
-private:
-    std::variant<GieNodeId, QUuid> m_id;
-};
+{};
 
 class StringTypeData: public TypeData
 {
