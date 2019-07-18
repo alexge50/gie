@@ -201,6 +201,8 @@ Editor::Editor(QWidget* parent): QWidget(parent)
         }
     });
 
+    connect(m_nodeEditor, &NodeEditor::sceneChanged, this, &Editor::sceneChanged);
+
     auto thread = new QThread;
     m_gie = new Gie{};
 

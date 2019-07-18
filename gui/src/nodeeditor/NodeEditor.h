@@ -61,6 +61,12 @@ public:
                 m_scene, &QtNodes::FlowScene::nodeDeleted,
                 this, &NodeEditor::onNodeDeleted
         );
+
+        connect(m_scene, &QtNodes::FlowScene::nodePlaced, this, &NodeEditor::sceneChanged);
+        connect(m_scene, &QtNodes::FlowScene::nodeDeleted, this, &NodeEditor::sceneChanged);
+        connect(m_scene, &QtNodes::FlowScene::connectionCreated, this, &NodeEditor::sceneChanged);
+        connect(m_scene, &QtNodes::FlowScene::connectionDeleted, this, &NodeEditor::sceneChanged);
+        connect(m_scene, &QtNodes::FlowScene::nodeMoved, this, &NodeEditor::sceneChanged);
     }
 
     template <typename Creator>
@@ -84,6 +90,8 @@ Q_SIGNALS:
     void argumentRemoved(BaseNode*, std::size_t port);
     void argumentEdited(BaseNode*, QUuid argumentId, std::size_t port);
     void sourceDataChanged(QUuid, Data);
+
+    void sceneChanged();
 
 public Q_SLOTS:
     void changeDisplayData(QUuid id, Data data)
