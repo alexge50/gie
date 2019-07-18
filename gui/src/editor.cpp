@@ -85,7 +85,17 @@ Editor::Editor(QWidget* parent): QWidget(parent)
         }
     });
 
-    connect(m_nodeEditor, &NodeEditor::nodeDeleted, [](BaseNode* node){
+    connect(m_nodeEditor, &NodeEditor::nodeDeleted, [this](BaseNode* node){
+        QMetaObject::invokeMethod(
+                m_gie,
+                "removeNode",
+                Q_ARG(GieNodeId, GieNodeId{node->id()})
+        );
+
+        if(auto* p = dynamic_cast<TargetExportImageNode*>(node); p != nullptr)
+        {
+            Q_EMIT(detachDockWindow(p->dockWidget()));
+        }
 
     });
 
