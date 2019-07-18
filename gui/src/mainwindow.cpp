@@ -121,15 +121,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::reloadedSymbols(std::vector<GieSymbol> gieSymbols)
+void MainWindow::reloadedSymbols(const std::vector<GieSymbol>& gieSymbols)
 {
-    m_modelRegistry = registerDataModels(gieSymbols);
-    m_editor->setRegistry(m_modelRegistry);
-
     std::map<QString, std::vector<QString>> symbols;
 
-    for(const auto& [name, category]: m_modelRegistry->registeredModelsCategoryAssociation())
-        symbols[category].push_back(name);
+    for(const auto& symbol: gieSymbols)
+        symbols[QString::fromStdString(symbol.symbol.module)].push_back(
+                QString::fromStdString(symbol.symbol.prettyName)
+                );
 
     Q_EMIT onSymbolsImported(symbols);
 }

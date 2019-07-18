@@ -37,7 +37,7 @@ private Q_SLOTS:
     void onSaved();
 
 private Q_SLOTS:
-    void reloadedSymbols(std::vector<GieSymbol>);
+    void reloadedSymbols(const std::vector<GieSymbol>&);
 
 private:
     Ui::MainWindow *ui;
