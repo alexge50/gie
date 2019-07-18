@@ -225,8 +225,12 @@ Editor::Editor(QWidget* parent): QWidget(parent)
     connect(m_gie, &Gie::resultUpdated, this, &Editor::resultUpdated);
 }
 
-void Editor::resultUpdated(QUuid displayerId, Data data)
+void Editor::resultUpdated(QUuid displayId, Data data)
 {
+    if(auto* display = dynamic_cast<DisplayNode*>(
+                m_nodeEditor->scene()->nodes().at(displayId)->nodeDataModel()
+        ); display != nullptr)
+        display->displayData(std::move(data));
 }
 
 void Editor::onTargetNameChanged(const QUuid& id, const QString& name)
