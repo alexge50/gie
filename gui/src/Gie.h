@@ -5,6 +5,8 @@
 #ifndef GIE_GIE_H
 #define GIE_GIE_H
 
+#include <unordered_set>
+
 #include <QtCore/QtCore>
 #include <QUuid>
 
@@ -109,15 +111,20 @@ public Q_SLOTS:
         symbols.reserve(m_program.context().importedSymbols().size());
         for(const auto& symbol: m_program.context().importedSymbols())
         {
-            const NodeType* type = m_program.nodeTypeManager().nodeType(symbol);
-            symbols.push_back({
-               symbol,
-               type->m_arguments,
-               type->m_returnType
-            });
+            if(m_symbols.find(symbol.qualifiedName) == m_symbols.end())
+            {
+                const NodeType* type = m_program.nodeTypeManager().nodeType(symbol);
+
+                symbols.push_back({
+                                          symbol,
+                                          type->m_arguments,
+                                          type->m_returnType
+                                  });
+                m_symbols.insert(symbol.qualifiedName);
+            }
         }
 
-        reloadedSymbols(symbols);
+        Q_EMIT symbolsAdded(symbols);
     }
 
     void addResultNotify(QUuid nodeId, GieNodeId id)
@@ -131,7 +138,7 @@ public Q_SLOTS:
     }
 
 Q_SIGNALS:
-    void reloadedSymbols(std::vector<GieSymbol>);
+    void symbolsAdded(std::vector<GieSymbol>);
     void resultUpdated(QUuid, Data);
     void finished();
 
@@ -174,6 +181,8 @@ private:
     Program m_program;
     std::map<GieNodeId, NodeId> m_map;
     std::map<QUuid, NodeId> m_toNotify;
+
+    std::unordered_set<std::string> m_symbols;
 };
 
 #endif //GIE_GIE_H
