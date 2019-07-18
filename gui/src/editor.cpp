@@ -67,8 +67,22 @@ Editor::Editor(QWidget* parent): QWidget(parent)
     m_nodeEditor->registerNodeType<StringDisplayNode>("displays");
     m_nodeEditor->registerNodeType<TargetExportImageNode>("displays");
 
-    connect(m_nodeEditor, &NodeEditor::nodeCreated, [](BaseNode* node){
+    connect(m_nodeEditor, &NodeEditor::nodeCreated, [this](BaseNode* node){
+        if(auto* p = dynamic_cast<GieNode*>(node); p != nullptr)
+        {
+            QMetaObject::invokeMethod(
+                    m_gie,
+                    "addNode",
+                    Q_ARG(GieNodeId, GieNodeId{node->id()}),
+                    Q_ARG(std::string, p->symbol().qualifiedName)
+            );
+        }
 
+        if(auto* p = dynamic_cast<TargetExportImageNode*>(node); p != nullptr)
+        {
+            connect(p, &TargetExportImageNode::targetNameChanged, this, &Editor::onTargetNameChanged);
+            Q_EMIT(attachDockWindow(p->dockWidget()));
+        }
     });
 
     connect(m_nodeEditor, &NodeEditor::nodeDeleted, [](BaseNode* node){
