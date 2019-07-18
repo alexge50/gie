@@ -56,7 +56,7 @@ public:
 
     QWidget* embeddedWidget() override { return nullptr; }
 
-    Data getData() override { return {}; }
+    Data getData() override { return m_image; }
 
 private:
     static std::vector<uint8_t> imageToRawData(const QImage& image)
