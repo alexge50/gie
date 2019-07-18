@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <map>
+#include <set>
 
 #include <gie/Program.h>
 
@@ -73,6 +74,18 @@ private:
 
     std::map<QUuid, QString> m_targets;
     std::map<QUuid, Data> m_values;
+
+    struct ToUpdate
+    {
+        QUuid id;
+        std::size_t port{};
+
+        bool operator< (const ToUpdate& other) const { return id < other.id; }
+        bool operator== (const ToUpdate& other) const { return id == other.id; }
+    };
+    std::map<QUuid, std::set<ToUpdate>> m_toUpdate;
+
+    std::map<QUuid, std::set<QUuid>> m_displaysToUpdate;
 };
 
 
