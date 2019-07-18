@@ -118,6 +118,9 @@ Editor::Editor(QWidget* parent): QWidget(parent)
                     Q_ARG(QUuid, p->id())
             );
         }
+
+        if(auto* p = dynamic_cast<TargetExportImageNode*>(node); p != nullptr)
+            m_targets.erase(p->id());
     });
 
     connect(m_nodeEditor, &NodeEditor::argumentEdited, [this](BaseNode* node, QUuid argumentId, std::size_t port){
@@ -170,6 +173,9 @@ Editor::Editor(QWidget* parent): QWidget(parent)
                 );
             }
         }
+
+        if(auto* p = dynamic_cast<TargetExportImageNode*>(node); p != nullptr)
+            m_targets.insert({p->id(), p->getTargetName()});
     });
 
     connect(m_nodeEditor, &NodeEditor::sourceDataChanged, [this](QUuid nodeId, Data data){
