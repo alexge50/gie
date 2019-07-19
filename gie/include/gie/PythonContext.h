@@ -55,10 +55,6 @@ private:
     void discoverSymbols(const std::string& name, boost::python::object);
 
 private:
-    boost::python::object importAbsolute(const std::string& name, const std::string& path);
-    void discoverSymbols(const std::string& name, boost::python::object);
-
-private:
     boost::python::object m_main;
     boost::python::object m_global;
     boost::python::object m_importlib, m_importModule;
