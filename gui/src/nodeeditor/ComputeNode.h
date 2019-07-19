@@ -12,7 +12,7 @@ class ComputeNode: public BaseNode
 {
 public:
 
-    void setInData(std::shared_ptr<QtNodes::NodeData> data, QtNodes::PortIndex port)
+    void setInData(std::shared_ptr<QtNodes::NodeData> data, QtNodes::PortIndex port) override
     {
         m_portAssign.resize(nPorts(QtNodes::PortType::In), PortAssigned::No);
 
