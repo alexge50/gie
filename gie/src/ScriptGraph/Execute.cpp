@@ -35,7 +35,7 @@ Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext& contex
 
     try
     {
-        auto p = PyEval_CallObject(node.function().ptr(), tuple{arguments}.ptr());
+        auto p = PyEval_CallObject(context.getSymbol(node.symbolId())->function.ptr(), tuple{arguments}.ptr());
         return Expected<Value, ExecutionInterfaceError>{Value{object{handle(borrowed(p))}}};
     }
     catch(...)
@@ -72,7 +72,7 @@ MaybeError<ExecutionInterfaceError> executeNode(const PythonContext& context, Sc
 
     try
     {
-        auto p = PyEval_CallObject(node_->node->function().ptr(), tuple{arguments}.ptr());
+        auto p = PyEval_CallObject(context.getSymbol(node_->node->symbolId())->function.ptr(), tuple{arguments}.ptr());
         object r{handle(borrowed(p))};
 
         *(node_->cache) = Value{r};
