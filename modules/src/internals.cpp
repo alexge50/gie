@@ -26,8 +26,6 @@ Image to_image(const np::ndarray& np_image)
     std::size_t width = np_image.shape(1);
     std::size_t height = np_image.shape(0);
 
-    std::cout << width << " " << height << std::endl;
-
     Image image{static_cast<unsigned int>(width), static_cast<unsigned int>(height)};
     std::size_t offset = 0;
     for(unsigned int j = 0; j < image.height(); j++)
