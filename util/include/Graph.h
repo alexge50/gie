@@ -5,6 +5,9 @@
 #ifndef GIE_GRAPH_H
 #define GIE_GRAPH_H
 
+#include <vector>
+#include <unordered_map>
+
 template <typename NodeType>
 class Graph
 {
@@ -124,7 +127,11 @@ private:
         auto r = graphLookup(id);
 
         if(r != NotFound)
+        {
             m_graph.erase(m_graph.begin() + r);
+            m_map.erase(m_idMap[id]);
+            m_idMap.erase(id);
+        }
     }
 
 private:
