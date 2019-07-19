@@ -22,6 +22,8 @@ struct ProjectImage
     QImage image;
 };
 
+class Editor;
+
 class Project
 {
 private:
@@ -55,10 +57,10 @@ private:
     QString m_name;
 
     friend Project newProject(QDir dir, QString name, QtNodes::FlowScene& scene);
-    friend Project loadProject(QString directory, QtNodes::FlowScene& scene);
+    friend Project loadProject(QString directory, Editor&, QtNodes::FlowScene& scene);
 };
 
 Project newProject(QDir dir, QString name, QtNodes::FlowScene& scene);
-Project loadProject(QString directory, QtNodes::FlowScene& scene);
+Project loadProject(QString directory, Editor&, QtNodes::FlowScene& scene);
 
 #endif //GUI_PROJECT_H

@@ -1,10 +1,10 @@
-#include <utility>
-
 //
 // Created by alex on 5/25/19.
 //
 
 #include "Project.h"
+
+#include <utility>
 
 #include <QFile>
 #include <QJsonArray>
@@ -13,6 +13,7 @@
 #include <QtGui/QImage>
 
 #include "src/serialisation/serialisation.h"
+#include "src/editor.h"
 
 Project::Project(QtNodes::FlowScene& scene,QDir projectDirectory):
     m_scene{scene},
@@ -127,10 +128,13 @@ Project newProject(QDir dir, QString name, QtNodes::FlowScene& scene)
     return Project{scene, projectDir};
 }
 
-Project loadProject(QString directory, QtNodes::FlowScene& scene)
+Project loadProject(QString directory, Editor& editor, QtNodes::FlowScene& scene)
 {
     QFile file(directory + "/gieprojectfile");
     file.open(QIODevice::ReadOnly);
+
+    for(const auto& script: QDir{QDir{directory}.absoluteFilePath("scripts")}.entryInfoList(QStringList{"*.py"}))
+        editor.addScript(script.canonicalFilePath());
 
     auto data = file.readAll();
 
