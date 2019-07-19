@@ -49,13 +49,10 @@ public:
 
     auto& context() { return m_pythonContext; }
     const auto& context() const { return m_pythonContext; }
-    const auto& nodeTypeManager() const { return m_typeManager; }
-    auto& nodeTypeManager() { return m_typeManager; }
 
 private:
     ScriptGraph m_graph;
     PythonContext m_pythonContext;
-    NodeTypeManager m_typeManager{m_pythonContext};
 };
 
 

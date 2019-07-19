@@ -19,7 +19,7 @@ Expected<std::vector<Result>, ExecutionInterfaceError> Program::run()
 
 NodeId Program::addNode(std::string name, Arguments arguments)
 {
-    return ::addNode(m_graph, makeNode(m_typeManager, std::move(name), std::move(arguments)).value());
+    return ::addNode(m_graph, makeNode(m_pythonContext, std::move(name), std::move(arguments)).value());
 }
 
 MaybeError<NodeInterfaceError> Program::editNode(NodeId id, ArgumentId argumentId, ArgumentValue argument)
