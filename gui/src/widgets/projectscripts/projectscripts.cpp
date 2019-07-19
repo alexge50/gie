@@ -23,18 +23,27 @@ ProjectScripts::ProjectScripts(QWidget* parent):
 
 void ProjectScripts::addFile(const QString& name)
 {
-    m_loadedFiles->addItem(name);
+    if(m_files.count(name) == 0)
+    {
+        m_loadedFiles->addItem(name);
+        m_files.insert(name);
+    }
 }
 
 void ProjectScripts::removeFile(const QString& name)
 {
-    for(int i = 0; i < m_loadedFiles->count(); i++)
+    if(m_files.count(name))
     {
-        if(m_loadedFiles->item(i)->text() == name)
+        for(int i = 0; i < m_loadedFiles->count(); i++)
         {
-            delete m_loadedFiles->takeItem(i);
-            break;
+            if(m_loadedFiles->item(i)->text() == name)
+            {
+                delete m_loadedFiles->takeItem(i);
+                break;
+            }
         }
+
+        m_files.erase(name);
     }
 }
 

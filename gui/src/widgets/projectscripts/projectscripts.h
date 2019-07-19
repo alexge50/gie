@@ -6,6 +6,7 @@
 #define GIE_PROJECTSCRIPTS_H
 
 #include <optional>
+#include <set>
 
 #include <QWidget>
 #include <QPushButton>
@@ -32,6 +33,7 @@ private:
     QListWidget* m_loadedFiles;
     QPushButton* m_openDirButton;
     std::optional<QString> m_scriptsDirectory;
+    std::set<QString> m_files;
 };
 
 
