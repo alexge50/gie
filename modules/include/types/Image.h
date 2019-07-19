@@ -17,16 +17,18 @@ class Image
     static const int N_CHANNELS = 3;
 public:
     Image():
-        m_width{0},
-        m_height{0},
-        data{nullptr}
+            m_width{0},
+            m_height{0},
+            data{nullptr}
     {}
 
     Image(unsigned width, unsigned height):
             m_width{width},
             m_height{height},
             data{new uint8_t[N_CHANNELS * width * height]}
-    {}
+    {
+        std::memset(data, 0, N_CHANNELS * width * height);
+    }
 
     Image(const uint8_t* data, unsigned width, unsigned height):
             m_width{width},
@@ -37,9 +39,9 @@ public:
     }
 
     Image(const std::vector<uint8_t>& vecdata, unsigned width, unsigned height):
-        m_width{width},
-        m_height{height},
-        data{new uint8_t[N_CHANNELS * width * height]}
+            m_width{width},
+            m_height{height},
+            data{new uint8_t[N_CHANNELS * width * height]}
     {
         std::memcpy(data, vecdata.data(), N_CHANNELS * width * height);
     }
@@ -53,9 +55,9 @@ public:
     }
 
     Image(Image&& other):
-        m_width{0},
-        m_height{0},
-        data{nullptr}
+            m_width{0},
+            m_height{0},
+            data{nullptr}
     {
         std::swap(other.m_width, m_width);
         std::swap(other.m_height, m_height);
