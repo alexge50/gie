@@ -26,7 +26,9 @@ public:
             m_width{width},
             m_height{height},
             data{new uint8_t[N_CHANNELS * width * height]}
-    {}
+    {
+        std::memset(data, 0, N_CHANNELS * width * height);
+    }
 
     Image(const uint8_t* data, unsigned width, unsigned height):
             m_width{width},
