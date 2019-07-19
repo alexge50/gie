@@ -21,6 +21,7 @@
 #include "Gie.h"
 
 #include <src/nodeeditor/NodeEditor.h>
+#include "src/nodes/GieNode.h"
 
 class Editor: public QWidget
 {
@@ -65,6 +66,13 @@ private Q_SLOTS:
     void onTargetNameChanged(const QUuid& id, const QString&);
 
     void resultUpdated(QUuid, Data);
+    void reloadNode(const std::vector<GieSymbol>& symbols);
+
+    void nodeCreated(BaseNode*);
+    void nodeDeleted(BaseNode*);
+    void argumentRemoved(BaseNode* node, std::size_t port);
+    void argumentEdited(BaseNode* node, QUuid argumentId, std::size_t port);
+    void sourceDataChanged(QUuid nodeId, Data data);
 
 private:
     void keyPressEvent(QKeyEvent*) override;
@@ -99,6 +107,10 @@ private:
     std::map<QUuid, std::set<QUuid>> m_displaysToUpdate;
 
     std::map<QString, QDateTime> m_scripts;
+
+    std::map<std::string, std::set<QUuid>> m_nodes;
+
+    friend class Project loadProject(QString directory, Editor& editor, QtNodes::FlowScene& scene);
 };
 
 
