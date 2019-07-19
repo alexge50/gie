@@ -409,3 +409,23 @@ void Editor::loadModule(const QString& name, const QString& path)
             Q_ARG(std::string, path.toStdString())
             );
 }
+
+void Editor::addScript(const QString& path)
+{
+    QString name = QFileInfo{path}.baseName();
+
+    QMetaObject::invokeMethod(
+            m_gie,
+            "loadModule",
+            Q_ARG(std::string, "user." + name.toStdString()),
+            Q_ARG(std::string, path.toStdString())
+    );
+
+    Q_EMIT scriptAdded(QFileInfo{path}.fileName());
+}
+
+void Editor::removeScript(const QString& path)
+{
+    Q_EMIT scriptRemoved(QFileInfo{path}.fileName());
+
+}
