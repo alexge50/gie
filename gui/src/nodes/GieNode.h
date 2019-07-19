@@ -78,6 +78,8 @@ private:
     std::vector<ArgumentMetadata> m_arguments;
     Type m_returnType;
     SymbolName m_symbol;
+
+    friend class Editor;
 };
 
 
