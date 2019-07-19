@@ -53,6 +53,27 @@ public Q_SLOTS:
         builtins.attr("Image") = internals.attr("Image");
     }
 
+    void addModulesDirectory(const std::string& path)
+    {
+        auto sys = m_program.context().module("sys", false);
+
+        sys.attr("path").attr("insert")(1, path);
+    }
+
+    void removeModulesDirectory(const std::string& path)
+    {
+        auto sys = m_program.context().module("sys", false);
+
+        try
+        {
+            sys.attr("path").attr("remove")(path);
+        }
+        catch(const boost::python::error_already_set&)
+        {
+
+        }
+    }
+
     void addNode(GieNodeId id, const std::string& name)
     {
         if(auto it = m_map.find(id); it == m_map.end())
