@@ -37,7 +37,7 @@ TEST_CASE("GIE API tests", "[program]")
             program.addResult("1 node run", castToString);
             auto result = program.run().value();
             REQUIRE(std::to_string(boost::python::extract<int>(input)) ==
-                    std::string{boost::python::extract<std::string>(result[0].value.m_object)});
+                    std::string{boost::python::extract<std::string>(result[0].value.object())});
         }
 
         castToInt = program.addNode("basic.to_int", {castToString});
@@ -46,7 +46,7 @@ TEST_CASE("GIE API tests", "[program]")
         {
             program.addResult("1 nodes run", castToInt);
             auto result = program.run().value();
-            REQUIRE(boost::python::extract<int>(input) == boost::python::extract<int>(result[0].value.m_object));
+            REQUIRE(boost::python::extract<int>(input) == boost::python::extract<int>(result[0].value.object()));
         }
 
         SECTION("removing node")
@@ -55,7 +55,7 @@ TEST_CASE("GIE API tests", "[program]")
             program.addResult("toString", castToString);
             auto result = program.run().value();
             REQUIRE(std::to_string(boost::python::extract<int>(input)) ==
-                    std::string{boost::python::extract<std::string>(result[0].value.m_object)});
+                    std::string{boost::python::extract<std::string>(result[0].value.object())});
 
             program.removeResult("toString");
             program.removeNode(castToString).discard();
@@ -84,7 +84,7 @@ TEST_CASE("GIE API tests", "[program]")
         SECTION("run")
         {
             auto result = program.run().value();
-            REQUIRE(boost::python::extract<int>(input) == boost::python::extract<int>(result[0].value.m_object));
+            REQUIRE(boost::python::extract<int>(input) == boost::python::extract<int>(result[0].value.object()));
         }
 
         SECTION("removing nodes in the middle")
@@ -99,7 +99,7 @@ TEST_CASE("GIE API tests", "[program]")
 
             auto result = program.run().value();
             REQUIRE(std::to_string(boost::python::extract<int>(input)) ==
-                    std::to_string(boost::python::extract<int>(result[0].value.m_object)));
+                    std::to_string(boost::python::extract<int>(result[0].value.object())));
         }
 
         SECTION("removing all nodes")
