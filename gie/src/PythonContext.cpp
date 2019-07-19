@@ -5,14 +5,65 @@
 #include <gie/PythonContext.h>
 
 #include <boost/python.hpp>
+#include <gie/detail/PythonUtils.h>
 
-Symbol createSymbol(std::string qualifiedName)
+static std::vector<ArgumentMetadata> fetchArguments(const PythonContext& context, boost::python::object callable)
 {
-    return Symbol{
-        qualifiedName.substr(qualifiedName.find_last_of('.') + 1),
-        qualifiedName.substr(0, qualifiedName.find_last_of('.')),
-        std::move(qualifiedName)
+    using namespace boost::python;
+
+    auto inspect = context.inspect();
+    auto signature = inspect.attr("signature")(callable);
+
+    std::vector<object> parameters{
+            stl_input_iterator<object>(signature.attr("parameters").attr("items")()),
+            stl_input_iterator<object>{}
     };
+
+    std::vector<ArgumentMetadata> arguments{};
+    arguments.reserve(parameters.size());
+
+    for(const auto& parameter: parameters)
+    {
+        auto p = parameter[1];
+        arguments.push_back(ArgumentMetadata{
+                extract<std::string>(p.attr("name")),
+                Type{extract<std::string>(p.attr("annotation").attr("__name__"))}
+        });
+    }
+
+    return arguments;
+}
+
+static Type fetchReturnType(const PythonContext& context, boost::python::object callable)
+{
+    using namespace boost::python;
+
+    auto inspect = context.inspect();
+    auto signature = inspect.attr("signature")(callable);
+
+    if(hasattr(signature, "return_annotation"))
+        return Type{extract<std::string>(signature.attr("return_annotation").attr("__name__"))};
+    else return Type{""};
+}
+
+static SymbolName createSymbolName(std::string qualifiedName)
+{
+    return SymbolName{
+            qualifiedName.substr(qualifiedName.find_last_of('.') + 1),
+            qualifiedName.substr(0, qualifiedName.find_last_of('.')),
+            std::move(qualifiedName)
+    };
+}
+
+static Symbol createSymbol(const PythonContext& context, boost::python::object callable, std::string qualifiedFunctionName)
+{
+    return Symbol
+            {
+                    createSymbolName(qualifiedFunctionName),
+                    fetchArguments(context, callable),
+                    fetchReturnType(context, callable),
+                    callable
+            };
 }
 
 PythonContext::PythonContext()
@@ -65,13 +116,6 @@ boost::python::object PythonContext::module(const std::string& name, const std::
     return module;
 }
 
-boost::python::object PythonContext::getFunction(const std::string &name) const
-{
-    if(auto it = m_functions.find(name); it != m_functions.end())
-        return it->second;
-
-    return boost::python::object();
-}
 
 boost::python::object PythonContext::importAbsolute(const std::string& name, const std::string& path)
 {
@@ -96,8 +140,14 @@ void PythonContext::discoverSymbols(const std::string& name, boost::python::obje
             if(extractor.check())
             {
                 auto qualifiedName = name + '.' + extractor();
-                m_importedSymbols.push_back(createSymbol(qualifiedName));
-                m_functions[qualifiedName] = o;
+                auto id = getSymbolId(qualifiedName);
+                if(!id)
+                {
+                    m_importedSymbols.push_back(createSymbol(*this, o, qualifiedName));
+                    m_nameSymbolIdMap[qualifiedName] = SymbolId{m_importedSymbols.size() - 1};
+                }
+                else
+                    m_importedSymbols[id->get()] = createSymbol(*this, o, qualifiedName);
             }
         }
     }
@@ -111,4 +161,26 @@ boost::python::object PythonContext::inspect() const
 boost::python::object PythonContext::copy() const
 {
     return m_copy;
+}
+
+const Symbol* PythonContext::getSymbol(SymbolId id) const
+{
+    if(id.get() < m_importedSymbols.size())
+        return &m_importedSymbols[id.get()];
+    return nullptr;
+}
+
+const Symbol* PythonContext::getSymbol(const std::string& name) const
+{
+    auto id = getSymbolId(name);
+    if(id)
+        return getSymbol(*id);
+    return nullptr;
+}
+
+std::optional<SymbolId> PythonContext::getSymbolId(const std::string& name) const
+{
+    if(auto it = m_nameSymbolIdMap.find(name); it != m_nameSymbolIdMap.end())
+        return it->second;
+    return std::nullopt;
 }
