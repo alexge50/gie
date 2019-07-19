@@ -51,6 +51,8 @@ public Q_SLOTS:
 
         builtins.attr("Color") = internals.attr("Color");
         builtins.attr("Image") = internals.attr("Image");
+        builtins.attr("to_image") = internals.attr("to_image");
+        builtins.attr("to_ndarray") = internals.attr("to_ndarray");
     }
 
     void addModulesDirectory(const std::string& path)
