@@ -100,11 +100,11 @@ public Q_SLOTS:
     }
 
 private Q_SLOTS:
-    void onNodeCreated(QtNodes::Node& node)
+    void onNodeCreated(QtNodes::Node* node)
     {
-        if(auto* p = dynamic_cast<BaseNode*>(node.nodeDataModel()); p != nullptr)
+        if(auto* p = dynamic_cast<BaseNode*>(node->nodeDataModel()); p != nullptr)
         {
-            p->m_id = node.id();
+            p->m_id = node->id();
 
             connect(p, &BaseNode::dataChanged, [this, p](Data data)
             {
@@ -115,9 +115,9 @@ private Q_SLOTS:
         }
     }
 
-    void onNodeDeleted(QtNodes::Node& node)
+    void onNodeDeleted(QtNodes::Node* node)
     {
-        if(auto* p = dynamic_cast<BaseNode*>(node.nodeDataModel()); p != nullptr)
+        if(auto* p = dynamic_cast<BaseNode*>(node->nodeDataModel()); p != nullptr)
         {
             Q_EMIT nodeDeleted(p);
         }
