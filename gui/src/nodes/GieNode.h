@@ -77,7 +77,7 @@ private:
     GieNodeId m_nodeId;
     std::vector<ArgumentMetadata> m_arguments;
     Type m_returnType;
-    Symbol m_symbol;
+    SymbolName m_symbol;
 };
 
 

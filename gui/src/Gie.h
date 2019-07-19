@@ -20,7 +20,7 @@
 
 struct GieSymbol
 {
-    Symbol symbol;
+    SymbolName symbol;
     std::vector<ArgumentMetadata> arguments;
     Type returnType;
 };
@@ -132,16 +132,14 @@ public Q_SLOTS:
         symbols.reserve(m_program.context().importedSymbols().size());
         for(const auto& symbol: m_program.context().importedSymbols())
         {
-            if(m_symbols.find(symbol.qualifiedName) == m_symbols.end())
+            if(m_symbols.find(symbol.name.qualifiedName) == m_symbols.end())
             {
-                const NodeType* type = m_program.nodeTypeManager().nodeType(symbol);
-
                 symbols.push_back({
-                                          symbol,
-                                          type->m_arguments,
-                                          type->m_returnType
+                                          symbol.name,
+                                          symbol.arguments,
+                                          symbol.returnType
                                   });
-                m_symbols.insert(symbol.qualifiedName);
+                m_symbols.insert(symbol.name.qualifiedName);
             }
         }
 
