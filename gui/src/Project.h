@@ -38,6 +38,8 @@ public:
     const std::map<QUuid, ProjectImage>& importedImages() const { return m_images; };
     QString projectName() const { return m_name; }
 
+    const QDir& projectPath() const;
+
 private:
     QJsonValue serialiseImages();
     QJsonValue serialiseScripts();

@@ -140,3 +140,8 @@ Project loadProject(QString directory, QtNodes::FlowScene& scene)
     deserialise(scene, project, json["scene"].toObject());
     return project;
 }
+
+const QDir& Project::projectPath() const
+{
+    return m_projectDirectory;
+}
