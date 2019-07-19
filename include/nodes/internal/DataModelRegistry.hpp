@@ -125,12 +125,12 @@ private:
   registerModelImpl(RegistryItemCreator creator, QString const &category )
   {
     const QString name = ModelType::Name();
-    if (_registeredItemCreators.count(name) == 0)
-    {
+    //if (_registeredItemCreators.count(name) == 0)
+    //{
       _registeredItemCreators[name] = std::move(creator);
       _categories.insert(category);
       _registeredModelsCategory[name] = category;
-    }
+    //}
   }
 
   template<typename ModelType>
@@ -138,12 +138,12 @@ private:
   registerModelImpl(RegistryItemCreator creator, QString const &category )
   {
     const QString name = creator()->name();
-    if (_registeredItemCreators.count(name) == 0)
-    {
+    //if (_registeredItemCreators.count(name) == 0)
+    //{
       _registeredItemCreators[name] = std::move(creator);
       _categories.insert(category);
       _registeredModelsCategory[name] = category;
-    }
+    //}
   }
 
 };
