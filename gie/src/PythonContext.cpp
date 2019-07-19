@@ -10,7 +10,7 @@ Symbol createSymbol(std::string qualifiedName)
 {
     return Symbol{
         qualifiedName.substr(qualifiedName.find_last_of('.') + 1),
-        qualifiedName.substr(0, qualifiedName.find('.')),
+        qualifiedName.substr(0, qualifiedName.find_last_of('.')),
         std::move(qualifiedName)
     };
 }
@@ -95,7 +95,7 @@ void PythonContext::discoverSymbols(const std::string& name, boost::python::obje
             auto extractor = boost::python::extract<std::string>(o.attr("__name__"));
             if(extractor.check())
             {
-                auto qualifiedName = name.substr(name.find_last_of('.') + 1) + '.' + extractor();
+                auto qualifiedName = name + '.' + extractor();
                 m_importedSymbols.push_back(createSymbol(qualifiedName));
                 m_functions[qualifiedName] = o;
             }
