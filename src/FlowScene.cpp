@@ -204,7 +204,7 @@ createNode(std::unique_ptr<NodeDataModel> && dataModel)
   auto nodePtr = node.get();
   _nodes[node->id()] = std::move(node);
 
-  nodeCreated(*nodePtr);
+  Q_EMIT nodeCreated(nodePtr);
   return *nodePtr;
 }
 
@@ -230,22 +230,22 @@ restoreNode(QJsonObject const& nodeJson)
   auto nodePtr = node.get();
   _nodes[node->id()] = std::move(node);
 
-  nodePlaced(*nodePtr);
-  nodeCreated(*nodePtr);
+  nodePlaced(nodePtr);
+  Q_EMIT nodeCreated(nodePtr);
   return *nodePtr;
 }
 
 
 void
 FlowScene::
-removeNode(Node& node)
+removeNode(Node* node)
 {
   // call signal
-  nodeDeleted(node);
+  Q_EMIT nodeDeleted(node);
 
   for(auto portType: {PortType::In,PortType::Out})
   {
-    auto nodeState = node.nodeState();
+    auto nodeState = node->nodeState();
     auto const & nodeEntries = nodeState.getEntries(portType);
 
     for (auto &connections : nodeEntries)
@@ -255,7 +255,7 @@ removeNode(Node& node)
     }
   }
 
-  _nodes.erase(node.id());
+  _nodes.erase(node->id());
 }
 
 
@@ -467,7 +467,7 @@ clearScene()
 
   while (_nodes.size() > 0)
   {
-    removeNode( *_nodes.begin()->second );
+    removeNode( _nodes.begin()->second.get() );
   }
 }
 

@@ -60,7 +60,7 @@ public:
 
   Node&restoreNode(QJsonObject const& nodeJson);
 
-  void removeNode(Node& node);
+  void removeNode(Node* node);
 
   DataModelRegistry&registry() const;
 
@@ -106,33 +106,33 @@ Q_SIGNALS:
    * @brief Node has been created but not on the scene yet.
    * @see nodePlaced()
    */
-  void nodeCreated(Node &n);
+  void nodeCreated(Node* n);
 
   /**
    * @brief Node has been added to the scene.
    * @details Connect to this signal if need a correct position of node.
    * @see nodeCreated()
    */
-  void nodePlaced(Node &n);
+  void nodePlaced(Node* n);
 
-  void nodeDeleted(Node &n);
+  void nodeDeleted(Node* n);
 
   void connectionCreated(Connection const &c);
   void connectionDeleted(Connection const &c);
 
-  void nodeMoved(Node& n, const QPointF& newLocation);
+  void nodeMoved(Node* n, const QPointF& newLocation);
 
-  void nodeDoubleClicked(Node& n);
+  void nodeDoubleClicked(Node* n);
 
-  void connectionHovered(Connection& c, QPoint screenPos);
+  void connectionHovered(Connection* c, QPoint screenPos);
 
-  void nodeHovered(Node& n, QPoint screenPos);
+  void nodeHovered(Node* n, QPoint screenPos);
 
-  void connectionHoverLeft(Connection& c);
+  void connectionHoverLeft(Connection* c);
 
-  void nodeHoverLeft(Node& n);
+  void nodeHoverLeft(Node* n);
 
-  void nodeContextMenu(Node& n, const QPointF& pos);
+  void nodeContextMenu(Node* n, const QPointF& pos);
 
 private:
 

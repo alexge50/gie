@@ -172,7 +172,7 @@ contextMenuEvent(QContextMenuEvent *event)
 
       node.nodeGraphicsObject().setPos(posView);
 
-      _scene->nodePlaced(node);
+      _scene->nodePlaced(&node);
     }
     else
     {
@@ -272,7 +272,7 @@ deleteSelectedNodes()
   for (QGraphicsItem * item : _scene->selectedItems())
   {
     if (auto n = qgraphicsitem_cast<NodeGraphicsObject*>(item))
-      _scene->removeNode(n->node());
+      _scene->removeNode(&n->node());
   }
 }
 

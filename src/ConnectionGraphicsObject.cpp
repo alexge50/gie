@@ -228,7 +228,7 @@ hoverEnterEvent(QGraphicsSceneHoverEvent* event)
   _connection.connectionGeometry().setHovered(true);
 
   update();
-  _scene.connectionHovered(connection(), event->screenPos());
+  _scene.connectionHovered(&connection(), event->screenPos());
   event->accept();
 }
 
@@ -240,7 +240,7 @@ hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
   _connection.connectionGeometry().setHovered(false);
 
   update();
-  _scene.connectionHoverLeft(connection());
+  _scene.connectionHoverLeft(&connection());
   event->accept();
 }
 
