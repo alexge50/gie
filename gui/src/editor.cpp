@@ -231,6 +231,61 @@ Editor::Editor(QWidget* parent): QWidget(parent)
     });
 
     connect(m_gie, &Gie::resultUpdated, this, &Editor::resultUpdated);
+
+    m_projectScriptsWatcher = new QFileSystemWatcher{this};
+    connect(this, &Editor::projectLoaded, [this](const Project& project)
+    {
+        for(const auto& file: m_scripts)
+            removeScript(file.first);
+        m_scripts.clear();
+
+        for(const auto& dir: m_projectScriptsWatcher->directories())
+            QMetaObject::invokeMethod(
+                    m_gie,
+                    "removeModulesDirectory",
+                    Q_ARG(std::string, dir.toStdString())
+                    );
+
+        m_projectScriptsWatcher->removePaths(m_projectScriptsWatcher->directories());
+        m_projectScriptsWatcher->removePaths(m_projectScriptsWatcher->files());
+
+        auto path = project.projectPath().filePath("scripts");
+        m_projectScriptsWatcher->addPath(path);
+        QMetaObject::invokeMethod(
+                m_gie,
+                "addModulesDirectory",
+                Q_ARG(std::string, path.toStdString())
+        );
+
+        for(const auto& file: QDir{path}.entryInfoList(QStringList{"*.py"}))
+        {
+            addScript(file.canonicalFilePath());
+            m_scripts[file.canonicalFilePath()] = file.lastModified();
+        }
+    });
+
+    connect(m_projectScriptsWatcher, &QFileSystemWatcher::directoryChanged, [this](const auto& path)
+    {
+        std::map<QString, QDateTime> scripts;
+
+        for(const auto& file: QDir{path}.entryInfoList(QStringList{"*.py"}))
+            scripts[file.canonicalFilePath()] = file.lastModified();
+
+        for(const auto& file: m_scripts)
+        {
+            if(scripts.find(file.first) == scripts.end())
+                removeScript(file.first);
+        }
+
+        for(const auto& file: scripts)
+        {
+            if(m_scripts.find(file.first) == m_scripts.end() || m_scripts[file.first] != file.second)
+                addScript(file.first);
+        }
+
+        m_scripts = std::move(scripts);
+    });
+
 }
 
 void Editor::resultUpdated(QUuid displayId, Data data)
@@ -268,6 +323,7 @@ void Editor::onNewProject_(QDir directory, QString name)
 
     reloadImages();
     Q_EMIT savedProject();
+    Q_EMIT projectLoaded(*m_project);
 }
 
 void Editor::onOpenProject()
@@ -285,6 +341,7 @@ void Editor::onOpenProject()
 
     reloadImages();
     Q_EMIT savedProject();
+    Q_EMIT projectLoaded(*m_project);
 }
 
 void Editor::keyPressEvent(QKeyEvent* e)

@@ -15,6 +15,7 @@
 #include <QDockWidget>
 #include <QLabel>
 #include <QUuid>
+#include <QFileSystemWatcher>
 
 #include "Project.h"
 #include "Gie.h"
@@ -42,6 +43,10 @@ Q_SIGNALS:
     void savedProject();
 
     void reloadedSymbols(std::vector<GieSymbol>);
+    void projectLoaded(const Project&);
+
+    void scriptAdded(QString name);
+    void scriptRemoved(QString name);
 
 public Q_SLOTS:
     void onNewProject();
@@ -66,9 +71,15 @@ private:
     void reloadImages();
 
 private:
+    void addScript(const QString& path);
+    void removeScript(const QString& path);
+
+private:
     std::unique_ptr<Project> m_project;
     Gie* m_gie;
     NodeEditor* m_nodeEditor;
+
+    QFileSystemWatcher* m_projectScriptsWatcher;
 
     QLabel* m_noProjectMessage;
 
@@ -86,6 +97,8 @@ private:
     std::map<QUuid, std::set<ToUpdate>> m_toUpdate;
 
     std::map<QUuid, std::set<QUuid>> m_displaysToUpdate;
+
+    std::map<QString, QDateTime> m_scripts;
 };
 
 
