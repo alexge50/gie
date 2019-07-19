@@ -132,14 +132,13 @@ public Q_SLOTS:
         symbols.reserve(m_program.context().importedSymbols().size());
         for(const auto& symbol: m_program.context().importedSymbols())
         {
-            if(m_symbols.find(symbol.name.qualifiedName) == m_symbols.end())
+            if(symbol.name.module == name)
             {
                 symbols.push_back({
                                           symbol.name,
                                           symbol.arguments,
                                           symbol.returnType
                                   });
-                m_symbols.insert(symbol.name.qualifiedName);
             }
         }
 
@@ -200,8 +199,6 @@ private:
     Program m_program;
     std::map<GieNodeId, NodeId> m_map;
     std::map<QUuid, NodeId> m_toNotify;
-
-    std::unordered_set<std::string> m_symbols;
 };
 
 #endif //GIE_GIE_H
