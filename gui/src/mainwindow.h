@@ -12,6 +12,7 @@
 #include "editor.h"
 #include "widgets/symbolviewer/symbolviewer.h"
 #include "widgets/importedimagesviewer/importedimagesviewer.h"
+#include "widgets/projectscripts/projectscripts.h"
 
 namespace Ui {
     class MainWindow;
@@ -43,6 +44,7 @@ private:
 
     SymbolViewer* m_symbolViewer;
     ImportedImagesViewer* m_imageViewer;
+    ProjectScripts* m_projectScripts;
 };
 
 #endif //GUI_MAINWINDOW_H

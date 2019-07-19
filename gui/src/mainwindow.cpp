@@ -97,6 +97,20 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::reloadedSymbols
     );
 
+
+    QDockWidget* projectScriptsDock = new QDockWidget("Project Scripts", this);
+    m_projectScripts = new ProjectScripts{};
+
+    projectScriptsDock->setWidget(m_projectScripts);
+    addDockWidget(Qt::RightDockWidgetArea, projectScriptsDock);
+
+    connect(m_editor, &Editor::scriptAdded, m_projectScripts, &ProjectScripts::addFile);
+    connect(m_editor, &Editor::scriptRemoved, m_projectScripts, &ProjectScripts::removeFile);
+    connect(m_editor, &Editor::projectLoaded, [this](const Project& project)
+    {
+        m_projectScripts->setScriptsFolder(project.projectPath().filePath("scripts"));
+    });
+
     QFile file("config");
     file.open(QIODevice::ReadOnly);
 
