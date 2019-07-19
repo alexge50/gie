@@ -35,8 +35,6 @@
 
 #include "Project.h"
 
-#include <iostream>
-
 Editor::Editor(QWidget* parent): QWidget(parent)
 {
     QtNodes::ConnectionStyle::setConnectionStyle(R"({
@@ -314,8 +312,6 @@ void Editor::reloadNode(const std::vector<GieSymbol>& symbols)
 
         auto toEdit = m_nodes[symbol.symbol.qualifiedName];
         for (auto nodeId: toEdit) {
-            std::cout << "toEdit:" << nodeId.toString().toStdString() << std::endl;
-
             if (m_nodeEditor->scene()->nodes().find(nodeId) == m_nodeEditor->scene()->nodes().end())
                 continue;
 
@@ -340,7 +336,6 @@ void Editor::reloadNode(const std::vector<GieSymbol>& symbols)
 
                     return false;
                 }()) {
-                    std::cout << "here: " << nodeId.toString().toStdString() << std::endl;
                     auto position = m_nodeEditor->scene()->getNodePosition(*node);
                     m_nodeEditor->scene()->removeNode(node.get());
 
@@ -354,12 +349,9 @@ void Editor::reloadNode(const std::vector<GieSymbol>& symbols)
 
 void Editor::nodeCreated(BaseNode* node)
 {
-    std::cout << "nodeCreated:" << node->id().toString().toStdString() << std::endl;
-
     if(auto* p = dynamic_cast<GieNode*>(node); p != nullptr)
     {
         m_nodes[p->symbol().qualifiedName].insert(p->id());
-        std::cout << "+:" << p->id().toString().toStdString() << std::endl;
         QMetaObject::invokeMethod(
                 m_gie,
                 "addNode",
@@ -377,12 +369,9 @@ void Editor::nodeCreated(BaseNode* node)
 
 void Editor::nodeDeleted(BaseNode* node)
 {
-    std::cout << "nodeDeleted:" << node->id().toString().toStdString() << std::endl;
-
     if(auto* p = dynamic_cast<GieNode*>(node); p != nullptr)
     {
         m_nodes[p->symbol().qualifiedName].erase(p->id());
-        std::cout << "-:" << p->id().toString().toStdString() << std::endl;
         QMetaObject::invokeMethod(
                 m_gie,
                 "removeNode",
