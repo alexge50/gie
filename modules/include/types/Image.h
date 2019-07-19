@@ -16,41 +16,82 @@ class Image
 {
     static const int N_CHANNELS = 3;
 public:
+    Image():
+            m_width{0},
+            m_height{0},
+            data{nullptr}
+    {}
+
     Image(unsigned width, unsigned height):
-            width{width},
-            height{height},
+            m_width{width},
+            m_height{height},
             data{new uint8_t[N_CHANNELS * width * height]}
     {}
 
     Image(const uint8_t* data, unsigned width, unsigned height):
-            width{width},
-            height{height},
+            m_width{width},
+            m_height{height},
             data{new uint8_t[N_CHANNELS * width * height]}
     {
         std::memcpy(this->data, data, N_CHANNELS * width * height);
     }
 
     Image(const std::vector<uint8_t>& vecdata, unsigned width, unsigned height):
-        width{width},
-        height{height},
-        data{new uint8_t[N_CHANNELS * width * height]}
+            m_width{width},
+            m_height{height},
+            data{new uint8_t[N_CHANNELS * width * height]}
     {
         std::memcpy(data, vecdata.data(), N_CHANNELS * width * height);
     }
 
     Image(const Image& other):
-            width{other.width},
-            height{other.height},
-            data{new uint8_t[N_CHANNELS * width * height]}
+            m_width{other.m_width},
+            m_height{other.m_height},
+            data{new uint8_t[N_CHANNELS * m_width * m_height]}
     {
-        std::memcpy(data, other.data, N_CHANNELS * width * height);
+        std::memcpy(data, other.data, N_CHANNELS * m_width * m_height);
     }
 
-    Image(Image&&) = default;
+    Image(Image&& other):
+            m_width{0},
+            m_height{0},
+            data{nullptr}
+    {
+        std::swap(other.m_width, m_width);
+        std::swap(other.m_height, m_height);
+        std::swap(other.data, data);
+    }
 
     ~Image()
     {
         delete[] data;
+    }
+
+    Image& operator=(const Image& other)
+    {
+        delete[] data;
+        data = new uint8_t[N_CHANNELS * m_width * m_height];
+        m_width = other.m_width;
+        m_height = other.m_height;
+
+        std::memcpy(data, other.data, N_CHANNELS * m_width * m_height);
+
+        return *this;
+    }
+
+    Image& operator=(Image&& other)
+    {
+        delete[] data;
+
+        data = nullptr;
+        m_width = 0;
+        m_height = 0;
+
+        std::swap(other.m_width, m_width);
+        std::swap(other.m_height, m_height);
+        std::swap(other.data, data);
+
+        return *this;
     }
 
     Color pixelAt(unsigned row, unsigned column) const
@@ -65,20 +106,20 @@ public:
         std::tie(pixel[0], pixel[1], pixel[2]) = std::make_tuple(color.r, color.g, color.b);
     }
 
-    const unsigned width, height;
-
-    auto width_() { return width; }
-    auto height_() { return height; }
+    auto width() const { return m_width; }
+    auto height() const { return m_height; }
 
     const uint8_t* raw() const { return data; }
 
 private:
     std::size_t index(unsigned row, unsigned column) const
     {
-        return (row * width + column) * N_CHANNELS;
+        return (row * m_width + column) * N_CHANNELS;
     }
 
 private:
+    unsigned m_width, m_height;
+
     uint8_t* data;
 };
 
