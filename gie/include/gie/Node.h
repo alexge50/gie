@@ -11,8 +11,7 @@
 
 #include <gie/Argument.h>
 #include <gie/NodeId.h>
-#include <gie/NodeType.h>
-#include <gie/NodeTypeManager.h>
+#include <gie/PythonContext.h>
 
 #include <vector>
 #include <memory>
@@ -21,26 +20,23 @@
 class Node
 {
 private:
-    Node(Arguments arguments, NodeTypeId nodeTypeId, boost::python::object function):
+    Node(Arguments arguments, SymbolId symbolId):
         arguments{std::move(arguments)},
-        m_nodeTypeId{nodeTypeId},
-        m_function{std::move(function)}
+        m_symbolId{symbolId}
     {}
 
 public:
     Arguments arguments;
 
 public:
-    const NodeTypeId& nodeTypeId() const { return m_nodeTypeId; }
-    const boost::python::object& function() const { return m_function; }
+    const SymbolId& symbolId() const { return m_symbolId; }
 
 private:
-    NodeTypeId m_nodeTypeId;
-    boost::python::object m_function;
+    SymbolId m_symbolId;
 
-    friend std::optional<Node> makeNode(NodeTypeManager&, const std::string& name, Arguments);
+    friend std::optional<Node> makeNode(const PythonContext&, const std::string& name, Arguments);
 };
 
-std::optional<Node> makeNode(NodeTypeManager&, const std::string& name, Arguments);
+std::optional<Node> makeNode(const PythonContext&, const std::string& name, Arguments);
 
 #endif //GIE_LIBRARY_NODE_H

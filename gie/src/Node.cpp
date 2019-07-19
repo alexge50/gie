@@ -4,19 +4,18 @@
 
 #include <gie/Node.h>
 
-std::optional<Node> makeNode(NodeTypeManager& typeManager, const std::string& name, Arguments arguments)
+std::optional<Node> makeNode(const PythonContext& context, const std::string& name, Arguments arguments)
 {
-    auto type = typeManager.nodeType(name);
+    auto symbolId = context.getSymbolId(name);
 
-    if(type == nullptr)
+    if(!symbolId)
         return std::nullopt;
 
-    arguments.resize(type->m_arguments.size(), NoArgument{});
+    arguments.resize(context.getSymbol(*symbolId)->arguments.size(), NoArgument{});
 
     return Node
             {
                     {std::move(arguments)},
-                    *typeManager.getId(name),
-                    type->m_function
+                    *symbolId
             };
 }
