@@ -101,7 +101,7 @@ boost::python::object PythonContext::module(const std::string& name, bool expose
 
 boost::python::object PythonContext::module(const std::string& name, const std::string& path, bool exposeSymbols)
 {
-    if(auto it = m_importedModules.find(name); it != m_importedModules.end())
+    if(auto it = m_importedModules.find(name); it != m_importedModules.end() && !exposeSymbols)
         return it->second;
 
     auto module = importAbsolute(name, path);
