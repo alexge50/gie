@@ -141,7 +141,11 @@ Project loadProject(QString directory, Editor& editor, QtNodes::FlowScene& scene
     QJsonObject json = QJsonDocument::fromJson(data).object();
 
     auto project = Project{scene, directory, json};
-    deserialise(scene, project, json["scene"].toObject());
+    auto deleted = deserialise(scene, project, json["scene"].toObject());
+
+    for(const auto& node: deleted)
+        editor.warning(QString("Couldn't find '") + QString::fromStdString(node.second) + QString("', deleting node.\n"));
+
     return project;
 }
 
