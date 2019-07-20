@@ -46,3 +46,24 @@ void SymbolViewer::onSymbolsUpdate(const std::map<QString, std::vector<QString>>
 
     m_treeWidget->addTopLevelItems(list);
 }
+
+void SymbolViewer::removeSymbol(const QString& category, const QString& name)
+{
+    if(auto it = m_modules.find(category); it != m_modules.end())
+    {
+        auto entry = it->second;
+
+        for(int i = 0; i < entry->childCount(); i++)
+        {
+            if(name == entry->child(i)->text(0))
+                entry->removeChild(entry->child(i));
+        }
+        m_symbols[category].erase(name);
+
+        if(m_symbols[category].empty())
+        {
+            delete m_treeWidget->takeTopLevelItem(m_treeWidget->indexOfTopLevelItem(entry));
+            m_modules.erase(category);
+        }
+    }
+}

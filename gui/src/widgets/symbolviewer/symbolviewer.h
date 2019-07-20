@@ -19,6 +19,7 @@ public:
 
 public Q_SLOTS:
     void onSymbolsUpdate(const std::map<QString, std::vector<QString>>&);
+    void removeSymbol(const QString& category, const QString& name);
 
 private:
     QTreeWidget* m_treeWidget;
