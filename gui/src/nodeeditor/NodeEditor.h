@@ -82,6 +82,10 @@ public:
         m_registry->registerModel<Type>(category);
     }
 
+    const auto& nodeTypes() const { return m_registry->registeredModelCreators(); }
+
+    const std::shared_ptr<QtNodes::DataModelRegistry>& getRegistry() { return m_registry; }
+
     QtNodes::FlowScene* scene() { return m_scene; }
     QtNodes::FlowView* view() { return m_view; }
 
