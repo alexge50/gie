@@ -23,7 +23,7 @@ inline std::string type(const boost::python::object& o)
     return {o.ptr()->ob_type->tp_name};
 }
 
-std::string fetchPythonException()
+inline std::string fetchPythonException()
 {
     namespace py = boost::python;
 
