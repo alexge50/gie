@@ -326,7 +326,7 @@ void Editor::reloadNode(const std::vector<GieSymbol>& symbols)
                     if (gieNode->m_returnType != symbol.returnType)
                         return true;
 
-                    if (gieNode->m_arguments.size() == symbol.arguments.size())
+                    if (gieNode->m_arguments.size() != symbol.arguments.size())
                         return true;
 
                     for (std::size_t i = 0; i < gieNode->m_arguments.size(); i++) {
@@ -343,6 +343,11 @@ void Editor::reloadNode(const std::vector<GieSymbol>& symbols)
 
                     auto &newNode = m_nodeEditor->scene()->createNode(std::make_unique<GieNode>(symbol));
                     m_nodeEditor->scene()->setNodePosition(newNode, position);
+                }
+                else
+                {
+                    gieNode->m_arguments = symbol.arguments;
+                    gieNode->ok();
                 }
             }
         }
