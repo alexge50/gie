@@ -30,7 +30,7 @@ Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext& contex
     {
         if(std::holds_alternative<Value>(argument))
             arguments.append(copy(context, std::get<Value>(argument).object()));
-        else return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments, NodeId{-1}})};
+        else return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments, NodeId{-1ull}})};
     }
 
     try
@@ -40,7 +40,7 @@ Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext& contex
     }
     catch(const boost::python::error_already_set&)
     {
-        return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::PythonInternalError, NodeId{-1}, fetchPythonException()})};
+        return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::PythonInternalError, NodeId{-1ull}, fetchPythonException()})};
     }
 }
 
@@ -86,24 +86,21 @@ MaybeError<ExecutionInterfaceError> executeNode(const PythonContext& context, Sc
     return {};
 }
 
-Expected<std::vector<Result>, ExecutionInterfaceError> executeGraph(const PythonContext& context, ScriptGraph &graph)
+MaybeError<std::vector<ExecutionInterfaceError>> executeGraph(const PythonContext& context, ScriptGraph &graph)
 {
     for(auto& cache: graph.cache)
         cache.first = std::nullopt;
+
+    std::vector<ExecutionInterfaceError> nodeErrors;
 
     for(const auto& node: graph.nodes)
     {
         auto error = executeNode(context, graph, node.second);
         if(error)
-            return Expected<std::vector<Result>, ExecutionInterfaceError>{makeUnexpected(error.error())};
+            nodeErrors.push_back(error.error());
     }
 
-    std::vector<Result> results;
-
-    const auto& constGraph = graph;
-    results.reserve(graph.results.size());
-    for(const auto& p: constGraph.results)
-        results.push_back({p.first, getNode(constGraph, p.second)->cache->value()});
-
-    return Expected<std::vector<Result>, ExecutionInterfaceError>{results};
+    if(nodeErrors.empty())
+        return {};
+    else return nodeErrors;
 }

@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-Expected<std::vector<Result>, ExecutionInterfaceError> Program::run()
+MaybeError<std::vector<ExecutionInterfaceError>> Program::run()
 {
     return ::executeGraph(m_pythonContext, m_graph);
 }

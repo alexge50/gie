@@ -19,6 +19,6 @@
 Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext&, const Node& node);
 
 MaybeError<ExecutionInterfaceError> executeNode(const PythonContext&, ScriptGraph& graph, NodeId nodeId);
-Expected<std::vector<Result>, ExecutionInterfaceError> executeGraph(const PythonContext&, ScriptGraph& graph);
+MaybeError<std::vector<ExecutionInterfaceError>> executeGraph(const PythonContext&, ScriptGraph& graph);
 
 #endif //GIE_LIBRARY_EXECUTE_H

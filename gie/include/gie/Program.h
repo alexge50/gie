@@ -20,7 +20,7 @@ public:
     Program(const Program&) = default;
     Program(Program&&) = default;
 
-    Expected<std::vector<Result>, ExecutionInterfaceError> run();
+    MaybeError<std::vector<ExecutionInterfaceError>> run();
 
     NodeId addNode(std::string name, Arguments);
 
