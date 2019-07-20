@@ -24,12 +24,24 @@ void SymbolViewer::onSymbolsUpdate(const std::map<QString, std::vector<QString>>
 
     for(const auto& [name, functions]: modules)
     {
-        auto entry = new QTreeWidgetItem(QStringList() << name);
+        if(!m_modules.count(name))
+        {
+            auto entry = new QTreeWidgetItem(QStringList() << name);
+            m_modules.insert({name, entry});
 
+            list.append(entry);
+        }
+
+        auto entry = m_modules[name];
         for(const auto& function: functions)
-            entry->addChild(new QTreeWidgetItem(QStringList() << function));
+        {
+            if(!m_symbols[name].count(function))
+            {
+                entry->addChild(new QTreeWidgetItem(QStringList() << function));
+                m_symbols[name].insert(function);
+            }
+        }
 
-        list.append(entry);
     }
 
     m_treeWidget->addTopLevelItems(list);

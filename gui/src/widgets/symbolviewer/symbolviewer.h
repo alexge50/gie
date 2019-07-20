@@ -8,6 +8,9 @@
 #include <QWidget>
 #include <QTreeWidget>
 
+#include <set>
+#include <map>
+
 class SymbolViewer: public QWidget
 {
     Q_OBJECT
@@ -19,6 +22,8 @@ public Q_SLOTS:
 
 private:
     QTreeWidget* m_treeWidget;
+    std::map<QString, QTreeWidgetItem*> m_modules;
+    std::map<QString, std::set<QString>> m_symbols;
 };
 
 
