@@ -30,7 +30,7 @@ Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext& contex
     {
         if(std::holds_alternative<Value>(argument))
             arguments.append(copy(context, std::get<Value>(argument).object()));
-        else return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments})};
+        else return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments, NodeId{-1}})};
     }
 
     try
@@ -38,9 +38,9 @@ Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext& contex
         auto p = PyEval_CallObject(context.getSymbol(node.symbolId())->function.ptr(), tuple{arguments}.ptr());
         return Expected<Value, ExecutionInterfaceError>{Value{object{handle(borrowed(p))}}};
     }
-    catch(...)
+    catch(const boost::python::error_already_set&)
     {
-        return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::PythonInternalError})};
+        return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::PythonInternalError, NodeId{-1}, fetchPythonException()})};
     }
 }
 
@@ -67,7 +67,7 @@ MaybeError<ExecutionInterfaceError> executeNode(const PythonContext& context, Sc
         }
         else if(std::holds_alternative<Value>(argument))
             arguments.append(copy(context, std::get<Value>(argument).object()));
-        else return ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments};
+        else return ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments, nodeId};
     }
 
     try
@@ -78,9 +78,9 @@ MaybeError<ExecutionInterfaceError> executeNode(const PythonContext& context, Sc
         *(node_->cache) = Value{r};
 
     }
-    catch(...)
+    catch(const boost::python::error_already_set&)
     {
-        return ExecutionInterfaceError{ExecutionInterfaceError::errors::PythonInternalError};
+        return ExecutionInterfaceError{ExecutionInterfaceError::errors::PythonInternalError, nodeId, fetchPythonException()};
     }
 
     return {};
