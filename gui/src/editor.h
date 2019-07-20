@@ -49,6 +49,9 @@ Q_SIGNALS:
     void scriptAdded(QString name);
     void scriptRemoved(QString name);
 
+    void error(const QString&);
+    void warning(const QString&);
+
 public Q_SLOTS:
     void onNewProject();
     void onOpenProject();
