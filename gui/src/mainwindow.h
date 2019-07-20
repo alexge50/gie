@@ -13,6 +13,7 @@
 #include "widgets/symbolviewer/symbolviewer.h"
 #include "widgets/importedimagesviewer/importedimagesviewer.h"
 #include "widgets/projectscripts/projectscripts.h"
+#include "widgets/logconsole/logconsole.h"
 
 namespace Ui {
     class MainWindow;
@@ -45,6 +46,7 @@ private:
     SymbolViewer* m_symbolViewer;
     ImportedImagesViewer* m_imageViewer;
     ProjectScripts* m_projectScripts;
+    LogConsole* m_logConsole;
 };
 
 #endif //GUI_MAINWINDOW_H

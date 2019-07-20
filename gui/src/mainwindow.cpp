@@ -112,6 +112,15 @@ MainWindow::MainWindow(QWidget *parent) :
         m_projectScripts->setScriptsFolder(project.projectPath().filePath("scripts"));
     });
 
+    QDockWidget* logConsoleDock = new QDockWidget("Log Console", this);
+    m_logConsole = new LogConsole{};
+
+    logConsoleDock->setWidget(m_logConsole);
+    addDockWidget(Qt::LeftDockWidgetArea, logConsoleDock);
+
+    connect(m_editor, &Editor::error, m_logConsole, &LogConsole::logError);
+    connect(m_editor, &Editor::warning, m_logConsole, &LogConsole::logWarning);
+
     QFile file("config");
     file.open(QIODevice::ReadOnly);
 
