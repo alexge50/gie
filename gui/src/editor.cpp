@@ -105,6 +105,8 @@ Editor::Editor(QWidget* parent): QWidget(parent)
 
     connect(m_gie, &Gie::resultUpdated, this, &Editor::resultUpdated);
 
+    connect(m_gie, &Gie::runtimeError, this, &Editor::runtimeError);
+
     m_projectScriptsWatcher = new QFileSystemWatcher{this};
     connect(this, &Editor::projectLoaded, [this](const Project& project)
     {
@@ -488,4 +490,9 @@ void Editor::sourceDataChanged(QUuid nodeId, Data data)
             ); display != nullptr)
             display->displayData(m_values[nodeId]);
     }
+}
+
+void Editor::runtimeError(const GieRuntimeError& error)
+{
+    m_nodeEditor->errorNode(error.nodeId, "internal python error");
 }

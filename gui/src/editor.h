@@ -74,6 +74,8 @@ private Q_SLOTS:
     void argumentEdited(BaseNode* node, QUuid argumentId, std::size_t port);
     void sourceDataChanged(QUuid nodeId, Data data);
 
+    void runtimeError(const GieRuntimeError&);
+
 private:
     void keyPressEvent(QKeyEvent*) override;
     void reloadImages();
