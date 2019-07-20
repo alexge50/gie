@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui(new Ui::MainWindow)
 {
     qRegisterMetaType<std::vector<GieSymbol>>("std::vector<GieSymbol>");
+    qRegisterMetaType<GieRuntimeError>("GieRuntimeError");
 
     ui->setupUi(this);
 
