@@ -25,11 +25,18 @@ struct GieSymbol
     Type returnType;
 };
 
+struct GieRuntimeError
+{
+    QUuid nodeId;
+    std::string errorMessage;
+};
+
 Q_DECLARE_METATYPE(std::string)
 Q_DECLARE_METATYPE(GieNodeId)
 Q_DECLARE_METATYPE(ArgumentId)
 Q_DECLARE_METATYPE(std::vector<GieSymbol>)
 Q_DECLARE_METATYPE(Data)
+Q_DECLARE_METATYPE(GieRuntimeError)
 
 class Gie: public QObject
 {
@@ -161,20 +168,31 @@ Q_SIGNALS:
     void symbolsAdded(std::vector<GieSymbol>);
     void resultUpdated(QUuid, Data);
     void finished();
+    void runtimeError(GieRuntimeError);
 
 private:
     void run()
     {
-        auto error = m_program.run();
+        auto errors = m_program.run();
 
-        if(error.hasValue())
+        if(errors.errorSet())
         {
-            for(const auto& id: m_toNotify)
-            {
-                Value cache = *(m_program.getCache(id.second).value());
+            for(const auto& error: errors.error())
+                if(error.error() == ExecutionInterfaceError::errors::PythonInternalError)
+                    Q_EMIT runtimeError({
+                        std::find_if(m_map.begin(), m_map.end(), [&error](const auto& p)
+                        {
+                            return error.id() == p.second;
+                        })->first.get(),
+                        error.detail().value()
+                    });
+        }
 
-                Q_EMIT resultUpdated(id.first, toData(cache));
-            }
+        for(const auto& id: m_toNotify)
+        {
+            const auto& cache = m_program.getCache(id.second).value();
+            if(cache.has_value())
+                Q_EMIT resultUpdated(id.first, toData(*cache));
         }
     }
 
