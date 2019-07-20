@@ -44,8 +44,10 @@ Q_SIGNALS:
     void savedProject();
 
     void reloadedSymbols(std::vector<GieSymbol>);
+    void beforeProjectLoading();
     void projectLoaded(const Project&);
 
+    void symbolRemoved(const QString& category, const QString& name);
     void scriptAdded(QString name);
     void scriptRemoved(QString name);
 

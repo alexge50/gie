@@ -161,6 +161,23 @@ Editor::Editor(QWidget* parent): QWidget(parent)
         m_scripts = std::move(scripts);
     });
 
+
+    connect(this, &Editor::beforeProjectLoading, [this]{
+        m_nodeEditor->getRegistry()->removeCreatorIf(
+                [this](const auto& p)
+                {
+                    if(p.first.startsWith("user."))
+                    {
+                        QString category = p.first.left(p.first.lastIndexOf('.'));
+                        QString name = p.first.mid(p.first.lastIndexOf('.') + 1);
+
+                        Q_EMIT symbolRemoved(category, name);
+
+                        return true;
+                    }
+                    return false;
+                });
+    });
 }
 
 void Editor::resultUpdated(QUuid displayId, Data data)
@@ -192,6 +209,8 @@ void Editor::onNewProject()
 
 void Editor::onNewProject_(QDir directory, QString name)
 {
+    Q_EMIT beforeProjectLoading();
+
     m_project = std::make_unique<Project>(newProject(directory, std::move(name), *(m_nodeEditor->scene())));
     m_noProjectMessage->hide();
     m_nodeEditor->show();
@@ -208,6 +227,8 @@ void Editor::onOpenProject()
             tr("Open gie project"),
             QDir::homePath()
     );
+
+    Q_EMIT beforeProjectLoading();
 
     m_project = std::make_unique<Project>(loadProject(directory, *this, *(m_nodeEditor->scene())));
 

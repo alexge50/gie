@@ -71,7 +71,6 @@ MainWindow::MainWindow(QWidget *parent) :
             m_symbolViewer, &SymbolViewer::onSymbolsUpdate
     );
 
-
     QDockWidget* imageViewerDock = new QDockWidget("ImportedImages", this);
     m_imageViewer = new ImportedImagesViewer(imageViewerDock);
 
@@ -98,6 +97,9 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::reloadedSymbols
     );
 
+    connect(
+            m_editor, &Editor::symbolRemoved,
+            m_symbolViewer, &SymbolViewer::removeSymbol);
 
     QDockWidget* projectScriptsDock = new QDockWidget("Project Scripts", this);
     m_projectScripts = new ProjectScripts{};
