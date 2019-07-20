@@ -89,6 +89,17 @@ public:
   TypeConverter getTypeConverter(NodeDataType const & d1,
                                  NodeDataType const & d2) const;
 
+  template <typename Predicate>
+  void removeCreatorIf(Predicate&& predicate)
+  {
+      for(auto it = _registeredItemCreators.begin(); it != _registeredItemCreators.end(); )
+      {
+          if(predicate(*it))
+              it = _registeredItemCreators.erase(it);
+          else it++;
+      }
+  }
+
 private:
 
   RegisteredModelsCategoryMap _registeredModelsCategory;
