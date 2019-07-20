@@ -83,6 +83,7 @@ public:
     }
 
     QtNodes::FlowScene* scene() { return m_scene; }
+    QtNodes::FlowView* view() { return m_view; }
 
     void errorNode(QUuid id, const QString& message)
     {
