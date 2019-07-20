@@ -31,14 +31,15 @@ public:
     void removeNode(const NodeType& key)
     {
         auto id = m_map[key];
+        auto index = graphLookup(id);
 
-        for(auto& neighbour: m_graph[id].in)
+        for(auto& neighbour: m_graph[index].in)
         {
             auto neighbourIndex = graphLookup(neighbour);
             removeNeighbour(m_graph[neighbourIndex].out, id);
         }
 
-        for(auto& neighbour: m_graph[id].out)
+        for(auto& neighbour: m_graph[index].out)
         {
             auto neighbourIndex = graphLookup(neighbour);
             removeNeighbour(m_graph[neighbourIndex].in, id);
