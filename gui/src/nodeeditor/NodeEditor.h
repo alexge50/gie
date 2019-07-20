@@ -84,6 +84,23 @@ public:
 
     QtNodes::FlowScene* scene() { return m_scene; }
 
+    void errorNode(QUuid id, const QString& message)
+    {
+        if(auto* p = dynamic_cast<BaseNode*>(m_scene->nodes().at(id)->nodeDataModel()); p != nullptr)
+        {
+            p->error(message);
+        }
+
+    }
+
+    void warnNode(QUuid id, const QString& message)
+    {
+        if(auto* p = dynamic_cast<BaseNode*>(m_scene->nodes().at(id)->nodeDataModel()); p != nullptr)
+        {
+            p->warning(message);
+        }
+    }
+
 Q_SIGNALS:
     void nodeCreated(BaseNode*);
     void nodeDeleted(BaseNode*);
