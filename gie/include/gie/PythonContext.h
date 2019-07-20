@@ -39,7 +39,7 @@ public:
     PythonContext();
 
     boost::python::object module(const std::string&, bool exposeSymbols = true);
-    boost::python::object module(const std::string& name, const std::string& path, bool exposeSymbols = true);
+    std::optional<boost::python::object> module(const std::string& name, const std::string& path, bool exposeSymbols = true);
 
     const std::vector<Symbol>& importedSymbols() const { return m_importedSymbols; }
 
@@ -51,7 +51,7 @@ public:
     std::optional<SymbolId>  getSymbolId(const std::string& name) const;
 
 private:
-    boost::python::object importAbsolute(const std::string& name, const std::string& path);
+    std::optional<boost::python::object> importAbsolute(const std::string& name, const std::string& path);
     void discoverSymbols(const std::string& name, boost::python::object);
 
 private:

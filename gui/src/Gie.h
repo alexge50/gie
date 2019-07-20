@@ -27,7 +27,7 @@ struct GieSymbol
 
 struct GieRuntimeError
 {
-    QUuid nodeId;
+    std::optional<QUuid> nodeId;
     std::string errorMessage;
 };
 
@@ -135,7 +135,10 @@ public Q_SLOTS:
 
     void loadModule(const std::string& name, const std::string& path)
     {
-        m_program.import(name, path);
+        auto module = m_program.import(name, path);
+
+        if(!module)
+            Q_EMIT runtimeError({std::nullopt, "coudln't load module: " + name + "(" + path + ")\n"});
 
         std::vector<GieSymbol> symbols;
         symbols.reserve(m_program.context().importedSymbols().size());

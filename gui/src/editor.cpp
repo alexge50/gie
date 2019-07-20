@@ -499,6 +499,7 @@ void Editor::sourceDataChanged(QUuid nodeId, Data data)
 
 void Editor::runtimeError(const GieRuntimeError& error)
 {
-    m_nodeEditor->errorNode(error.nodeId, "internal python error");
+    if(error.nodeId)
+        m_nodeEditor->errorNode(*error.nodeId, "internal python error");
     Q_EMIT this->error(QString::fromStdString(error.errorMessage));
 }

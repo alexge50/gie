@@ -45,7 +45,10 @@ public:
     void editResult(std::string tag, NodeId);
     void removeResult(std::string tag);
 
-    void import(const std::string& name, const std::string& path);
+    auto import(const std::string& name, const std::string& path)
+    {
+        return m_pythonContext.module(name, path);
+    }
 
     auto& context() { return m_pythonContext; }
     const auto& context() const { return m_pythonContext; }

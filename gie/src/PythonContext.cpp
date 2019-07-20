@@ -99,33 +99,44 @@ boost::python::object PythonContext::module(const std::string& name, bool expose
     return module;
 }
 
-boost::python::object PythonContext::module(const std::string& name, const std::string& path, bool exposeSymbols)
+std::optional<boost::python::object> PythonContext::module(const std::string& name, const std::string& path, bool exposeSymbols)
 {
     if(auto it = m_importedModules.find(name); it != m_importedModules.end() && !exposeSymbols)
         return it->second;
 
     auto module = importAbsolute(name, path);
+
+    if(!module)
+        return std::nullopt;
+
     m_importedModules.insert({
                                      name,
-                                     module
+                                     *module
                              });
 
     if(exposeSymbols)
-        discoverSymbols(name, module);
+        discoverSymbols(name, *module);
 
     return module;
 }
 
 
-boost::python::object PythonContext::importAbsolute(const std::string& name, const std::string& path)
+std::optional<boost::python::object> PythonContext::importAbsolute(const std::string& name, const std::string& path)
 {
-    auto importlibUtil = module("importlib.util", false);
-    auto spec = importlibUtil.attr("spec_from_file_location")(name, path);
+    try
+    {
+        auto importlibUtil = module("importlib.util", false);
+        auto spec = importlibUtil.attr("spec_from_file_location")(name, path);
 
-    auto module = importlibUtil.attr("module_from_spec")(spec);
-    spec.attr("loader").attr("exec_module")(module);
+        auto module = importlibUtil.attr("module_from_spec")(spec);
+        spec.attr("loader").attr("exec_module")(module);
 
-    return module;
+        return module;
+    }
+    catch(const boost::python::error_already_set&)
+    {
+        return std::nullopt;
+    }
 }
 
 void PythonContext::discoverSymbols(const std::string& name, boost::python::object module)
