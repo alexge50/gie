@@ -8,6 +8,7 @@ RUN apt-get install -qq -y --no-install-recommends \
             python3 \
             libboost-dev \
             libboost-python1.67-dev \
+            libboost-numpy1.67-dev \
             qt5-default \
             libqt5opengl5-dev \
             xvfb
