@@ -87,7 +87,6 @@ public Q_SLOTS:
                 QImage::Format_RGB888,
                 [](auto p){ delete static_cast<uint8_t*>(p); });
 
-        m_imageViewer->setDisplayType(image.width() > image.height() ? ImageViewer::FixedHeight : ImageViewer::FixedWidth);
         m_imageViewer->setImage(m_image);
     }
 

@@ -41,7 +41,6 @@ void ImportImage::onNameChanged(const QString& name)
     m_filename = name;
 
     QImage image(m_filename);
-    m_preview->setDisplayType(image.width() > image.height() ? ImageViewer::FixedWidth : ImageViewer::FixedHeight);
     m_preview->setImage(std::move(image));
 }
 

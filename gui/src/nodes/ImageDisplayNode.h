@@ -50,7 +50,6 @@ public Q_SLOTS:
 		        [](auto p){ delete static_cast<uint8_t*>(p); }
 		        );
 
-		m_imageViewer->setDisplayType(image.width() > image.height() ? ImageViewer::FixedHeight : ImageViewer::FixedWidth);
 		m_imageViewer->setImage(std::move(qImage));
     };
 
