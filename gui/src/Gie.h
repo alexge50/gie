@@ -155,6 +155,8 @@ public Q_SLOTS:
         }
 
         Q_EMIT symbolsAdded(symbols);
+
+        run();
     }
 
     void addResultNotify(QUuid nodeId, GieNodeId id)
