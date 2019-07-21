@@ -12,6 +12,7 @@ RUN apt-get install -qq -y --no-install-recommends \
             qt5-default \
             libqt5opengl5-dev \
             libqt5designer5 \
+            qttools5-dev \
             xvfb
             
 ENTRYPOINT ["/bin/bash"]
