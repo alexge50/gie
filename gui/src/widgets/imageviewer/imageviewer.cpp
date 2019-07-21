@@ -23,20 +23,13 @@ void ImageViewer::paintEvent(QPaintEvent*)
     if(width == 0 || height == 0 || m_image.width() == 0 || m_image.height() == 0)
         return;
 
-    if(m_displayType == FixedWidth)
-    {
-        height = m_image.height() * width / m_image.width();
-        this->resize(width, height);
-    }
-    else if(m_displayType == FixedHeight)
-    {
-        width = m_image.width() * height / m_image.height();
-        this->resize(width, height);
-    }
-    else if(m_displayType == Full)
-    {
-        this->resize(m_image.width(), m_image.height());
-    }
+    double screenRatio = static_cast<double>(this->width()) / this->height();
+    double imageRatio = static_cast<double>(m_image.width()) / m_image.height();
 
-    painter.drawImage(QRect{0, 0, this->width(), this->height()}, m_image);
+    QImage toPrint = imageRatio < screenRatio ? m_image.scaledToHeight(this->height()) : m_image.scaledToWidth(this->width());
+
+    const QSize size = toPrint.size();
+    const int x = (this->rect().width() - size.width()) / 2;
+    const int y = (this->rect().height() - size.height()) / 2;
+    painter.drawImage(QRect{x, y, size.width(), size.height()}, toPrint);
 }
