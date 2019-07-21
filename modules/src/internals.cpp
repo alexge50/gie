@@ -30,7 +30,7 @@ Image to_image(const np::ndarray& np_image)
     std::size_t offset = 0;
     for(unsigned int j = 0; j < image.height(); j++)
     {
-        for (unsigned int i = 0; i < image.height(); i++)
+        for (unsigned int i = 0; i < image.width(); i++)
         {
             Color pixel;
 
@@ -56,7 +56,7 @@ np::ndarray to_ndarray(const Image& image)
     std::size_t offset = 0;
     for(unsigned int j = 0; j < image.height(); j++)
     {
-        for(unsigned int i = 0; i < image.height(); i++)
+        for(unsigned int i = 0; i < image.width(); i++)
         {
             Color pixel = image.pixelAt(j, i);
 
