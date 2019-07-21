@@ -55,7 +55,7 @@ std::map<QUuid, std::string> deserialise(QtNodes::FlowScene& scene, const Projec
             {
                 scene.restoreNode(node.toObject());
             }
-            else deleted.insert({QUuid{node.toObject()["model"].toString()}, node.toObject()["model"].toObject()["name"].toString().toStdString()});
+            else deleted.insert({QUuid{node.toObject()["id"].toString()}, node.toObject()["model"].toObject()["name"].toString().toStdString()});
         }
         else
         {
