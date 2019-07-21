@@ -11,6 +11,7 @@ RUN apt-get install -qq -y --no-install-recommends \
             libboost-numpy1.67-dev \
             qt5-default \
             libqt5opengl5-dev \
+            libqt5designer5 \
             xvfb
             
 ENTRYPOINT ["/bin/bash"]
