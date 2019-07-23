@@ -646,6 +646,87 @@ Image solid_color(const Image& source, Color color)
 
     return new_image;
 }
+
+Color bilinear_interpolation(std::array<Color, 4> corners, double x, double y)
+{
+    double d[4] =
+            {
+                1. / sqrt((0 - x) * (0 - x) + (0 - y) * (0 - y)),
+                1. / sqrt((1 - x) * (1 - x) + (0 - y) * (0 - y)),
+                1. / sqrt((1 - x) * (1 - x) + (1 - y) * (1 - y)),
+                1. / sqrt((0 - x) * (0 - x) + (1 - y) * (1 - y))
+            };
+
+    double r = 0.0, g = 0.0, b = 0.0;
+    double sum = 0.0;
+
+    for(int i = 0; i < 4; i++)
+    {
+        r += corners[i].r * d[i];
+        g += corners[i].g * d[i];
+        b += corners[i].b * d[i];
+
+        sum += d[i];
+    }
+
+    r /= sum;
+    g /= sum;
+    b /= sum;
+
+    return Color(
+            static_cast<uint8_t>(r),
+            static_cast<uint8_t>(g),
+            static_cast<uint8_t>(b));
+}
+
+Image lens_distortion(const Image& source, double strength, double zoom)
+{
+    Image new_image(source.width(), source.height());
+
+    int half_width = source.width() / 2;
+    int half_height = source.height() / 2;
+
+    strength = strength == 0 ? 0.0001 : strength;
+    double correction_radius = sqrt(
+            source.width() * source.width() +
+            source.height() * source.height()) / strength;
+
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
+    {
+        for (int column = 0; column < static_cast<int>(source.width()); column++) {
+            int new_row = row - half_height;
+            int new_column = column - half_width;
+
+            double distance = sqrt(new_row * new_row + new_column * new_column);
+            double r = distance / correction_radius;
+            double theta = r == 0 ? 1 : atan(r) / r;
+
+            double source_row = half_height + theta * new_row * zoom;
+            double source_column = half_width + theta * new_column * zoom;
+
+            if (0 < source_row && source_row < source.height() &&
+                0 < source_column && source_column < source.width())
+            {
+                double x = source_column - floor(source_column);
+                double y = source_row - floor(source_row);
+
+                new_image.setPixel(
+                        row,
+                        column,
+                        bilinear_interpolation({
+                            source.pixelAt(static_cast<unsigned int>(floor(source_row)), static_cast<unsigned int>(floor(source_column))), //0, 0
+                            source.pixelAt(static_cast<unsigned int>(floor(source_row)), static_cast<unsigned int>(ceil(source_column))), //1, 0
+                            source.pixelAt(static_cast<unsigned int>(ceil(source_row)), static_cast<unsigned int>(ceil(source_column))), //1, 1
+                            source.pixelAt(static_cast<unsigned int>(ceil(source_row)), static_cast<unsigned int>(floor(source_column)))  //0, 1
+                        }, x, y));
+            }
+            else new_image.setPixel(row, column, Color(0, 0, 0));
+        }
+    }
+
+    return new_image;
+}
+
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
@@ -671,4 +752,5 @@ BOOST_PYTHON_MODULE(images_internal)
     def("discriminator_lesser_than", discriminator_lesser_than);
     def("discriminator_range", discriminator_range);
     def("solid_color", solid_color);
+    def("lens_distortion", lens_distortion);
 }

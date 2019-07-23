@@ -57,3 +57,6 @@ def discriminate_range(source: Image, a: int, b:int)->Image:
 
 def proxy(source: Image)->Image:
     return source
+
+def lens_distortion(source: Image, strength: float, zoom: float) -> Image:
+    return modules.images_internal.lens_distortion(source, strength, zoom)
