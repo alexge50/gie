@@ -571,7 +571,7 @@ namespace PerlinNoise
         return (lerp(y1, y2, w) + 1) / 2;
     }
 
-    Image perlin_noise(const Image& source, long long int seed, double z, long long int octaves, double persistence)
+    Image perlin_noise(const Image& source, long long int seed, double zoom, double z, long long int octaves, double persistence)
     {
         Image new_image(source.width(), source.height());
 
@@ -584,6 +584,11 @@ namespace PerlinNoise
 
         permutation.insert(permutation.end(), permutation.begin(), permutation.end());
 
+        std::vector<double> noise_array;
+
+        noise_array.reserve(source.width() * source.height());
+        double min = 1000;
+        double max = -1000;
         for(int row = 0; row < static_cast<int>(source.height()); row++)
         {
             for(int column = 0; column < static_cast<int>(source.width()); column++)
@@ -593,21 +598,37 @@ namespace PerlinNoise
                 double max_value = 0;
                 double total = 0;
 
-                const double x = static_cast<double>(row) / static_cast<int>(source.height());
-                const double y = static_cast<double>(column) / static_cast<int>(source.width());
+                const double x = static_cast<double>(row) / static_cast<int>(source.height()) * zoom;
+                const double y = static_cast<double>(column) / static_cast<int>(source.width()) * zoom;
 
                 for(int i = 0; i < octaves; i++)
                 {
-                    total += perlin(permutation, x, y, z);
+                    total += amplitude * perlin(permutation, x * frequency, y * frequency, z * frequency);
 
                     max_value += amplitude;
                     amplitude *= persistence;
                     frequency *= 2;
                 }
 
-                auto a = static_cast<uint8_t>(total / max_value * 255);
+                noise_array.push_back(total);
+                min = std::min(min, total);
+                max = std::max(max, total);
+            }
+        }
 
-                new_image.setPixel(row, column, Color(a, a, a));
+        int i = 0;
+        for(int row = 0; row < static_cast<int>(source.height()); row++)
+        {
+            for (int column = 0; column < static_cast<int>(source.width()); column++)
+            {
+                double noise = noise_array[i++];
+                noise = -1. + 2. * (noise - min) / (max - min);
+                noise += 1.;
+                noise /= 2.;
+
+                uint8_t sample = static_cast<double>(noise * 255);
+
+                new_image.setPixel(row, column, Color(sample, sample, sample));
             }
         }
 
