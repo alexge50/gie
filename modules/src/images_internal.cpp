@@ -296,6 +296,11 @@ Image gamma_(const Image& source, double gamma)
             auto r = pow(color.r, 1. / gamma);
             auto g = pow(color.g, 1. / gamma);
             auto b = pow(color.b, 1. / gamma);
+
+            r = clamp(r, 0., 255.);
+            g = clamp(g, 0., 255.);
+            b = clamp(b, 0., 255.);
+
             new_image.setPixel(static_cast<int>(row), static_cast<int>(column), Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
                                                                                       static_cast<uint8_t>(b)));
         }
