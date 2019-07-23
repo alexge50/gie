@@ -88,6 +88,9 @@ MaybeError<ExecutionInterfaceError> executeNode(const PythonContext& context, Sc
 
 MaybeError<std::vector<ExecutionInterfaceError>> executeGraph(const PythonContext& context, ScriptGraph &graph)
 {
+    for(auto& cache: graph.cache)
+        cache.first = std::nullopt;
+
     std::vector<ExecutionInterfaceError> nodeErrors;
 
     for(const auto& node: graph.nodes)
