@@ -727,6 +727,72 @@ Image lens_distortion(const Image& source, double strength, double zoom)
     return new_image;
 }
 
+int hue(Color color)
+{
+    int max = std::max({color.r, color.g, color.b});
+    int min = std::min({color.r, color.g, color.b});
+
+    min = max == min ? min - 1 : min;
+
+    int hue;
+    if(max == color.r)
+        hue = (static_cast<int>(color.g ) - color.b) / (max - min);
+    else if(max == color.g)
+        hue = 2 + (static_cast<int>(color.b) - color.r) / (max - min);
+    else hue = 4 + (static_cast<int>(color.r) - color.g) / (max - min);
+
+    hue *= 60;
+    hue = hue < 0 ? hue + 360 : hue;
+
+    return hue;
+}
+
+Image jpeg_artifacts(const Image& source, int radius)
+{
+    Image new_image = source;
+
+    for(int row = 0; row < static_cast<int>(new_image.height()); row++)
+    {
+        for (int column = 0; column < static_cast<int>(new_image.width()); column++)
+        {
+            int row_swap = -1;
+            int column_swap = -1;
+            int max = hue(new_image.pixelAt(row, column));
+
+            int row_ = row - radius;
+            for(int i = -radius; i < radius; i++)
+            {
+                if(row_ < 0 || row_ >= static_cast<int>(new_image.height()))
+                    continue;
+
+                int column_ = column - radius;
+                for(int j = -radius; j < radius; j++)
+                {
+                    if(column_ < 0 || column_ >= static_cast<int>(new_image.width()))
+                        continue;
+
+                    if(max < hue(new_image.pixelAt(row_, column_)))
+                    {
+                        max = hue(new_image.pixelAt(row_, column_));
+                        row_swap = row_;
+                        column_swap = column_;
+                    }
+
+                    column_++;
+                }
+            }
+
+            if(row_swap != -1)
+            {
+                new_image.setPixel(row, column, new_image.pixelAt(row_swap, column_swap));
+                new_image.setPixel(row_swap, column_swap, source.pixelAt(row, column));
+            }
+        }
+    }
+
+    return new_image;
+}
+
 BOOST_PYTHON_MODULE(images_internal)
 {
     using namespace boost::python;
@@ -753,4 +819,5 @@ BOOST_PYTHON_MODULE(images_internal)
     def("discriminator_range", discriminator_range);
     def("solid_color", solid_color);
     def("lens_distortion", lens_distortion);
+    def("jpeg_artifacts", jpeg_artifacts);
 }

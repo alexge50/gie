@@ -7,6 +7,7 @@
         {"name": "effects", "path": "modules/effects.py"},
         {"name": "images", "path": "modules/images.py"},
         {"name": "noise", "path": "modules/noise.py"},
-        {"name": "string", "path": "modules/string.py"}
+        {"name": "string", "path": "modules/string.py"},
+        {"name": "glitch", "path": "modules/glitch.py"}
     ]
 }
