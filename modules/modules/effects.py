@@ -49,3 +49,12 @@ def sobel_2(source: Image) -> Image:
         channels.append(np.sqrt(sx ** 2 + sy ** 2))
 
     return to_image(np.stack(channels, axis=2))
+
+def median_filter(source: Image, kernel_size: int) -> Image:
+    a = to_ndarray(source)
+    channels = []
+    for d in range(3):
+        channels.append(ndimage.median_filter(a[:, :, d],
+                                              size=(kernel_size,kernel_size)))
+
+    return to_image(np.stack(channels, axis=2))
