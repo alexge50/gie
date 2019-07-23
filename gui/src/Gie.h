@@ -195,7 +195,7 @@ private:
 
         for(const auto& id: m_toNotify)
         {
-            const auto& cache = m_program.getCache(id.second).value();
+            auto cache = m_program.getCache(id.second).value();
             if(cache.has_value())
                 Q_EMIT resultUpdated(id.first, toData(*cache));
         }
