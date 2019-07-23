@@ -21,6 +21,15 @@ static unsigned long long lookup(const ScriptGraph& graph, NodeId id)
     return it == graph.nodes.end() ? NotFound : std::distance(graph.nodes.begin(), it);
 }
 
+static void invalidateNodes(ScriptGraph& graph, NodeId id)
+{
+    *(getNode(graph, id).value().cache) = std::nullopt;
+    graph.structure.iterateOutNeighbours(id, [&graph](NodeId dependant)
+    {
+        invalidateNodes(graph, dependant);
+    });
+}
+
 Expected<NodeCachePair, NodeInterfaceError> getNode(ScriptGraph& graph, NodeId id)
 {
     const auto r = lookup(graph, id);
@@ -76,6 +85,7 @@ MaybeError<NodeInterfaceError> editNode(ScriptGraph& graph, NodeId id, ArgumentI
             graph.structure.addEdge(otherId, id);
         }
 
+        invalidateNodes(graph, id);
         return {};
     }
 
@@ -107,6 +117,7 @@ MaybeError<NodeInterfaceError> updateNode(ScriptGraph& graph, NodeId id)
         }
     }
 
+    invalidateNodes(graph, id);
     return {};
 }
 
@@ -138,6 +149,7 @@ MaybeError<NodeInterfaceError> removeNode([[maybe_unused]]ScriptGraph& graph, [[
         editNode(graph, other, ArgumentId{argumentId}, {NoArgument{}}).discard();
     });
 
+    invalidateNodes(graph, id);
     graph.structure.removeNode(id);
 
     return {};
