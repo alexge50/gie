@@ -1,4 +1,5 @@
 import modules.internals
+import numpy as np
 
 def average_color(image: Image)->Color:
     r = 0
@@ -57,3 +58,25 @@ def discriminate_range(source: Image, a: int, b:int)->Image:
 
 def proxy(source: Image)->Image:
     return source
+
+def darken(a: Image, b: Image) -> Image:
+    a = to_ndarray(a)
+    b = to_ndarray(b)
+
+    lightmap_a = (0.21 * a[:, :, 0] + 0.72 * a[:, :, 1] + 0.07 * a[:, :, 2])
+    lightmap_b = (0.21 * b[:, :, 0] + 0.72 * b[:, :, 1] + 0.07 * b[:, :, 2])
+    c = lightmap_a < lightmap_b
+    c = np.stack([c, c, c], axis=2)
+
+    return to_image(a * c + b * (~c))
+
+def lighten(a: Image, b: Image) -> Image:
+    a = to_ndarray(a)
+    b = to_ndarray(b)
+
+    lightmap_a = (0.21 * a[:, :, 0] + 0.72 * a[:, :, 1] + 0.07 * a[:, :, 2])
+    lightmap_b = (0.21 * b[:, :, 0] + 0.72 * b[:, :, 1] + 0.07 * b[:, :, 2])
+    c = lightmap_a > lightmap_b
+    c = np.stack([c, c, c], axis=2)
+
+    return to_image(a * c + b * (~c))
