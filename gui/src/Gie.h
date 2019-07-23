@@ -162,6 +162,10 @@ public Q_SLOTS:
     void addResultNotify(QUuid nodeId, GieNodeId id)
     {
         m_toNotify[nodeId] = m_map[id];
+
+        auto cache = m_program.getCache(m_map[id]).value();
+        if(cache.has_value())
+                Q_EMIT resultUpdated(nodeId, toData(*cache));
     }
 
     void removeResultNotify(QUuid nodeId)
