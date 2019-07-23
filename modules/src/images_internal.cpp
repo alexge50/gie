@@ -636,6 +636,25 @@ namespace PerlinNoise
     }
 }
 
+Image noise(const Image& source, long long int seed)
+{
+    Image new_image(source.width(), source.height());
+
+    std::mt19937 engine(seed);
+    std::uniform_int_distribution<uint8_t> distribution;
+
+    for(int row = 0; row < static_cast<int>(source.height()); row++)
+    {
+        for (int column = 0; column < static_cast<int>(source.width()); column++)
+        {
+            uint8_t sample = distribution(engine);
+            new_image.setPixel(row, column, Color(sample, sample, sample));
+        }
+    }
+
+    return new_image;
+}
+
 Image discriminator_greater_than(const Image& source, long long int threshold)
 {
     Image new_image(source.width(), source.height());
@@ -835,6 +854,7 @@ BOOST_PYTHON_MODULE(images_internal)
     def("add", add);
     def("multiply", multiply);
     def("perlin_noise", PerlinNoise::perlin_noise);
+    def("noise", noise);
     def("discriminator_greater_than", discriminator_greater_than);
     def("discriminator_lesser_than", discriminator_lesser_than);
     def("discriminator_range", discriminator_range);
