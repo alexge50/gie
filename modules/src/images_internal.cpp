@@ -21,6 +21,39 @@ T clamp(T x, T a, T b)
     return x;
 }
 
+struct Coord
+{
+    int x, y;
+};
+
+Color bilinear_interpolation(std::array<Color, 4> corners, std::array<Coord, 4> coords, double x, double y)
+{
+    double r = 0.0, g = 0.0, b = 0.0;
+    double sum = 0.0;
+
+    for(int i = 0; i < 4; i++)
+    {
+        double d = sqrt(
+                (coords[i].x - x) * (coords[i].x - x) +
+                (coords[i].y - y) * (coords[i].y - y));
+
+        r += corners[i].r * d;
+        g += corners[i].g * d;
+        b += corners[i].b * d;
+
+        sum += d;
+    }
+
+    r /= sum;
+    g /= sum;
+    b /= sum;
+
+    return Color(
+            static_cast<uint8_t>(r),
+            static_cast<uint8_t>(g),
+            static_cast<uint8_t>(b));
+}
+
 
 Image separate_blue_channel(const Image& image)
 {
@@ -176,66 +209,55 @@ Image displacement(const Image& source, const Image& map, double row_factor, dou
         }
     }
 
-    std::ostringstream out;
+    int row_radius = std::max(1, static_cast<int>(row_factor)) * 3;
+    int column_radius = std::max(1, static_cast<int>(column_factor)) * 3;
 
     for(int row = 0; row < static_cast<int>(source.height()); row++)
     {
         for(int column = 0; column < static_cast<int>(source.width()); column++)
         {
-            if(!known_pixels.pixelAt(row,column).r)
+            if(!known_pixels.pixelAt(row, column).r)
             {
-                Color samples[4];
-                double weights[4];
-                int nSamples = 0;
+                std::array<Color, 4> samples{};
+                std::array<Coord, 4> coords{};
                 char rowDir[] = {1, -1, 0, 0};
                 char colDir[] = {0, 0, -1, 1};
 
-                out << "---\n";
                 for(int i = 0; i < 4; i++)
                 {
                     int row_ = row, column_ = column;
-                    int dist = 0;
+                    bool finished = false;
 
-                    while(row_ >= 0 && row_ < static_cast<int>(source.height()) && column_ >= 0 && column_ < static_cast<int>(source.width()) && !known_pixels.pixelAt(row_,column_).r)
+                    for(int l = 0; l < row_radius && !finished; l++)
                     {
                         row_ += rowDir[i];
-                        column_ += colDir[i];
+                        column_ = column;
+                        for(int k = 0; k < column_radius && !finished; k++)
+                        {
+                            column_ += colDir[i];
 
-                        dist ++;
+                            if(known_pixels.pixelAt(
+                                    (row_ + static_cast<int>(source.height())) % static_cast<int>(source.height()),
+                                    (column_ + static_cast<int>(source.width())) % static_cast<int>(source.width())).r)
+                            {
+                                coords[i] = {
+                                        (column_ + static_cast<int>(source.width())) % static_cast<int>(source.width()),
+                                        (row_ + static_cast<int>(source.height())) % static_cast<int>(source.height())};
+                                samples[i] = new_image.pixelAt(
+                                        (row_ + static_cast<int>(source.height())) % static_cast<int>(source.height()),
+                                        (column_ + static_cast<int>(source.width())) % static_cast<int>(source.width()));
+                                finished = true;
+                            }
+                        }
                     }
-
-                    if(row_ >= 0 && row_ < static_cast<int>(source.height()) && column_ >= 0 && column_ < static_cast<int>(source.width()))
-                    {
-                        samples[i] = source.pixelAt(row_, column_);
-                        weights[i] = 1. / dist;
-                        nSamples++;
-                    }
-                    else weights[i] = 0;
-
-                    out << "color found: " << row_ << " " << column_ << " " << dist << '(' << int(samples[i].r) << ',' << int(samples[i].g) << ',' << int(samples[i].b) << ")\n";
                 }
 
-                double r, g, b;
-
-                if(nSamples != 0)
-                {
-                    r = (samples[0].r * weights[0] + samples[1].r * weights[1] + samples[2].r * weights[2] + samples[3].r * weights[3])/nSamples;
-                    g = (samples[0].g * weights[0] + samples[1].g * weights[1] + samples[2].g * weights[2] + samples[3].g * weights[3])/nSamples;
-                    b = (samples[0].b * weights[0] + samples[1].b * weights[1] + samples[2].b * weights[2] + samples[3].b * weights[3])/nSamples;
-                }
-                else r = g = b = 0;
-
-                out << "computed color: " << '(' << int(r) << ',' << int(g) << ',' << int(b) << ")\n";
-
-                new_image.setPixel(row, column, Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g),
-                                                      static_cast<uint8_t>(b)));
+                new_image.setPixel(row, column,
+                        bilinear_interpolation(samples, coords, column, row));
+                known_pixels.setPixel(row, column, Color(1, 0, 0));
             }
         }
     }
-
-    std::string s = out.str();
-
-    std::ofstream("displacement_log") << s;
 
     return new_image;
 }
@@ -647,38 +669,6 @@ Image solid_color(const Image& source, Color color)
     return new_image;
 }
 
-Color bilinear_interpolation(std::array<Color, 4> corners, double x, double y)
-{
-    double d[4] =
-            {
-                1. / sqrt((0 - x) * (0 - x) + (0 - y) * (0 - y)),
-                1. / sqrt((1 - x) * (1 - x) + (0 - y) * (0 - y)),
-                1. / sqrt((1 - x) * (1 - x) + (1 - y) * (1 - y)),
-                1. / sqrt((0 - x) * (0 - x) + (1 - y) * (1 - y))
-            };
-
-    double r = 0.0, g = 0.0, b = 0.0;
-    double sum = 0.0;
-
-    for(int i = 0; i < 4; i++)
-    {
-        r += corners[i].r * d[i];
-        g += corners[i].g * d[i];
-        b += corners[i].b * d[i];
-
-        sum += d[i];
-    }
-
-    r /= sum;
-    g /= sum;
-    b /= sum;
-
-    return Color(
-            static_cast<uint8_t>(r),
-            static_cast<uint8_t>(g),
-            static_cast<uint8_t>(b));
-}
-
 Image lens_distortion(const Image& source, double strength, double zoom)
 {
     Image new_image(source.width(), source.height());
@@ -718,6 +708,11 @@ Image lens_distortion(const Image& source, double strength, double zoom)
                             source.pixelAt(static_cast<unsigned int>(floor(source_row)), static_cast<unsigned int>(ceil(source_column))), //1, 0
                             source.pixelAt(static_cast<unsigned int>(ceil(source_row)), static_cast<unsigned int>(ceil(source_column))), //1, 1
                             source.pixelAt(static_cast<unsigned int>(ceil(source_row)), static_cast<unsigned int>(floor(source_column)))  //0, 1
+                        },{
+                            Coord{0, 0},
+                            Coord{1, 0},
+                            Coord{1, 1},
+                            Coord{0, 1}
                         }, x, y));
             }
             else new_image.setPixel(row, column, Color(0, 0, 0));
