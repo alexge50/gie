@@ -2,9 +2,7 @@
 // Created by alex on 2/2/19.
 //
 
-#include <gie/Node.h>
 #include <gie/Program.h>
-#include <gie/NodeUtil.h>
 
 #include <boost/python.hpp>
 
@@ -25,10 +23,21 @@ int main()
 
     sys.attr("path").attr("insert")(1, os.attr("getcwd")());
 
-    program.import("test_modules.basic");
+    program.context().module("test_modules.basic", "test_modules/basic");
 
-    for(const auto& [prettyName, module, qualifiedName]: program.context().importedSymbols())
+    for(const auto& symbol: program.context().importedSymbols())
     {
-        std::cout << prettyName << " " <<  module << " " << qualifiedName << std::endl;
+        std::cout << symbol.name.qualifiedName << std::endl;
     }
+
+    program.addNode("test_modules.basic.to_int", {});
+    program.addNode("test_modules.basic.to_int", {});
+    program.addNode("test_modules.basic.to_int", {});
+    program.addNode("test_modules.basic.to_int", {});
+    program.addNode("test_modules.basic.to_int", {});
+    program.addNode("test_modules.basic.to_int", {});
+    program.addNode("test_modules.basic.to_int", {});
+    program.addNode("test_modules.basic.to_int", {});
+    program.removeNode(NodeId{7}).discard();
+    program.addNode("test_modules.basic.to_int", {});
 }

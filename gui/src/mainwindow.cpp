@@ -8,7 +8,6 @@
 
 #include "editor.h"
 #include <QDockWidget>
-#include "colorpicker/colorpicker.h"
 
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -18,26 +17,12 @@ MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow)
 {
+    qRegisterMetaType<std::vector<GieSymbol>>("std::vector<GieSymbol>");
+    qRegisterMetaType<GieRuntimeError>("GieRuntimeError");
+
     ui->setupUi(this);
 
-    m_program.context().module("builtins", false);
-
-    auto sys = m_program.context().module("sys", false);
-    auto os = m_program.context().module("os", false);
-
-    sys.attr("path").attr("insert")(1, os.attr("getcwd")());
-
-    m_program.context().module("modules.internals", false);
-
-    QFile file("config");
-    file.open(QIODevice::ReadOnly);
-
-    QJsonObject config = QJsonDocument::fromJson(file.readAll()).object();
-    
-    for(const auto& module: config["modules"].toArray())
-        m_program.import(module.toString().toUtf8().constData());
-
-    setCentralWidget(m_editor = new Editor(m_program));
+    setCentralWidget(m_editor = new Editor());
 
     QObject::connect(
             ui->actionNewProject, &QAction::triggered,
@@ -86,8 +71,6 @@ MainWindow::MainWindow(QWidget *parent) :
             m_symbolViewer, &SymbolViewer::onSymbolsUpdate
     );
 
-    reloadSymbols();
-
     QDockWidget* imageViewerDock = new QDockWidget("ImportedImages", this);
     m_imageViewer = new ImportedImagesViewer(imageViewerDock);
 
@@ -109,6 +92,52 @@ MainWindow::MainWindow(QWidget *parent) :
             m_editor, &Editor::onExportImage
     );
 
+    QObject::connect(
+            m_editor, &Editor::reloadedSymbols,
+            this, &MainWindow::reloadedSymbols
+    );
+
+    connect(
+            m_editor, &Editor::symbolRemoved,
+            m_symbolViewer, &SymbolViewer::removeSymbol);
+
+    QDockWidget* projectScriptsDock = new QDockWidget("Project Scripts", this);
+    m_projectScripts = new ProjectScripts{};
+
+    projectScriptsDock->setWidget(m_projectScripts);
+    addDockWidget(Qt::RightDockWidgetArea, projectScriptsDock);
+
+    connect(m_editor, &Editor::scriptAdded, m_projectScripts, &ProjectScripts::addFile);
+    connect(m_editor, &Editor::scriptRemoved, m_projectScripts, &ProjectScripts::removeFile);
+    connect(m_editor, &Editor::projectLoaded, [this](const Project& project)
+    {
+        m_projectScripts->setScriptsFolder(project.projectPath().filePath("scripts"));
+    });
+
+    QDockWidget* logConsoleDock = new QDockWidget("Log Console", this);
+    m_logConsole = new LogConsole{};
+
+    logConsoleDock->setWidget(m_logConsole);
+    addDockWidget(Qt::LeftDockWidgetArea, logConsoleDock);
+
+    connect(m_editor, &Editor::error, m_logConsole, &LogConsole::logError);
+    connect(m_editor, &Editor::warning, m_logConsole, &LogConsole::logWarning);
+
+    QFile file("config");
+    file.open(QIODevice::ReadOnly);
+
+    QJsonObject config = QJsonDocument::fromJson(file.readAll()).object();
+
+    QString rootPath = QFileInfo(file).absoluteDir().absolutePath();
+    for(const auto& module: config["modules"].toArray())
+    {
+        QString name = module.toObject()["name"].toString();
+        QString path = rootPath + "/" + module.toObject()["path"].toString();
+
+        m_editor->loadModule(name, path);
+    }
+
+
     this->setWindowTitle("GIE");
 }
 
@@ -117,15 +146,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::reloadSymbols()
+void MainWindow::reloadedSymbols(const std::vector<GieSymbol>& gieSymbols)
 {
-    m_modelRegistry = registerDataModels(m_program);
-    m_editor->setRegistry(m_modelRegistry);
-
     std::map<QString, std::vector<QString>> symbols;
 
-    for(const auto& [name, category]: m_modelRegistry->registeredModelsCategoryAssociation())
-        symbols[category].push_back(name);
+    for(const auto& symbol: gieSymbols)
+        symbols[QString::fromStdString(symbol.symbol.module)].push_back(
+                QString::fromStdString(symbol.symbol.prettyName)
+                );
 
     Q_EMIT onSymbolsImported(symbols);
 }

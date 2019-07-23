@@ -5,7 +5,7 @@ project(modules CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(Boost COMPONENTS python3 REQUIRED)
+find_package(Boost COMPONENTS python3 numpy3 REQUIRED)
 find_package(PythonLibs REQUIRED)
 
 python_add_module(internals src/internals.cpp)

@@ -10,6 +10,8 @@
 
 #include <gie/PythonContext.h>
 
+#include <gie/detail/PythonUtils.h>
+
 #include <boost/python.hpp>
 #include <boost/graph/topological_sort.hpp>
 
@@ -17,65 +19,88 @@
 #include <utility>
 #include <queue>
 
-std::optional<Value> executeNode(const Node& node)
+
+Expected<Value, ExecutionInterfaceError> executeNode(const PythonContext& context, const Node& node)
 {
     using namespace boost::python;
 
     list arguments;
 
-    for(const auto &argument: node.m_logic.m_argument)
+    for(const auto &argument: node.arguments)
     {
         if(std::holds_alternative<Value>(argument))
-            arguments.append(std::get<Value>(argument).m_object);
-        else return std::nullopt;
-
+            arguments.append(copy(context, std::get<Value>(argument).object()));
+        else return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments, NodeId{-1ull}})};
     }
 
-    auto p = PyEval_CallObject(node.m_metadata.m_function.ptr(), tuple{arguments}.ptr());
-    return Value{object{handle(borrowed(p))}};
+    try
+    {
+        auto p = PyEval_CallObject(context.getSymbol(node.symbolId())->function.ptr(), tuple{arguments}.ptr());
+        return Expected<Value, ExecutionInterfaceError>{Value{object{handle(borrowed(p))}}};
+    }
+    catch(const boost::python::error_already_set&)
+    {
+        return Expected<Value, ExecutionInterfaceError>{makeUnexpected(ExecutionInterfaceError{ExecutionInterfaceError::errors::PythonInternalError, NodeId{-1ull}, fetchPythonException()})};
+    }
 }
 
-void executeNode(ScriptGraph &graph, NodeId nodeId)
+MaybeError<ExecutionInterfaceError> executeNode(const PythonContext& context, ScriptGraph &graph, NodeId nodeId)
 {
     using namespace boost::python;
 
     auto node_ = getNode(graph, nodeId);
     list arguments;
 
-    for(const auto &argument: node_.node.m_logic.m_argument)
+    for(const auto &argument: node_->node->arguments)
     {
         if(std::holds_alternative<NodeId>(argument))
         {
-            if(!getNode(graph, std::get<NodeId>(argument)).cache.has_value())
-                executeNode(graph, std::get<NodeId>(argument));
-            arguments.append(object{getNode(graph, std::get<NodeId>(argument)).cache->m_object});
+            auto& cache = *getNode(graph, std::get<NodeId>(argument))->cache;
+
+            if(!cache.has_value())
+            {
+                auto error = executeNode(context, graph, std::get<NodeId>(argument));
+                if(error)
+                    return error;
+            }
+            arguments.append(copy(context, cache->object()));
         }
-        else
-            arguments.append(std::get<Value>(argument).m_object);
+        else if(std::holds_alternative<Value>(argument))
+            arguments.append(copy(context, std::get<Value>(argument).object()));
+        else return ExecutionInterfaceError{ExecutionInterfaceError::errors::InvalidArguments, nodeId};
     }
 
-    auto p = PyEval_CallObject(node_.node.m_metadata.m_function.ptr(), tuple{arguments}.ptr());
-    object r{handle(borrowed(p))};
+    try
+    {
+        auto p = PyEval_CallObject(context.getSymbol(node_->node->symbolId())->function.ptr(), tuple{arguments}.ptr());
+        object r{handle(borrowed(p))};
 
-    node_.cache = Value{r};
+        *(node_->cache) = Value{r};
+
+    }
+    catch(const boost::python::error_already_set&)
+    {
+        return ExecutionInterfaceError{ExecutionInterfaceError::errors::PythonInternalError, nodeId, fetchPythonException()};
+    }
+
+    return {};
 }
 
-std::vector<Result> executeGraph(ScriptGraph &graph)
+MaybeError<std::vector<ExecutionInterfaceError>> executeGraph(const PythonContext& context, ScriptGraph &graph)
 {
     for(auto& cache: graph.cache)
         cache.first = std::nullopt;
 
+    std::vector<ExecutionInterfaceError> nodeErrors;
+
     for(const auto& node: graph.nodes)
     {
-        executeNode(graph, node.second);
+        auto error = executeNode(context, graph, node.second);
+        if(error)
+            nodeErrors.push_back(error.error());
     }
 
-    std::vector<Result> results;
-
-    const auto& constGraph = graph;
-    results.reserve(graph.results.size());
-    for(const auto& p: constGraph.results)
-        results.push_back({p.first, getNode(constGraph, p.second).cache.value()});
-
-    return results;
+    if(nodeErrors.empty())
+        return {};
+    else return nodeErrors;
 }

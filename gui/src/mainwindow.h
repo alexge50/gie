@@ -6,14 +6,14 @@
 #define GUI_MAINWINDOW_H
 
 #include <gie/Program.h>
-#undef B0
 
 #include <QMainWindow>
 #include <QMenuBar>
 #include "editor.h"
-#include "symbolviewer/symbolviewer.h"
-#include "importedimagesviewer/importedimagesviewer.h"
-#include "src/gie/GieDataModelRegistry.h"
+#include "widgets/symbolviewer/symbolviewer.h"
+#include "widgets/importedimagesviewer/importedimagesviewer.h"
+#include "widgets/projectscripts/projectscripts.h"
+#include "widgets/logconsole/logconsole.h"
 
 namespace Ui {
     class MainWindow;
@@ -36,17 +36,17 @@ private Q_SLOTS:
     void onChanged();
     void onSaved();
 
-private:
-    void reloadSymbols();
+private Q_SLOTS:
+    void reloadedSymbols(const std::vector<GieSymbol>&);
 
 private:
     Ui::MainWindow *ui;
-    Program m_program;
     Editor* m_editor;
 
     SymbolViewer* m_symbolViewer;
     ImportedImagesViewer* m_imageViewer;
-    std::shared_ptr<GieDataModelRegistry> m_modelRegistry;
+    ProjectScripts* m_projectScripts;
+    LogConsole* m_logConsole;
 };
 
 #endif //GUI_MAINWINDOW_H

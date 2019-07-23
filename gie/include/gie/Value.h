@@ -14,8 +14,18 @@ struct Value
 {
 public:
     Value() {}
-    explicit Value(boost::python::object object): m_object(std::move(object)) {}
+    explicit Value(boost::python::object object);
 
+    const Type& type() const;
+    boost::python::object object() const;
+
+    template <typename T>
+    T extract() const
+    {
+        return boost::python::extract<T>(m_object);
+    }
+
+private:
     Type m_typeName;
     boost::python::object m_object;
 };

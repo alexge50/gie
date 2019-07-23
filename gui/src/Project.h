@@ -22,6 +22,8 @@ struct ProjectImage
     QImage image;
 };
 
+class Editor;
+
 class Project
 {
 private:
@@ -38,6 +40,8 @@ public:
     const std::map<QUuid, ProjectImage>& importedImages() const { return m_images; };
     QString projectName() const { return m_name; }
 
+    const QDir& projectPath() const;
+
 private:
     QJsonValue serialiseImages();
     QJsonValue serialiseScripts();
@@ -53,10 +57,10 @@ private:
     QString m_name;
 
     friend Project newProject(QDir dir, QString name, QtNodes::FlowScene& scene);
-    friend Project loadProject(QString directory, QtNodes::FlowScene& scene);
+    friend Project loadProject(QString directory, Editor&, QtNodes::FlowScene& scene);
 };
 
 Project newProject(QDir dir, QString name, QtNodes::FlowScene& scene);
-Project loadProject(QString directory, QtNodes::FlowScene& scene);
+Project loadProject(QString directory, Editor&, QtNodes::FlowScene& scene);
 
 #endif //GUI_PROJECT_H

@@ -13,7 +13,7 @@
 #include <QtCore/QJsonValueRef>
 
 #include <nodes/Node>
-#include <src/gie/SourceNodeDataModel/ManagedImageSourceDataModel.h>
+#include <src/nodes/ManagedImageSourceNode.h>
 
 QJsonObject serialise(const QtNodes::FlowScene& scene)
 {
@@ -39,17 +39,24 @@ QJsonObject serialise(const QtNodes::FlowScene& scene)
     return json;
 }
 
-void deserialise(QtNodes::FlowScene& scene, const Project& project, const QJsonObject& json)
+std::map<QUuid, std::string> deserialise(QtNodes::FlowScene& scene, const Project& project, const QJsonObject& json)
 {
     scene.clearScene();
 
     std::map<QUuid, QtNodes::Node*> managedNodes;
+    std::map<QUuid, std::string> deleted;
 
     auto nodes = json["nodes"].toArray();
     for(QJsonValueRef node: nodes)
     {
         if(node.toObject()["model"].toObject()["name"].toString() != "ManagedImageSource")
-            scene.restoreNode(node.toObject());
+        {
+            if(scene.registry().registeredModelCreators().count(node.toObject()["model"].toObject()["name"].toString()))
+            {
+                scene.restoreNode(node.toObject());
+            }
+            else deleted.insert({QUuid{node.toObject()["id"].toString()}, node.toObject()["model"].toObject()["name"].toString().toStdString()});
+        }
         else
         {
             QUuid id = node.toObject()["id"].toString();
@@ -59,7 +66,7 @@ void deserialise(QtNodes::FlowScene& scene, const Project& project, const QJsonO
                     node.toObject()["position"].toObject()["y"].toDouble()
             };
 
-            auto& node = scene.createNode(std::make_unique<ManagedImageSourceDataModel>(projectImage));
+            auto& node = scene.createNode(std::make_unique<ManagedImageSourceNode>(projectImage));
             managedNodes[id] = &node;
             scene.setNodePosition(node, position);
         }
@@ -68,6 +75,10 @@ void deserialise(QtNodes::FlowScene& scene, const Project& project, const QJsonO
     auto connections = json["connections"].toArray();
     for(QJsonValueRef connection: connections)
     {
+        if(deleted.count(connection.toObject()["out_id"].toString()) ||
+           deleted.count(connection.toObject()["in_id"].toString()) )
+            continue;
+
         QUuid id = connection.toObject()["out_id"].toString();
         if(managedNodes.find(id) == managedNodes.end())
             scene.restoreConnection(connection.toObject());
@@ -77,11 +88,11 @@ void deserialise(QtNodes::FlowScene& scene, const Project& project, const QJsonO
             int inIndex = connection.toObject()["in_index"].toInt();
             int outIndex = connection.toObject()["out_index"].toInt();
 
-
             scene.createConnection(*scene.nodes().find(inId)->second, inIndex, *managedNodes[id], outIndex);
         }
     }
-}
 
+    return deleted;
+}
 
 #endif //GUI_SERIALISE_H

@@ -9,6 +9,7 @@
 #include <gie/Node.h>
 #include <gie/PythonContext.h>
 #include <gie/Result.h>
+#include <gie/Error.h>
 
 #include <vector>
 
@@ -16,21 +17,38 @@ class Program
 {
 public:
     Program() = default;
-    Program(const Program &) = default;
-    Program(Program &&) = default;
+    Program(const Program&) = default;
+    Program(Program&&) = default;
 
-    std::vector<Result> run();
+    MaybeError<std::vector<ExecutionInterfaceError>> run();
 
-    NodeId addNode(const Node &node);
-    void editNode(NodeId, const Node &node);
-    void removeNode(NodeId);
-    const Node& getNode(NodeId id) const;
+    NodeId addNode(std::string name, Arguments);
+
+    template<typename Editor>
+    MaybeError<NodeInterfaceError> editNode(NodeId id, Editor&& editor)
+    {
+        auto node = ::getNode(m_graph, id);
+
+        if(node)
+            editor(*(node->node));
+        else return node.error();
+
+        return ::updateNode(m_graph, id);
+    }
+
+    MaybeError<NodeInterfaceError> editNode(NodeId, ArgumentId argumentId, ArgumentValue);
+    MaybeError<NodeInterfaceError> removeNode(NodeId);
+    Expected<const Node*, NodeInterfaceError> getNode(NodeId id) const;
+    Expected<std::optional<Value>, NodeInterfaceError> getCache(NodeId id) const;
 
     void addResult(std::string tag, NodeId);
     void editResult(std::string tag, NodeId);
     void removeResult(std::string tag);
 
-    void import(const std::string &module);
+    auto import(const std::string& name, const std::string& path)
+    {
+        return m_pythonContext.module(name, path);
+    }
 
     auto& context() { return m_pythonContext; }
     const auto& context() const { return m_pythonContext; }
