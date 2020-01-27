@@ -4,3 +4,5 @@
 **/cmake-build-debug/
 **/build
 **/build_gie
+**/.vs
+/CMakeSettings.json

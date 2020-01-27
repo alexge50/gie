@@ -21,7 +21,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 add_executable(GIE ${SOURCE})
 add_dependencies(GIE modules internals images_internal)
 target_link_libraries(GIE PRIVATE Qt5::Widgets gie nodes gie-types QtColorWidgets)
-target_include_directories(GIE PRIVATE Qt5::Widgets gie nodes gie-types QtColorWidgets)
+target_include_directories(GIE PRIVATE gie nodes gie-types QtColorWidgets)
 target_compile_definitions(GIE PRIVATE NODE_EDITOR_SHARED)
 
 add_custom_command(
