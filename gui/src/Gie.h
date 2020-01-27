@@ -56,10 +56,10 @@ public Q_SLOTS:
 
         auto internals = m_program.context().module("modules.internals", false);
 
-        builtins.attr("Color") = internals.attr("Color");
-        builtins.attr("Image") = internals.attr("Image");
-        builtins.attr("to_image") = internals.attr("to_image");
-        builtins.attr("to_ndarray") = internals.attr("to_ndarray");
+        boost::python::setattr(builtins, "Color", internals.attr("Color"));
+        boost::python::setattr(builtins, "Image", internals.attr("Image"));
+        boost::python::setattr(builtins, "to_image", internals.attr("to_image"));
+        boost::python::setattr(builtins, "to_ndarray", internals.attr("to_ndarray"));
     }
 
     void addModulesDirectory(const std::string& path)
