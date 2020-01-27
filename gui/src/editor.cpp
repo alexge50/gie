@@ -74,15 +74,15 @@ Editor::Editor(QWidget* parent): QWidget(parent)
 
     connect(m_nodeEditor, &NodeEditor::sceneChanged, this, &Editor::sceneChanged);
 
-    auto thread = new QThread;
+    //auto thread = new QThread;
     m_gie = new Gie{};
 
-    m_gie->moveToThread(thread);
-    connect(m_gie, &Gie::finished, thread, &QThread::quit);
-    connect(m_gie, &Gie::finished, m_gie, &QThread::deleteLater);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+    //m_gie->moveToThread(thread);
+    //connect(m_gie, &Gie::finished, thread, &QThread::quit);
+    //connect(m_gie, &Gie::finished, m_gie, &QThread::deleteLater);
+    //connect(thread, &QThread::finished, thread, &QThread::deleteLater);
 
-    thread->start();
+    //thread->start();
 
     QMetaObject::invokeMethod(
             m_gie,
