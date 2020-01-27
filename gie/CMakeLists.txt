@@ -8,7 +8,7 @@ include(GNUInstallDirs)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*)
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS include/*)
 
-find_package(Boost COMPONENTS python REQUIRED)
+find_package(Boost COMPONENTS python3 REQUIRED)
 find_package(PythonLibs REQUIRED)
 
 add_library(gie STATIC ${SOURCES} ${HEADERS} include/gie/NodeId.h)
