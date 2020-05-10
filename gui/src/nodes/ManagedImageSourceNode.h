@@ -17,11 +17,7 @@ public:
             m_filename{projectImage.name},
             m_uuid{projectImage.id.toString()}
     {
-        QImage image = projectImage.image.convertToFormat(QImage::Format_RGB888);
-        auto gieImage = Image{imageToRawData(image), static_cast<unsigned int>(image.width()),
-                              static_cast<unsigned int>(image.height())};
-
-        m_image = std::move(gieImage);
+        m_image = QImageToImage(projectImage.image);
 
         ok();
     }
@@ -59,22 +55,29 @@ public:
     Data getData() override { return m_image; }
 
 private:
-    static std::vector<uint8_t> imageToRawData(const QImage& image)
+    static Image QImageToImage(QImage image)
     {
-        std::vector<uint8_t> data(static_cast<unsigned long>(image.width() * image.height() * 3));
-        const auto rowSize = static_cast<const size_t>(image.width()) * 3;
-        std::size_t index = 0;
-        std::size_t indexInImage = 0;
+        image = image.convertToFormat(QImage::Format_BGR888);
+
+        Image result{static_cast<unsigned int>(image.width()), static_cast<unsigned int>(image.height())};
 
         for(int i = 0; i < image.height(); i++)
         {
-            std::memcpy(data.data() + index, image.bits() + indexInImage, rowSize);
+            for(int j = 0; j < image.width(); j++)
+            {
+                auto color = QColor{image.pixel(j, i)};
 
-            indexInImage += image.bytesPerLine();
-            index += rowSize;
-        }
+                result.setPixel(i, j, {
+                    static_cast<uint8_t>(color.red()),
+                    static_cast<uint8_t>(color.green()),
+                    static_cast<uint8_t>(color.blue())
+                });
+            }
+        };
 
-        return data;
+        [[maybe_unused]] auto ptr = result.raw();
+
+        return result;
     }
 
 private:

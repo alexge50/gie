@@ -76,16 +76,20 @@ public Q_SLOTS:
     {
         const auto& image = std::get<Image>(data);
 
-        auto bufferSize = image.width() * image.height() * 3;
-        auto imageData = new uint8_t[bufferSize];
-        std::memcpy(imageData, image.raw(), bufferSize);
-
         m_image = QImage(
-                imageData,
                 image.width(),
                 image.height(),
-                QImage::Format_RGB888,
-                [](auto p){ delete static_cast<uint8_t*>(p); });
+                QImage::Format_RGB888
+        );
+
+        for(int i = 0; i < static_cast<int>(image.height()); i++)
+        {
+            for(int j = 0; j < static_cast<int>(image.width()); j++)
+            {
+                Color color = image.pixelAt(i, j);
+                m_image.setPixel(j, i, QColor{color.r, color.g, color.b}.rgb());
+            }
+        }
 
         m_imageViewer->setImage(m_image);
     }
