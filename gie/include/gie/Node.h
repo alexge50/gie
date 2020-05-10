@@ -1,7 +1,3 @@
-#include <utility>
-
-#include <utility>
-
 //
 // Created by alex on 11/17/18.
 //
@@ -16,27 +12,13 @@
 #include <vector>
 #include <memory>
 #include <cstddef>
+#include <utility>
 
-class Node
+struct Node
 {
-private:
-    Node(Arguments arguments, SymbolId symbolId):
-        arguments{std::move(arguments)},
-        m_symbolId{symbolId}
-    {}
-
-public:
-    Arguments arguments;
-
-public:
-    const SymbolId& symbolId() const { return m_symbolId; }
-
-private:
-    SymbolId m_symbolId;
-
-    friend std::optional<Node> makeNode(const PythonContext&, const std::string& name, Arguments);
+    NodeId nodeId;
+    SymbolId symbolId;
+    std::vector<std::variant<ResourceId, NodeId>> arguments;
 };
-
-std::optional<Node> makeNode(const PythonContext&, const std::string& name, Arguments);
 
 #endif //GIE_LIBRARY_NODE_H

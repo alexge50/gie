@@ -26,4 +26,23 @@ namespace std
     };
 }
 
+using ResourceId = StrongAlias<std::size_t, struct ResourceIdTag>;
+
+inline bool operator==(const ResourceId& lhs, const ResourceId& rhs) { return lhs.get() == rhs.get(); }
+
+namespace std
+{
+    template<> struct hash<ResourceId>
+    {
+        using argument_type = NodeId;
+        using result_type = std::size_t;
+
+        result_type operator()(const ResourceId& id) const noexcept
+        {
+            return (std::hash<std::size_t>{})(id.get());
+        }
+    };
+}
+
+
 #endif //GIE_NODEID_H
