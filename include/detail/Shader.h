@@ -1,7 +1,3 @@
-//
-// Created by alex on 9/13/20.
-//
-
 #ifndef NODE_EDITOR_SHADER_H
 #define NODE_EDITOR_SHADER_H
 
@@ -50,7 +46,7 @@ struct Shader
     }
 };
 
-std::optional<Shader> createShader(
+inline std::optional<Shader> createShader(
         const std::string& vertexShaderSource,
         const std::string& fragmentShaderSource
 )

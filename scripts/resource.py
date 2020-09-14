@@ -22,7 +22,7 @@ files = sys.argv[2::]
 output_file = sys.argv[1]
 resources = [build_resource(f) for f in files]
 output = '\n'.join(
-    f'unsigned char {name}[] = {{ {content} }};' for name, content in resources
+    f'inline unsigned char {name}[] = {{ {content} }};' for name, content in resources
 )
 
 with open(output_file, 'w') as f:
