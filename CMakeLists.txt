@@ -25,7 +25,8 @@ add_subdirectory(3rdparty/glm)
 
 find_package(OpenGL REQUIRED)
 
-add_resource(shaders shaders/background_fragment.glsl shaders/background_vertex.glsl)
+file(GLOB_RECURSE SHADERS CONFIGURE_DEPENDS shaders/*)
+add_resource(shaders ${SHADERS})
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*)
 add_executable(node_editor ${SOURCES})

@@ -14,9 +14,13 @@ public:
 
 private:
     unsigned int quad_vbo, quad_vao;
+    unsigned int quad_outline_vbo, quad_outline_vao;
 
     Shader background_shader;
     int background_mvp_location, background_model_location, background_scale_location;
+
+    Shader solid_shader;
+    int solid_mvp_location, solid_color_location;
 };
 
 #endif //NODE_EDITOR_RENDER_H

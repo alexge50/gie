@@ -54,6 +54,11 @@ int main()
     NodeEditor node_editor;
     Render render;
 
+    node_editor.graph = {
+        {{1, {{}, {},  {}, {0.f, 0.f}, {0.5f, 0.f, 0.5f}, {}}}},
+        {}
+    };
+
     while (!glfwWindowShouldClose(window))
     {
         int width, height;

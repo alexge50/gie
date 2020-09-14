@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 using NodeId = std::int32_t;
 using PortId = std::int32_t;
@@ -16,6 +17,8 @@ struct Node
     std::string node_name;
 
     glm::vec2 position;
+    glm::vec3 color;
+    glm::vec3 outline_color;
 };
 
 struct Connection
