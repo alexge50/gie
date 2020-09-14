@@ -1,21 +1,20 @@
 cmake_minimum_required(VERSION 3.9)
 project(node-editor)
 
+find_package (Python3 COMPONENTS Interpreter)
+
 function(add_resource target)
-    set(generated_file ${CMAKE_CURRENT_BINARY_DIR}/${target}/${target}.h)
-    file(WRITE ${generated_file})
-    foreach(input ${ARGN})
-        string(REGEX MATCH "([^/]+)$" filename ${input})
-        string(REGEX REPLACE "\\.| |-" "_" filename ${filename})
-        file(READ ${input} data HEX)
-        string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," data ${data})
-        file(
-                APPEND ${generated_file}
-                "const unsigned char ${filename}[]={${data}0x00};\nconst unsigned ${filename}_size = sizeof(${filename});\n"
-        )
-    endforeach()
+    add_custom_target(
+            ${target}_gen
+            COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/resource.py ${CMAKE_CURRENT_BINARY_DIR}/${target}/${target}.h ${ARGN}
+            BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${target}/${target}.h
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+            DEPENDS ${ARGN}
+    )
+
     add_library(${target} INTERFACE)
     target_include_directories(${target} INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/${target}/)
+    add_dependencies(${target} ${target}_gen)
 endfunction()
 
 set(CMAKE_CXX_STANDARD 20)
