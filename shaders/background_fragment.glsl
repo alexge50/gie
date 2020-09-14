@@ -4,9 +4,8 @@ in vec2 fragment_position;
 
 out vec4 Color;
 
-//uniform float scale = 1.f;
-
-const float scale = 1.f;
+uniform vec2 camera_position = vec2(0.f, 0.f);
+uniform float scale = 1.f;
 
 float grid(vec2 frag_coord, float spacing, float width)
 {
@@ -24,7 +23,8 @@ float grid(vec2 frag_coord, float spacing, float width)
 
 void main()
 {
-    float col = grid(fragment_position.xy, 20.f * scale, 2.f * scale) + grid(fragment_position.xy, 100.f * scale, 4.f * scale);
+    float col = grid(fragment_position.xy, 10.f * scale, 1.f * scale) + grid(fragment_position.xy, 1000.f * scale, 4.f * scale);
+    col = clamp(col, 0., 1.);
 
     Color = vec4(vec3(col) * 0.5f, 1.0);
 }

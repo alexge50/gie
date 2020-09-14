@@ -11,6 +11,15 @@
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
 
+struct Parameters
+{
+    float scroll = 5.f;
+    double x, y;
+};
+
+void scroll_callback(GLFWwindow* window, double x, double y);
+
+
 int main()
 {
     GLFWwindow* window;
@@ -33,8 +42,12 @@ int main()
     }
 
     glfwMakeContextCurrent(window);
-
     gladLoadGL();
+
+    Parameters parameters;
+    glfwSetWindowUserPointer(window, &parameters);
+    glfwSetScrollCallback(window, scroll_callback);
+
 
     unsigned int vbo, ebo, vao;
 
@@ -75,6 +88,7 @@ int main()
     shader.use();
     auto mvp_location = shader.getUniformLocation("mvp");
     auto model_location = shader.getUniformLocation("model");
+    auto scale_location = shader.getUniformLocation("scale");
 
     while (!glfwWindowShouldClose(window))
     {
@@ -82,11 +96,10 @@ int main()
         glfwGetWindowSize(window, &width, &height);
         glViewport(0, 0, width, height);
 
-
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        float scale = 0.2f;
+        float scale = glm::max(parameters.scroll * 0.5f, 0.001f);
 
         glm::mat4 model =
                 glm::scale(glm::mat4(1.f), glm::vec3(float(width), float(height), 0.f));
@@ -96,6 +109,8 @@ int main()
 
         glUniformMatrix4fv(mvp_location, 1, 0, glm::value_ptr(mvp));
         glUniformMatrix4fv(model_location, 1, 0, glm::value_ptr(model));
+
+        glUniform1f(scale_location, scale);
 
         shader.use();
         glDrawArrays(
@@ -111,4 +126,10 @@ int main()
     glfwDestroyWindow(window);
     glfwTerminate();
     exit(EXIT_SUCCESS);
+}
+
+void scroll_callback(GLFWwindow* window, double x, double y)
+{
+    auto parameters = static_cast<Parameters*>(glfwGetWindowUserPointer(window));
+    parameters->scroll += y;
 }
