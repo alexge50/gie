@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-void compute_node(NodeEditor& node_editor, NodeId id)
+inline void compute_node(NodeEditor& node_editor, NodeId id)
 {
     const StylingConfig& config = node_editor.styling_config;
     const float row_real_height = config.row_height + config.row_padding * 2.f;
