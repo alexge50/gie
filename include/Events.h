@@ -22,6 +22,7 @@ namespace InputEvents
     struct Click
     {
         float x, y;
+        bool special_key;
     };
 
     struct Delete {};

@@ -56,7 +56,12 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                         glm::vec2 canvas_position = to_world_position(node_editor, {click.x, click.y});
 
                         if(auto clicked_node = get_containing_node(node_editor.graph, canvas_position); clicked_node)
+                        {
+                            if(!click.special_key)
+                                node_editor.selected_nodes.clear();
+
                             node_editor.selected_nodes.insert(*clicked_node);
+                        }
                         else node_editor.selected_nodes.clear();
                     },
                     [](InputEvents::Delete) {
@@ -67,9 +72,14 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
 
                         if(auto dragged_node = get_containing_node(node_editor.graph, canvas_position); dragged_node)
                         {
+                            if(!drag_begin.special_key)
+                            {
+                                node_editor.selected_nodes.clear();
+                                node_editor.selected_nodes.insert(*dragged_node);
+                            }
+
                             node_editor.drag_state = NodeDrag {
-                                *dragged_node,
-                                canvas_position
+                                    canvas_position
                             };
                         }
                         else
@@ -121,8 +131,11 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                             glm::vec2 delta = canvas_position - node_drag.begin_position;
                             node_drag.begin_position = canvas_position;
 
-                            node_editor.graph.nodes[node_drag.node].position += delta;
-                            compute_node(node_editor, node_drag.node);
+                            for(const auto& node: node_editor.selected_nodes)
+                            {
+                                node_editor.graph.nodes[node].position += delta;
+                                compute_node(node_editor, node);
+                            }
                         }
 
                         if(std::holds_alternative<SelectDrag>(node_editor.drag_state))

@@ -30,7 +30,6 @@ struct StylingConfig
 
 struct NodeDrag
 {
-    NodeId node;
     glm::vec2 begin_position;
 };
 

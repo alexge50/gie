@@ -71,6 +71,7 @@ int main()
         {
             {1, {{}, {},  {}, {0.f, 0.f}, {0.36f, 0.17f, 0.54f}, {}}},
             {2, {{}, {},  {}, {100.f, 100.f}, {0.36f, 0.17f, 0.54f}, {}}},
+            {3, {{}, {},  {}, {200.f, 200.f}, {0.36f, 0.17f, 0.54f}, {}}},
         },
         {},
         {}
@@ -148,7 +149,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         parameters->mouse_clicked = true;
         parameters->super_clicked = mods & GLFW_MOD_SHIFT;
 
-        parameters->input_events->push_back(InputEvents::Click{static_cast<float>(parameters->mouse_x), static_cast<float>(parameters->mouse_y)});
+        parameters->input_events->push_back(InputEvents::Click{
+            static_cast<float>(parameters->mouse_x),
+            static_cast<float>(parameters->mouse_y),
+            parameters->super_clicked
+        });
     }
     else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
     {
