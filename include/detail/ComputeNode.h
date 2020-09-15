@@ -20,30 +20,30 @@ void compute_node(NodeEditor& node_editor, NodeId id)
 
     const auto& size = node_editor.graph.nodes_computed[id].size;
 
-    node_editor.graph.nodes_computed[id].header_position = {
+    node_editor.graph.nodes_computed[id].header_position = glm::vec2 {
             0.f,
             -size.y / 2.f - config.header_height / 2.f
-    };
+    } + node.position;
 
     auto offset = config.header_height;
 
     node_editor.graph.nodes_computed[id].output_port_positions.resize(node.output_ports.size());
     for(int i = 0; i < node.output_ports.size(); i++)
     {
-        node_editor.graph.nodes_computed[id].output_port_positions[i] = {
+        node_editor.graph.nodes_computed[id].output_port_positions[i] = glm::vec2 {
                 +size.x / 2.f,
                 offset + row_real_height / 2.f
-        };
+        } + node.position;
         offset += row_real_height;
     }
 
     node_editor.graph.nodes_computed[id].input_port_positions.resize(node.input_ports.size());
     for(int i = 0; i < node.input_ports.size(); i++)
     {
-        node_editor.graph.nodes_computed[id].input_port_positions[i] = {
+        node_editor.graph.nodes_computed[id].input_port_positions[i] = glm::vec2 {
                 -size.x / 2.f,
                 offset + row_real_height / 2.f
-        };
+        } + node.position;
         offset += row_real_height;
     }
 }

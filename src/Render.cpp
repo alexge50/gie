@@ -140,7 +140,6 @@ void Render::operator()(const NodeEditor &node_editor, glm::vec2 screen_size)
         );
 
         model =
-                glm::translate(glm::mat4(1.f), glm::vec3(node.position, 0.f)) *
                 glm::translate(glm::mat4(1.f), glm::vec3(node_editor.graph.nodes_computed.at(id).header_position, 0.f)) *
                 glm::scale(glm::mat4(1.f), glm::vec3(
                         node_editor.graph.nodes_computed.at(id).size.x,
