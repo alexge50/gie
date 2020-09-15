@@ -3,6 +3,8 @@
 
 #include <Graph.h>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include <variant>
 #include <unordered_set>
@@ -16,6 +18,9 @@ struct StylingConfig
 
     glm::vec3 grid_background = {0.137f, 0.137f, 0.137f};
     glm::vec3 grid_foreground = {0.1f, 0.1f, 0.1f};
+
+    glm::vec4 select_rectangle_color = {1.f, 1.f, 1.f, 0.3f};
+    glm::vec4 select_rectangle_outline_color = {1.f, 1.f, 1.f, 0.7f};
 
     glm::vec3 node_background_color = {0.24f, 0.24f, 0.24f};
     glm::vec3 node_outline_color = {0.3f, 0.3f, 0.3f};
@@ -37,6 +42,7 @@ struct ConnectionDrag
 struct SelectDrag
 {
     glm::vec2 begin_corner;
+    glm::vec2 current_corner;
 };
 
 struct ViewDrag
