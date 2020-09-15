@@ -54,15 +54,15 @@ struct NoDrag {};
 
 struct NodeEditor
 {
-    Graph graph;
+    Graph graph{};
 
     float zoom = 1.f;
-    glm::vec2 camera_position;
+    glm::vec2 camera_position {0.f, 0.f};
     glm::vec2 screen_size;
-    std::variant<NoDrag, ViewDrag, SelectDrag, ConnectionDrag, NodeDrag> drag_state;
-    std::unordered_set<NodeId> selected_nodes;
+    std::variant<NoDrag, ViewDrag, SelectDrag, ConnectionDrag, NodeDrag> drag_state = NoDrag{};
+    std::unordered_set<NodeId> selected_nodes = {};
 
-    StylingConfig styling_config;
+    StylingConfig styling_config{};
 };
 
 void compute(NodeEditor&);

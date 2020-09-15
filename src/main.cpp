@@ -64,11 +64,15 @@ int main()
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetKeyCallback(window, key_callback);
 
-    NodeEditor node_editor;
+    NodeEditor node_editor{};
     Render render;
 
     node_editor.graph = {
-        {{1, {{}, {},  {}, {0.f, 0.f}, {0.36f, 0.17f, 0.54f}, {}}}},
+        {
+            {1, {{}, {},  {}, {0.f, 0.f}, {0.36f, 0.17f, 0.54f}, {}}},
+            {2, {{}, {},  {}, {100.f, 100.f}, {0.36f, 0.17f, 0.54f}, {}}},
+        },
+        {},
         {}
     };
 
