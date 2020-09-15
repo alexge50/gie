@@ -7,37 +7,49 @@
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
+
+static std::optional<NodeId> get_containing_node(const Graph& graph, glm::vec2 point)
+{
+    auto node = std::find_if(
+            graph.nodes.begin(),
+            graph.nodes.end(),
+            [&graph, &point](const auto& node) {
+                auto position = node.second.position;
+                auto size = graph.nodes_computed.at(node.first).size;
+
+                auto upper_left = position - size / 2.f;
+                auto bottom_right = position + size / 2.f;
+
+                return upper_left.x <= point.x && bottom_right.x >= point.x &&
+                       upper_left.y <= point.y && bottom_right.y >= point.y;
+            });
+
+    if(node == graph.nodes.end())
+        return std::nullopt;
+    else return node->first;
+}
+
+
 void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std::vector<EditorEvent>&)
 {
     for(const auto& event: input)
     {
         std::visit(
                 overloaded {
-                    [](InputEvents::Click) {
-
+                    [&](const InputEvents::Click& click) {
+                        if(auto clicked_node = get_containing_node(node_editor.graph, {click.x, click.y}); clicked_node)
+                            node_editor.selected_nodes.insert(*clicked_node);
+                        else node_editor.selected_nodes.clear();
                     },
                     [](InputEvents::Delete) {
 
                     },
                     [&](const InputEvents::DragBegin& drag_begin) {
-                        auto dragged_node = std::find_if(
-                                node_editor.graph.nodes.begin(),
-                                node_editor.graph.nodes.end(),
-                                [&node_editor, &drag_begin](const auto& node) {
-                                    auto position = node.second.position;
-                                    auto size = node_editor.graph.nodes_computed.at(node.first).size;
 
-                                    auto upper_left = position - size / 2.f;
-                                    auto bottom_right = position + size / 2.f;
-
-                                    return upper_left.x <= drag_begin.x && bottom_right.x >= drag_begin.x &&
-                                           upper_left.y <= drag_begin.y && bottom_right.y >= drag_begin.y;
-                                });
-
-                        if(dragged_node != node_editor.graph.nodes.end())
+                        if(auto dragged_node = get_containing_node(node_editor.graph, {drag_begin.x, drag_begin.y}); dragged_node)
                         {
                             node_editor.drag_state = NodeDrag {
-                                dragged_node->first,
+                                *dragged_node,
                                 {drag_begin.x, drag_begin.y}
                             };
                         }

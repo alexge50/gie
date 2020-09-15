@@ -157,7 +157,9 @@ void Render::operator()(const NodeEditor &node_editor, glm::vec2 screen_size)
 
 
         glUniformMatrix4fv(solid_mvp_location, 1, 0, glm::value_ptr(node_mvp));
-        glUniform4f(solid_color_location, config.node_outline_color.r, config.node_outline_color.g, config.node_outline_color.b, 1.f);
+        if (!node_editor.selected_nodes.contains(id))
+            glUniform4f(solid_color_location, config.node_outline_color.r, config.node_outline_color.g, config.node_outline_color.b, 1.f);
+        else glUniform4f(solid_color_location, config.node_selected_outline_color.r, config.node_selected_outline_color.g, config.node_selected_outline_color.b, 1.f);
         glLineWidth(config.node_outline_width);
         glBindVertexArray(quad_outline_vao);
         glDrawArrays(

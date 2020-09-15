@@ -22,6 +22,7 @@ struct Parameters
     bool dragging = false;
     bool mouse_clicked = false;
     bool super_clicked = false;
+    float mouse_x, mouse_y;
 };
 
 void scroll_callback(GLFWwindow* window, double x, double y);
@@ -117,6 +118,9 @@ void cursor_position_callback(GLFWwindow* window, double x, double y)
 {
     auto parameters = static_cast<Parameters*>(glfwGetWindowUserPointer(window));
 
+    parameters->mouse_x = x;
+    parameters->mouse_y = y;
+
     if(parameters->mouse_clicked)
     {
         if(!parameters->dragging)
@@ -137,6 +141,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     {
         parameters->mouse_clicked = true;
         parameters->super_clicked = mods & GLFW_MOD_SHIFT;
+
+        parameters->input_events->push_back(InputEvents::Click{static_cast<float>(parameters->mouse_x), static_cast<float>(parameters->mouse_y)});
     }
     else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
     {

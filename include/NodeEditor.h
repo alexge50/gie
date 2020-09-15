@@ -5,6 +5,7 @@
 #include <glm/vec2.hpp>
 
 #include <variant>
+#include <unordered_set>
 
 struct StylingConfig
 {
@@ -17,6 +18,9 @@ struct StylingConfig
     glm::vec3 grid_foreground = {0.1f, 0.1f, 0.1f};
 
     glm::vec3 node_background_color = {0.24f, 0.24f, 0.24f};
+    glm::vec3 node_outline_color = {0.3f, 0.3f, 0.3f};
+    glm::vec3 node_selected_outline_color = {1.f, 1.f, 1.f};
+    float node_outline_width = 1.f;
 };
 
 struct NodeDrag
@@ -49,6 +53,7 @@ struct NodeEditor
     float zoom = 2.f;
     glm::vec2 camera_position;
     std::variant<NoDrag, ViewDrag, SelectDrag, ConnectionDrag, NodeDrag> drag_state;
+    std::unordered_set<NodeId> selected_nodes;
 
     StylingConfig styling_config;
 };
