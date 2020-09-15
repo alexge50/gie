@@ -22,7 +22,7 @@ inline void compute_node(NodeEditor& node_editor, NodeId id)
 
     node_editor.graph.nodes_computed[id].header_position = glm::vec2 {
             0.f,
-            -size.y / 2.f - config.header_height / 2.f
+            -size.y / 2.f + config.header_height / 2.f
     } + node.position;
 
     auto offset = config.header_height;
