@@ -30,9 +30,19 @@ struct Connection
     } output_port, input_port;
 };
 
+struct NodeCompute
+{
+    std::vector<glm::vec2> input_port_positions;
+    std::vector<glm::vec2> output_port_positions;
+
+    glm::vec2 size;
+    glm::vec2 header_position;
+};
+
 struct Graph
 {
     std::unordered_map<NodeId, Node> nodes;
+    std::unordered_map<NodeId, NodeCompute> nodes_computed;
     std::vector<Connection> connections;
 };
 

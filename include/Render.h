@@ -18,6 +18,7 @@ private:
 
     Shader background_shader;
     int background_mvp_location, background_model_location, background_scale_location;
+    int background_background_location, background_foreground_location;
 
     Shader solid_shader;
     int solid_mvp_location, solid_color_location;

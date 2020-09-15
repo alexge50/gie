@@ -7,6 +7,9 @@ out vec4 Color;
 uniform vec2 camera_position = vec2(0.f, 0.f);
 uniform float scale = 1.f;
 
+uniform vec3 foreground;
+uniform vec3 background;
+
 float grid(vec2 frag_coord, float spacing, float width)
 {
     vec2 uv = frag_coord/vec2(spacing);
@@ -26,5 +29,7 @@ void main()
     float col = grid(fragment_position.xy, 10.f * scale, 1.f * scale) + grid(fragment_position.xy, 1000.f * scale, 4.f * scale);
     col = clamp(col, 0., 1.);
 
-    Color = vec4(vec3(col) * 0.5f, 1.0);
+    vec3 color = (1. - col) * background + col * foreground;
+
+    Color = vec4(color, 1.0);
 }

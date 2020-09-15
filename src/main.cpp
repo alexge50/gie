@@ -55,9 +55,11 @@ int main()
     Render render;
 
     node_editor.graph = {
-        {{1, {{}, {},  {}, {0.f, 0.f}, {0.5f, 0.f, 0.5f}, {}}}},
+        {{1, {{}, {},  {}, {200.f, 100.f}, {0.5f, 0.f, 0.5f}, {}}}},
         {}
     };
+
+    compute(node_editor);
 
     while (!glfwWindowShouldClose(window))
     {
