@@ -68,7 +68,7 @@ int main()
     Render render;
 
     node_editor.graph = {
-        {{1, {{}, {},  {}, {200.f, 100.f}, {0.36f, 0.17f, 0.54f}, {}}}},
+        {{1, {{}, {},  {}, {0.f, 0.f}, {0.36f, 0.17f, 0.54f}, {}}}},
         {}
     };
 
@@ -83,10 +83,12 @@ int main()
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        node_editor.screen_size = {float(width), float(height)};
+
         process(node_editor, input_events, editor_events);
         input_events.clear();
 
-        render(node_editor, {float(width), float(height)});
+        render(node_editor);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -101,7 +103,7 @@ void scroll_callback(GLFWwindow* window, double x, double y)
 {
     auto parameters = static_cast<Parameters*>(glfwGetWindowUserPointer(window));
 
-    parameters->input_events->push_back(InputEvents::Scroll{static_cast<float>(y)});
+    parameters->input_events->push_back(InputEvents::Scroll{static_cast<float>(y) * 0.2f});
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

@@ -10,7 +10,7 @@ public:
     Render();
     ~Render();
 
-    void operator()(const NodeEditor& node_editor, glm::vec2 screen_size);
+    void operator()(const NodeEditor& node_editor);
 
 private:
     unsigned int quad_vbo, quad_vao;
@@ -18,7 +18,7 @@ private:
 
     Shader background_shader;
     int background_mvp_location, background_model_location, background_scale_location;
-    int background_background_location, background_foreground_location;
+    int background_background_location, background_foreground_location, background_zoom_location, background_camera_position_location;
 
     Shader solid_shader;
     int solid_mvp_location, solid_color_location;

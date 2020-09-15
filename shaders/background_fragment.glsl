@@ -5,31 +5,32 @@ in vec2 fragment_position;
 out vec4 Color;
 
 uniform vec2 camera_position = vec2(0.f, 0.f);
-uniform float scale = 1.f;
+uniform float zoom = 1.f;
 
 uniform vec3 foreground;
 uniform vec3 background;
 
-float grid(vec2 frag_coord, float spacing, float width)
+//source: https://www.shadertoy.com/view/wdK3Dy
+float grid(vec2 frag_coord, float space, float grid_width)
 {
-    vec2 uv = frag_coord/vec2(spacing);
+    vec2 p = frag_coord - vec2(.5f);
+    vec2 size = vec2(grid_width - .5f);
 
-    float radius = width / 2.f;
+    vec2 a1 = mod(p - size, space);
+    vec2 a2 = mod(p + size, space);
+    vec2 a = a2 - a1;
 
-    float x = float(abs(uv.x - floor(uv.x)) * spacing < radius) +
-    float(abs(uv.x - ceil(uv.x)) * spacing < radius);
-    float y = float(abs(uv.y - floor(uv.y)) * spacing < radius) +
-    float(abs(uv.y - ceil(uv.y)) * spacing < radius);
-
-    return clamp(x + y, 0., 1.);
+    float g = min(a.x, a.y);
+    return clamp(g, 0., 1.0);
 }
 
 void main()
 {
-    float col = grid(fragment_position.xy, 10.f * scale, 1.f * scale) + grid(fragment_position.xy, 1000.f * scale, 4.f * scale);
+    vec2 position = (camera_position + fragment_position.xy);
+    float col = grid(position, 25.f * zoom, 1.f) * grid(position, 100.f * zoom, 1.5f);
     col = clamp(col, 0., 1.);
 
-    vec3 color = (1. - col) * background + col * foreground;
+    vec3 color = (1. - col) * foreground + col * background;
 
     Color = vec4(color, 1.0);
 }

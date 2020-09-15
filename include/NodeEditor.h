@@ -56,8 +56,9 @@ struct NodeEditor
 {
     Graph graph;
 
-    float zoom = 2.f;
+    float zoom = 1.f;
     glm::vec2 camera_position;
+    glm::vec2 screen_size;
     std::variant<NoDrag, ViewDrag, SelectDrag, ConnectionDrag, NodeDrag> drag_state;
     std::unordered_set<NodeId> selected_nodes;
 

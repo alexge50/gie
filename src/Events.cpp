@@ -5,6 +5,9 @@
 #include <algorithm>
 #include <math.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
@@ -31,6 +34,17 @@ static std::optional<NodeId> get_containing_node(const Graph& graph, glm::vec2 p
     else return node->first;
 }
 
+glm::vec2 to_world_position(const NodeEditor& node_editor, glm::vec2 position)
+{
+    const auto view = glm::lookAt(
+                glm::vec3(node_editor.camera_position, 1.f),
+                glm::vec3(node_editor.camera_position, 0.f),
+                glm::vec3(0.f, 1.f, 0.f));
+
+    position -= node_editor.screen_size / 2.f;
+
+    return glm::vec2{ (1.f / node_editor.zoom) * glm::inverse(view) * glm::vec4(position, 0.f, 1.f)};
+}
 
 void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std::vector<EditorEvent>&)
 {
@@ -39,7 +53,9 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
         std::visit(
                 overloaded {
                     [&](const InputEvents::Click& click) {
-                        if(auto clicked_node = get_containing_node(node_editor.graph, {click.x, click.y}); clicked_node)
+                        glm::vec2 canvas_position = to_world_position(node_editor, {click.x, click.y});
+
+                        if(auto clicked_node = get_containing_node(node_editor.graph, canvas_position); clicked_node)
                             node_editor.selected_nodes.insert(*clicked_node);
                         else node_editor.selected_nodes.clear();
                     },
@@ -47,12 +63,13 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
 
                     },
                     [&](const InputEvents::DragBegin& drag_begin) {
+                        glm::vec2 canvas_position = to_world_position(node_editor, {drag_begin.x, drag_begin.y});
 
-                        if(auto dragged_node = get_containing_node(node_editor.graph, {drag_begin.x, drag_begin.y}); dragged_node)
+                        if(auto dragged_node = get_containing_node(node_editor.graph, canvas_position); dragged_node)
                         {
                             node_editor.drag_state = NodeDrag {
                                 *dragged_node,
-                                {drag_begin.x, drag_begin.y}
+                                canvas_position
                             };
                         }
                         else
@@ -62,6 +79,10 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                                     {drag_begin.x, drag_begin.y},
                                     {drag_begin.x, drag_begin.y}
                                 };
+                            else
+                                node_editor.drag_state = ViewDrag {
+                                    {drag_begin.x, drag_begin.y}
+                                };
                         }
                     },
                     [&](InputEvents::DragEnd) {
@@ -69,12 +90,17 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                         {
                             auto& select_drag = std::get<SelectDrag>(node_editor.drag_state);
 
-                            glm::vec2 box_size = {
-                                    fabsf(select_drag.current_corner.x - select_drag.begin_corner.x),
-                                    fabsf(select_drag.current_corner.y - select_drag.begin_corner.y)
+                            glm::vec2 p[2] = {
+                                to_world_position(node_editor, select_drag.current_corner),
+                                to_world_position(node_editor, select_drag.begin_corner),
                             };
 
-                            glm::vec2 box_position = (select_drag.current_corner + select_drag.begin_corner) / 2.f;
+                            glm::vec2 box_size = {
+                                    fabsf(p[0].x - p[1].x),
+                                    fabsf(p[0].y - p[1].y)
+                            };
+
+                            glm::vec2 box_position = (p[0] + p[1]) / 2.f;
 
 
                             for(const auto&[id, node]: node_editor.graph.nodes)
@@ -91,8 +117,9 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                         {
                             auto& node_drag = std::get<NodeDrag>(node_editor.drag_state);
 
-                            glm::vec2 delta = glm::vec2{drag_sustain.x, drag_sustain.y} - node_drag.begin_position;
-                            node_drag.begin_position = glm::vec2{drag_sustain.x, drag_sustain.y};
+                            glm::vec2 canvas_position = to_world_position(node_editor, {drag_sustain.x, drag_sustain.y});
+                            glm::vec2 delta = canvas_position - node_drag.begin_position;
+                            node_drag.begin_position = canvas_position;
 
                             node_editor.graph.nodes[node_drag.node].position += delta;
                             compute_node(node_editor, node_drag.node);
@@ -107,9 +134,20 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                                 drag_sustain.y
                             };
                         }
-                    },
-                    [](InputEvents::Scroll) {
 
+                        if(std::holds_alternative<ViewDrag>(node_editor.drag_state))
+                        {
+                            auto& node_drag = std::get<ViewDrag>(node_editor.drag_state);
+
+                            glm::vec2 delta = glm::vec2{drag_sustain.x, drag_sustain.y} - node_drag.begin_position;
+                            node_drag.begin_position = glm::vec2{drag_sustain.x, drag_sustain.y};
+
+                            node_editor.camera_position -= delta;
+                        }
+                    },
+                    [&](const InputEvents::Scroll& scroll) {
+                        node_editor.zoom += scroll.value;
+                        node_editor.zoom = glm::clamp(node_editor.zoom, 0.1f, 3.f);
                     }
                 },
                 event
