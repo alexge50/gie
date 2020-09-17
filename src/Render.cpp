@@ -8,61 +8,19 @@
 
 Render::Render()
 {
-    glGenBuffers(1, &quad_vbo);
-    glGenVertexArrays(1, &quad_vao);
+    quad = create<4>({
+        glm::vec2{-0.5f, 0.5f},
+        glm::vec2{0.5f, 0.5f},
+        glm::vec2{-0.5f, -0.5f},
+        glm::vec2{0.5f, -0.5f},
+    });
 
-    float quad[] = {
-            -0.5f, 0.5f,
-            0.5f, 0.5f,
-            -0.5f, -0.5f,
-            0.5f, -0.5f,
-    };
-
-    glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            8 * sizeof(float),
-            quad,
-            GL_STATIC_DRAW
-    );
-
-    glBindVertexArray(quad_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-            0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0
-    );
-
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenBuffers(1, &quad_outline_vbo);
-    glGenVertexArrays(1, &quad_outline_vao);
-
-    float quad_outline[] = {
-            -0.5f, 0.5f,
-            0.5f, 0.5f,
-            0.5f, -0.5f,
-            -0.5f, -0.5f,
-    };
-
-    glBindBuffer(GL_ARRAY_BUFFER, quad_outline_vbo);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            8 * sizeof(float),
-            quad_outline,
-            GL_STATIC_DRAW
-    );
-
-    glBindVertexArray(quad_outline_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, quad_outline_vbo);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-            0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0
-    );
-
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    quad_outline = create<4>({
+        glm::vec2{-0.5f, 0.5f},
+        glm::vec2{0.5f, 0.5f},
+        glm::vec2{0.5f, -0.5f},
+        glm::vec2{-0.5f, -0.5f},
+    });
 
     background_shader = createShader(
             std::string{reinterpret_cast<const char*>(background_vertex_glsl)},
@@ -118,7 +76,7 @@ void Render::operator()(const NodeEditor &node_editor)
                     config.grid_foreground.b);
         glUniform2f(background_camera_position_location, node_editor.camera.position.x, node_editor.camera.position.y);
 
-        glBindVertexArray(quad_vao);
+        glBindVertexArray(quad.vao);
         glDrawArrays(
                 GL_TRIANGLE_STRIP,
                 0,
@@ -140,7 +98,7 @@ void Render::operator()(const NodeEditor &node_editor)
         glUniformMatrix4fv(solid_mvp_location, 1, 0, glm::value_ptr(mvp));
         glUniform4f(solid_color_location, config.node_background_color.r, config.node_background_color.g, config.node_background_color.b, 1.f);
 
-        glBindVertexArray(quad_vao);
+        glBindVertexArray(quad.vao);
         glDrawArrays(
                 GL_TRIANGLE_STRIP,
                 0,
@@ -169,7 +127,7 @@ void Render::operator()(const NodeEditor &node_editor)
             glUniform4f(solid_color_location, config.node_outline_color.r, config.node_outline_color.g, config.node_outline_color.b, 1.f);
         else glUniform4f(solid_color_location, config.node_selected_outline_color.r, config.node_selected_outline_color.g, config.node_selected_outline_color.b, 1.f);
         glLineWidth(config.node_outline_width);
-        glBindVertexArray(quad_outline_vao);
+        glBindVertexArray(quad_outline.vao);
         glDrawArrays(
                 GL_LINE_LOOP,
                 0,
@@ -195,14 +153,14 @@ void Render::operator()(const NodeEditor &node_editor)
 
         glUniformMatrix4fv(solid_mvp_location, 1, 0, glm::value_ptr(mvp));
         glUniform4f(solid_color_location, config.select_rectangle_color.r, config.select_rectangle_color.g, config.select_rectangle_color.b, config.select_rectangle_color.a);
-        glBindVertexArray(quad_vao);
+        glBindVertexArray(quad.vao);
         glDrawArrays(
                 GL_TRIANGLE_STRIP,
                 0,
                 4
         );
 
-        glBindVertexArray(quad_outline_vao);
+        glBindVertexArray(quad_outline.vao);
         glUniform4f(solid_color_location, config.select_rectangle_outline_color.r, config.select_rectangle_outline_color.g, config.select_rectangle_outline_color.b, config.select_rectangle_outline_color.a);
         glDrawArrays(
                 GL_LINE_LOOP,

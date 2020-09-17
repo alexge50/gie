@@ -3,6 +3,7 @@
 
 #include "NodeEditor.h"
 #include "detail/Shader.h"
+#include "detail/GeometryBuffer.h"
 
 class Render
 {
@@ -13,8 +14,7 @@ public:
     void operator()(const NodeEditor& node_editor);
 
 private:
-    unsigned int quad_vbo, quad_vao;
-    unsigned int quad_outline_vbo, quad_outline_vao;
+    GeometryBuffer quad, quad_outline;
 
     Shader background_shader;
     int background_mvp_location, background_model_location, background_scale_location;
