@@ -95,11 +95,7 @@ void Render::operator()(const NodeEditor &node_editor)
 {
     const auto& config = node_editor.styling_config;
 
-    glm::vec2 screen_size = node_editor.screen_size;
-    const glm::mat4 projection = glm::ortho(
-            -float(node_editor.screen_size.x) / 2.f, float(node_editor.screen_size.x) / 2.f,
-            float(node_editor.screen_size.y) / 2.f, -float(node_editor.screen_size.y) / 2.f, -1.f, 1.f);
-    const glm::mat4 screen_projection = glm::ortho(0.f, float(node_editor.screen_size.x), float(node_editor.screen_size.y), 0.f);
+    glm::vec2 screen_size = node_editor.camera.screen_size;
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -109,18 +105,18 @@ void Render::operator()(const NodeEditor &node_editor)
         glm::mat4 model =
                 glm::scale(glm::mat4(1.f), glm::vec3(float(screen_size.x), float(screen_size.y), 0.f));
 
-        glm::mat4 mvp = projection * model;
+        glm::mat4 mvp = background_mat(node_editor.camera) * model;
 
         background_shader.use();
         glUniformMatrix4fv(background_mvp_location, 1, 0, glm::value_ptr(mvp));
         glUniformMatrix4fv(background_model_location, 1, 0, glm::value_ptr(model));
         glUniformMatrix4fv(background_scale_location, 1, 0, glm::value_ptr(scale));
-        glUniform1f(background_zoom_location, node_editor.zoom);
+        glUniform1f(background_zoom_location, node_editor.camera.zoom);
         glUniform3f(background_background_location, config.grid_background.r, config.grid_background.g,
                     config.grid_background.b);
         glUniform3f(background_foreground_location, config.grid_foreground.r, config.grid_foreground.g,
                     config.grid_foreground.b);
-        glUniform2f(background_camera_position_location, node_editor.camera_position.x, node_editor.camera_position.y);
+        glUniform2f(background_camera_position_location, node_editor.camera.position.x, node_editor.camera.position.y);
 
         glBindVertexArray(quad_vao);
         glDrawArrays(
@@ -131,21 +127,16 @@ void Render::operator()(const NodeEditor &node_editor)
     }
 
     solid_shader.use();
-    glm::mat4 view = glm::lookAt(
-        glm::vec3(node_editor.camera_position, 1.f),
-        glm::vec3(node_editor.camera_position, 0.f),
-        glm::vec3(0.f, 1.f, 0.f)
-    );
+    glm::mat4 view_projection = world_space_mat(node_editor.camera);
     for(const auto& [id, node]: node_editor.graph.nodes)
     {
         glm::mat4 model =
-                glm::scale(glm::mat4(1.f), glm::vec3(node_editor.zoom, node_editor.zoom, 0.f)) *
                 glm::translate(glm::mat4(1.f), glm::vec3(node.position, 0.f)) *
                 glm::scale(glm::mat4(1.f), glm::vec3(node_editor.graph.nodes_computed.at(id).size, 0.f));
 
-        glm::mat4 mvp = projection * view * model;
+        glm::mat4 mvp = view_projection * model;
         glm::mat4 node_mvp = mvp;
-        solid_shader.use();
+
         glUniformMatrix4fv(solid_mvp_location, 1, 0, glm::value_ptr(mvp));
         glUniform4f(solid_color_location, config.node_background_color.r, config.node_background_color.g, config.node_background_color.b, 1.f);
 
@@ -157,14 +148,13 @@ void Render::operator()(const NodeEditor &node_editor)
         );
 
         model =
-                glm::scale(glm::mat4(1.f), glm::vec3(node_editor.zoom, node_editor.zoom, 0.f)) *
                 glm::translate(glm::mat4(1.f), glm::vec3(node_editor.graph.nodes_computed.at(id).header_position, 0.f)) *
                 glm::scale(glm::mat4(1.f), glm::vec3(
                         node_editor.graph.nodes_computed.at(id).size.x,
                         config.header_height,
                         0.f
                         ));
-        mvp = projection * view * model;
+        mvp = view_projection * model;
         glUniformMatrix4fv(solid_mvp_location, 1, 0, glm::value_ptr(mvp));
         glUniform4f(solid_color_location, node.color.r, node.color.g, node.color.b, 1.f);
         glDrawArrays(
@@ -201,7 +191,7 @@ void Render::operator()(const NodeEditor &node_editor)
                 glm::translate(glm::mat4(1.f), glm::vec3((select_drag.current_corner + select_drag.begin_corner) / 2.f, 0.f)) *
                 glm::scale(glm::mat4(1.f), glm::vec3(box_size, 0.f));
 
-        glm::mat4 mvp = screen_projection * model;
+        glm::mat4 mvp = screen_projection_mat(node_editor.camera) * model;
 
         glUniformMatrix4fv(solid_mvp_location, 1, 0, glm::value_ptr(mvp));
         glUniform4f(solid_color_location, config.select_rectangle_color.r, config.select_rectangle_color.g, config.select_rectangle_color.b, config.select_rectangle_color.a);

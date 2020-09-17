@@ -2,6 +2,8 @@
 #define NODE_EDITOR_NODEEDITOR_H
 
 #include <Graph.h>
+#include <Camera.h>
+
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -54,10 +56,8 @@ struct NoDrag {};
 struct NodeEditor
 {
     Graph graph{};
+    Camera camera{};
 
-    float zoom = 1.f;
-    glm::vec2 camera_position {0.f, 0.f};
-    glm::vec2 screen_size;
     std::variant<NoDrag, ViewDrag, SelectDrag, ConnectionDrag, NodeDrag> drag_state = NoDrag{};
     std::unordered_set<NodeId> selected_nodes = {};
 
