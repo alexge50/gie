@@ -6,11 +6,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <Graph.h>
-#include <detail/Shader.h>
 #include <NodeEditor.h>
 #include <Render.h>
 #include <Events.h>
-#include <shaders.h>
 
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
