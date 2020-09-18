@@ -12,7 +12,7 @@ public:
     Render();
     ~Render();
 
-    void operator()(const NodeEditor& node_editor);
+    void operator()(NodeEditor& node_editor);
 
 private:
     GeometryBuffer quad, quad_outline;

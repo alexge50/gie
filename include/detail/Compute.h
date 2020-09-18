@@ -59,4 +59,13 @@ static void compute_node(NodeEditor& node_editor, NodeId id)
     node_compute.bounding_box = compute_bounding_box(node.position, node_type_compute.size);
 }
 
+inline void compute_focus_stack(NodeEditor& node_editor)
+{
+    for(const auto [id, _]: node_editor.graph.nodes)
+    {
+        if(std::count(node_editor.focus_stack.begin(), node_editor.focus_stack.end(), id) == 0)
+            node_editor.focus_stack.push_back(id);
+    }
+}
+
 #endif //NODE_EDITOR_COMPUTE_H

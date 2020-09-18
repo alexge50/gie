@@ -18,15 +18,15 @@ glm::mat4 world_space_mat(const Camera& camera)
 {
     const glm::mat4 projection = glm::ortho(
             -float(camera.screen_size.x) / 2.f, float(camera.screen_size.x) / 2.f,
-            float(camera.screen_size.y) / 2.f, -float(camera.screen_size.y) / 2.f, -1.f, 1.f);
+            float(camera.screen_size.y) / 2.f, -float(camera.screen_size.y) / 2.f, 0.0001f, 65535.f);
 
     const glm::mat4 view = glm::lookAt(
-            glm::vec3(camera.position, 1.f),
+            glm::vec3(camera.position, 65534.f),
             glm::vec3(camera.position, 0.f),
             glm::vec3(0.f, 1.f, 0.f)
     );
 
-    const glm::mat4 zoom = glm::scale(glm::mat4(1.f), glm::vec3(camera.zoom, camera.zoom, 0.f));
+    const glm::mat4 zoom = glm::scale(glm::mat4(1.f), glm::vec3(camera.zoom, camera.zoom, 1.f));
 
     return projection * view * zoom;
 }

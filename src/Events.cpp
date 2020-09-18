@@ -11,19 +11,25 @@
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-static std::optional<NodeId> get_containing_node(const Graph& graph, glm::vec2 point)
+static std::optional<NodeId> get_containing_node(const NodeEditor& node_editor, glm::vec2 point)
 {
     auto node = std::find_if(
-            graph.nodes.begin(),
-            graph.nodes.end(),
-            [&graph, &point](const auto& node) {
-                const NodeCompute& node_compute = graph.node_computed.at(node.first);
+            node_editor.focus_stack.begin(),
+            node_editor.focus_stack.end(),
+            [&node_editor, &point](const auto& node) {
+                const NodeCompute& node_compute = node_editor.graph.node_computed.at(node);
                 return contains_point(node_compute.bounding_box, point);
             });
 
-    if(node == graph.nodes.end())
+    if(node == node_editor.focus_stack.end())
         return std::nullopt;
-    else return node->first;
+    else return *node;
+}
+
+static void move_first_focus_stack(NodeEditor& node_editor, NodeId node)
+{
+    std::erase(node_editor.focus_stack, node);
+    node_editor.focus_stack.insert(node_editor.focus_stack.begin(), node);
 }
 
 void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std::vector<EditorEvent>&)
@@ -35,12 +41,13 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                     [&](const InputEvents::Click& click) {
                         auto canvas_position = to_world_space(node_editor.camera, glm::vec2{click.x, click.y});
 
-                        if(auto clicked_node = get_containing_node(node_editor.graph, canvas_position.get()); clicked_node)
+                        if(auto clicked_node = get_containing_node(node_editor, canvas_position.get()); clicked_node)
                         {
                             if(!click.special_key)
                                 node_editor.input_state.selected_nodes.clear();
 
                             node_editor.input_state.selected_nodes.insert(*clicked_node);
+                            move_first_focus_stack(node_editor, *clicked_node);
                         }
                         else node_editor.input_state.selected_nodes.clear();
                     },
@@ -50,12 +57,13 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                     [&](const InputEvents::DragBegin& drag_begin) {
                         auto canvas_position = to_world_space(node_editor.camera, glm::vec2{drag_begin.x, drag_begin.y});
 
-                        if(auto dragged_node = get_containing_node(node_editor.graph, canvas_position.get()); dragged_node)
+                        if(auto dragged_node = get_containing_node(node_editor, canvas_position.get()); dragged_node)
                         {
                             if(!drag_begin.special_key)
                             {
                                 node_editor.input_state.selected_nodes.clear();
                                 node_editor.input_state.selected_nodes.insert(*dragged_node);
+                                move_first_focus_stack(node_editor, *dragged_node);
                             }
 
                             node_editor.input_state.drag_state = NodeDrag {
@@ -96,7 +104,10 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                             for(const auto&[id, node]: node_editor.graph.nodes)
                             {
                                 if(contains_point(compute_bounding_box(box_position, box_size), node.position))
+                                {
                                     node_editor.input_state.selected_nodes.insert(id);
+                                    move_first_focus_stack(node_editor, id);
+                                }
                             }
                         }
 

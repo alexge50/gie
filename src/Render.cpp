@@ -1,8 +1,26 @@
 #include <Render.h>
+#include <RenderState.h>
+#include <detail/Compute.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+
+static const float OUTLINE_Z_LOCATION = 2.f;
+static const float BASE_Z_LOCATION = 0.f;
+static const float REST_Z_LOCATION = 3.f;
+static const float HEADER_Z_LOCATION = 1.f;
+static const float STRIDE_Z_LOCATION = 4.f;
+
+static void compute_render_state(NodeEditor& node_editor)
+{
+    auto z = static_cast<float>(node_editor.focus_stack.size());
+
+    for(const auto node_id: node_editor.focus_stack)
+    {
+        node_editor.render_state.node_position_z[node_id] = z * STRIDE_Z_LOCATION;
+        z--;
+    }
+}
 
 Render::Render()
 {
@@ -26,8 +44,9 @@ Render::~Render()
 
 }
 
-void Render::operator()(const NodeEditor &node_editor)
+void Render::operator()(NodeEditor &node_editor)
 {
+    compute_render_state(node_editor);
     const auto& config = node_editor.styling_config;
 
     glm::vec2 screen_size = node_editor.camera.screen_size;
@@ -60,18 +79,21 @@ void Render::operator()(const NodeEditor &node_editor)
         );
     }
 
+    glEnable(GL_DEPTH_TEST);
+
     glm::mat4 view_projection = world_space_mat(node_editor.camera);
     for(const auto& [id, node]: node_editor.graph.nodes)
     {
         const NodeTypeCompute& node_type_computed = node_editor.graph.node_types_computed.at(node.node_type);
         const NodeType& node_type = node_editor.graph.node_types.at(node.node_type);
 
+        float node_position_z = node_editor.render_state.node_position_z.at(id);
+
         glm::mat4 model =
-                glm::translate(glm::mat4(1.f), glm::vec3(node.position, 0.f)) *
-                glm::scale(glm::mat4(1.f), glm::vec3(node_type_computed.size, 0.f));
+                glm::translate(glm::mat4(1.f), glm::vec3(node.position, node_position_z + BASE_Z_LOCATION)) *
+                glm::scale(glm::mat4(1.f), glm::vec3(node_type_computed.size, 1.f));
 
         glm::mat4 mvp = view_projection * model;
-        glm::mat4 node_mvp = mvp;
 
         solid_shader.prepare({
             .mvp = mvp,
@@ -86,7 +108,7 @@ void Render::operator()(const NodeEditor &node_editor)
         );
 
         model =
-                glm::translate(glm::mat4(1.f), glm::vec3(node.position + node_type_computed.header_position, 0.f)) *
+                glm::translate(glm::mat4(1.f), glm::vec3(node.position + node_type_computed.header_position, node_position_z + HEADER_Z_LOCATION)) *
                 glm::scale(glm::mat4(1.f), glm::vec3(
                         node_type_computed.size.x,
                         config.header_height,
@@ -106,13 +128,19 @@ void Render::operator()(const NodeEditor &node_editor)
         );
 
 
+        model =
+                glm::translate(glm::mat4(1.f), glm::vec3(node.position, node_position_z + OUTLINE_Z_LOCATION)) *
+                glm::scale(glm::mat4(1.f), glm::vec3(node_type_computed.size, 1.f));
+
+        mvp = view_projection * model;
+
         glm::vec3 outline_color =
                 !node_editor.input_state.selected_nodes.contains(id) ?
                     config.node_outline_color :
                     config.node_selected_outline_color;
 
         solid_shader.prepare({
-            .mvp = node_mvp,
+            .mvp = mvp,
             .color = glm::vec4(outline_color, 1.f)
         });
 
@@ -125,6 +153,7 @@ void Render::operator()(const NodeEditor &node_editor)
         );
 
     }
+    glDisable(GL_DEPTH_TEST);
 
     if(std::holds_alternative<SelectDrag>(node_editor.input_state.drag_state))
     {

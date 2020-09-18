@@ -86,7 +86,8 @@ int main()
         glViewport(0, 0, width, height);
 
         glClearColor(0.f, 0.f, 0.f, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
         node_editor.camera.screen_size = {float(width), float(height)};
 

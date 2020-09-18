@@ -12,4 +12,6 @@ void compute(NodeEditor& node_editor)
     {
         compute_node(node_editor, id);
     }
+
+    compute_focus_stack(node_editor);
 }
