@@ -1,6 +1,6 @@
 #include <Events.h>
 #include <NodeEditor.h>
-#include <detail/ComputeNode.h>
+#include <detail/Compute.h>
 
 #include <algorithm>
 #include <math.h>
@@ -11,22 +11,14 @@
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-static bool point_in_box(glm::vec2 box_position, glm::vec2 box_size, glm::vec2 point)
-{
-    auto upper_left = box_position - box_size / 2.f;
-    auto bottom_right = box_position + box_size / 2.f;
-
-    return upper_left.x <= point.x && bottom_right.x >= point.x &&
-           upper_left.y <= point.y && bottom_right.y >= point.y;
-}
-
 static std::optional<NodeId> get_containing_node(const Graph& graph, glm::vec2 point)
 {
     auto node = std::find_if(
             graph.nodes.begin(),
             graph.nodes.end(),
             [&graph, &point](const auto& node) {
-                return point_in_box(node.second.position, graph.nodes_computed.at(node.first).size, point);
+                const NodeCompute& node_compute = graph.node_computed.at(node.first);
+                return contains_point(node_compute.bounding_box, point);
             });
 
     if(node == graph.nodes.end())
@@ -103,7 +95,7 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
 
                             for(const auto&[id, node]: node_editor.graph.nodes)
                             {
-                                if(point_in_box(box_position, box_size, node.position))
+                                if(contains_point(compute_bounding_box(box_position, box_size), node.position))
                                     node_editor.selected_nodes.insert(id);
                             }
                         }

@@ -63,9 +63,12 @@ void Render::operator()(const NodeEditor &node_editor)
     glm::mat4 view_projection = world_space_mat(node_editor.camera);
     for(const auto& [id, node]: node_editor.graph.nodes)
     {
+        const NodeTypeCompute& node_type_computed = node_editor.graph.node_types_computed.at(node.node_type);
+        const NodeType& node_type = node_editor.graph.node_types.at(node.node_type);
+
         glm::mat4 model =
                 glm::translate(glm::mat4(1.f), glm::vec3(node.position, 0.f)) *
-                glm::scale(glm::mat4(1.f), glm::vec3(node_editor.graph.nodes_computed.at(id).size, 0.f));
+                glm::scale(glm::mat4(1.f), glm::vec3(node_type_computed.size, 0.f));
 
         glm::mat4 mvp = view_projection * model;
         glm::mat4 node_mvp = mvp;
@@ -83,9 +86,9 @@ void Render::operator()(const NodeEditor &node_editor)
         );
 
         model =
-                glm::translate(glm::mat4(1.f), glm::vec3(node_editor.graph.nodes_computed.at(id).header_position, 0.f)) *
+                glm::translate(glm::mat4(1.f), glm::vec3(node.position + node_type_computed.header_position, 0.f)) *
                 glm::scale(glm::mat4(1.f), glm::vec3(
-                        node_editor.graph.nodes_computed.at(id).size.x,
+                        node_type_computed.size.x,
                         config.header_height,
                         0.f
                         ));
@@ -93,7 +96,7 @@ void Render::operator()(const NodeEditor &node_editor)
 
         solid_shader.prepare({
             .mvp = mvp,
-            .color = glm::vec4(node.color, 1.f)
+            .color = glm::vec4(node_type.color, 1.f)
         });
 
         glDrawArrays(

@@ -1,6 +1,8 @@
 #ifndef NODE_EDITOR_GRAPH_H
 #define NODE_EDITOR_GRAPH_H
 
+#include "detail/BoundingBox.h"
+
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -9,16 +11,13 @@
 
 using NodeId = std::int32_t;
 using PortId = std::int32_t;
+using NodeTypeId = std::int32_t;
 
 struct Node
 {
-    std::vector<std::string> input_ports;
-    std::vector<std::string> output_ports;
-    std::string node_name;
+    NodeTypeId node_type;
 
     glm::vec2 position;
-    glm::vec3 color;
-    glm::vec3 outline_color;
 };
 
 struct Connection
@@ -32,6 +31,25 @@ struct Connection
 
 struct NodeCompute
 {
+    BoundingBox bounding_box;
+};
+
+struct NodeType
+{
+    struct Port
+    {
+        std::string name;
+        glm::vec3 color;
+    };
+
+    std::vector<Port> input_ports;
+    std::vector<Port> output_ports;
+    std::string name;
+    glm::vec3 color;
+};
+
+struct NodeTypeCompute
+{
     std::vector<glm::vec2> input_port_positions;
     std::vector<glm::vec2> output_port_positions;
 
@@ -42,8 +60,10 @@ struct NodeCompute
 struct Graph
 {
     std::unordered_map<NodeId, Node> nodes;
-    std::unordered_map<NodeId, NodeCompute> nodes_computed;
+    std::unordered_map<NodeTypeId, NodeType> node_types;
     std::vector<Connection> connections;
+    std::unordered_map<NodeId, NodeCompute> node_computed;
+    std::unordered_map<NodeTypeId, NodeTypeCompute> node_types_computed;
 };
 
 #endif //NODE_EDITOR_GRAPH_H
