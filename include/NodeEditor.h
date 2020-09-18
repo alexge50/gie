@@ -3,13 +3,11 @@
 
 #include <Graph.h>
 #include <Camera.h>
+#include <InputState.h>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-
-#include <variant>
-#include <unordered_set>
 
 struct StylingConfig
 {
@@ -30,36 +28,12 @@ struct StylingConfig
     float node_outline_width = 1.f;
 };
 
-struct NodeDrag
-{
-    glm::vec2 begin_position;
-};
-
-struct ConnectionDrag
-{
-
-};
-
-struct SelectDrag
-{
-    glm::vec2 begin_corner;
-    glm::vec2 current_corner;
-};
-
-struct ViewDrag
-{
-    glm::vec2 begin_position;
-};
-
-struct NoDrag {};
-
 struct NodeEditor
 {
     Graph graph{};
     Camera camera{};
 
-    std::variant<NoDrag, ViewDrag, SelectDrag, ConnectionDrag, NodeDrag> drag_state = NoDrag{};
-    std::unordered_set<NodeId> selected_nodes = {};
+    InputState input_state;
 
     StylingConfig styling_config{};
 };

@@ -107,7 +107,7 @@ void Render::operator()(const NodeEditor &node_editor)
 
 
         glm::vec3 outline_color =
-                !node_editor.selected_nodes.contains(id) ?
+                !node_editor.input_state.selected_nodes.contains(id) ?
                     config.node_outline_color :
                     config.node_selected_outline_color;
 
@@ -126,9 +126,9 @@ void Render::operator()(const NodeEditor &node_editor)
 
     }
 
-    if(std::holds_alternative<SelectDrag>(node_editor.drag_state))
+    if(std::holds_alternative<SelectDrag>(node_editor.input_state.drag_state))
     {
-        auto& select_drag = std::get<SelectDrag>(node_editor.drag_state);
+        auto& select_drag = std::get<SelectDrag>(node_editor.input_state.drag_state);
 
         glm::vec2 box_size = {
             fabsf(select_drag.current_corner.x - select_drag.begin_corner.x),
