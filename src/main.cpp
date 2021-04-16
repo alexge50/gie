@@ -71,11 +71,16 @@ int main()
             {2, {1, {100.f, 100.f}}},
             {3, {1, {200.f, 200.f}}},
         },
-        { {1, { {}, {}, "default", {0.36f, 0.17f, 0.54f} }} },
+        { {1, { {{"in", glm::vec3{0.85f, 0.72f, 0.02f}}}, {{"out", glm::vec3{0.85f, 0.72f, 0.02f}}}, "default", {0.36f, 0.17f, 0.54f} }} },
         {},
         {},
         {}
     };
+
+    for(int i = 4; i <= 1000; i++)
+    {
+        node_editor.graph.nodes.insert({i, {1, {0.f, i * 100.f}}});
+    }
 
     compute(node_editor);
 

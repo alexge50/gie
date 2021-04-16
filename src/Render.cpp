@@ -1,15 +1,35 @@
 #include <Render.h>
 #include <RenderState.h>
 #include <detail/Compute.h>
+#include <detail/Zip.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 static const float OUTLINE_Z_LOCATION = 2.f;
 static const float BASE_Z_LOCATION = 0.f;
-static const float REST_Z_LOCATION = 3.f;
+static const float PORT_Z_LOCATION = 3.f;
+static const float PORT_OUTLINE_Z_LOCATION = 4.f;
 static const float HEADER_Z_LOCATION = 1.f;
-static const float STRIDE_Z_LOCATION = 4.f;
+static const float STRIDE_Z_LOCATION = 5.f;
+
+static const int CIRCLE_POINTS = 64;
+
+template<int N>
+constexpr std::array<glm::vec2, N + 1> generate_circle()
+{
+    std::array<glm::vec2, N + 1> r{};
+
+    for(int i = 0; i <= N; i++)
+    {
+        r[i] = {
+                0.5f * cosf( 2.f * M_PI * i / N ),
+                0.5f * sinf( 2.f * M_PI * i / N ),
+        };
+    }
+
+    return r;
+}
 
 static void compute_render_state(NodeEditor& node_editor)
 {
@@ -37,6 +57,10 @@ Render::Render()
         glm::vec2{0.5f, -0.5f},
         glm::vec2{-0.5f, -0.5f},
     });
+
+    circle = create(
+            generate_circle<CIRCLE_POINTS>()
+    );
 }
 
 Render::~Render()
@@ -82,8 +106,9 @@ void Render::operator()(NodeEditor &node_editor)
     glEnable(GL_DEPTH_TEST);
 
     glm::mat4 view_projection = world_space_mat(node_editor.camera);
-    for(const auto& [id, node]: node_editor.graph.nodes)
+    for(const auto& [id, node_]: node_editor.graph.nodes)
     {
+        const Node& node = node_;
         const NodeTypeCompute& node_type_computed = node_editor.graph.node_types_computed.at(node.node_type);
         const NodeType& node_type = node_editor.graph.node_types.at(node.node_type);
 
@@ -152,6 +177,58 @@ void Render::operator()(NodeEditor &node_editor)
                 4
         );
 
+
+        auto render_node = [&node, this, &view_projection, &outline_color, &node_position_z, &config](const auto& position, const auto& port)
+        {
+            glm::mat4 model =
+                    glm::translate(glm::mat4(1.f), glm::vec3(node.position + position, node_position_z + PORT_Z_LOCATION)) *
+                    glm::scale(glm::mat4(1.f), glm::vec3(10.f, 10.f, 1.f));
+
+            glm::mat4 mvp = view_projection * model;
+
+            solid_shader.prepare({
+                                         .mvp = mvp,
+                                         .color = glm::vec4(port.color, 1.f)
+                                 });
+
+            glBindVertexArray(circle.vao);
+            glDrawArrays(
+                    GL_POLYGON,
+                    0,
+                    CIRCLE_POINTS + 1
+            );
+
+            model =
+                    glm::translate(glm::mat4(1.f), glm::vec3(node.position + position, node_position_z + PORT_OUTLINE_Z_LOCATION)) *
+                    glm::scale(glm::mat4(1.f), glm::vec3(10.f, 10.f, 1.f));
+
+            mvp = view_projection * model;
+
+            solid_shader.prepare({
+                                         .mvp = mvp,
+                                         .color = glm::vec4(outline_color, 1.f)
+                                 });
+
+            glLineWidth(config.node_outline_width * 1.5f);
+            glBindVertexArray(circle.vao);
+            glDrawArrays(
+                    GL_LINE_LOOP,
+                    0,
+                    CIRCLE_POINTS
+            );
+        };
+
+        for(const auto&[position, port]:
+                ConstZipObject{node_type_computed.input_port_positions, node_type.input_ports})
+        {
+            render_node(position, port);
+        }
+
+        for(const auto&[position, port]:
+                ConstZipObject{node_type_computed.output_port_positions, node_type.output_ports})
+        {
+            render_node(position, port);
+        }
     }
     glDisable(GL_DEPTH_TEST);
 

@@ -27,7 +27,7 @@ inline void compute_type(NodeEditor& node_editor, NodeTypeId id)
             -size.y / 2.f + config.header_height / 2.f
     };
 
-    auto offset = config.header_height;
+    auto offset = node_type_compute.header_position.y + config.header_height / 2.f;
 
     node_type_compute.output_port_positions.resize(node_type.output_ports.size());
     for(int i = 0; i < node_type.output_ports.size(); i++)
@@ -39,6 +39,7 @@ inline void compute_type(NodeEditor& node_editor, NodeTypeId id)
         offset += row_real_height;
     }
 
+    offset = node_type_compute.header_position.y + config.header_height / 2.f;
     node_type_compute.input_port_positions.resize(node_type.input_ports.size());
     for(int i = 0; i < node_type.input_ports.size(); i++)
     {
