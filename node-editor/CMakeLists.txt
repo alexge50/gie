@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
-project(node-editor)
+project(.)
 
 find_package (Python3 COMPONENTS Interpreter)
 
@@ -7,9 +7,9 @@ function(add_shader target vertex fragment)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/shader/)
     add_custom_target(
             ${target}_gen
-            COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/shader.py ${vertex} ${fragment} ${CMAKE_CURRENT_BINARY_DIR}/shader/${target}.h
+            COMMAND ${Python3_EXECUTABLE} scripts/shader.py ${vertex} ${fragment} ${CMAKE_CURRENT_BINARY_DIR}/shader/${target}.h
             BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/shader/${target}.h
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+            WORKING_DIRECTORY ..
             DEPENDS ${vertex} ${fragment}
     )
 
@@ -21,7 +21,7 @@ endfunction()
 set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(3rdparty/glfw)
-add_subdirectory(3rdparty/glad)
+add_subdirectory(../3rdparty/glad)
 add_subdirectory(3rdparty/glm)
 
 find_package(OpenGL REQUIRED)
@@ -33,4 +33,4 @@ add_shader(shader_background shaders/background.vertex.glsl shaders/background.f
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*)
 add_executable(node_editor ${SOURCES})
 target_link_libraries(node_editor PRIVATE glfw glad glm OpenGL::GL shader_solid shader_background)
-target_include_directories(node_editor PRIVATE include/)
+target_include_directories(node_editor PRIVATE include)
