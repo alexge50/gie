@@ -15,7 +15,7 @@ public:
     void operator()(NodeEditor& node_editor);
 
 private:
-    GeometryBuffer quad, quad_outline, circle;
+    GeometryBuffer quad, quad_outline, circle, line;
 
     Shaders::solid solid_shader;
     Shaders::background background_shader;

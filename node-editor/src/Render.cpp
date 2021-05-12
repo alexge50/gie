@@ -61,6 +61,11 @@ Render::Render()
     circle = create(
             generate_circle<CIRCLE_POINTS>()
     );
+
+    line = create<2>({
+        glm::vec2{0.f, 0.f},
+        glm::vec2{1.f, 1.f},
+    });
 }
 
 Render::~Render()
@@ -104,8 +109,44 @@ void Render::operator()(NodeEditor &node_editor)
     }
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LINE_SMOOTH);
 
     glm::mat4 view_projection = world_space_mat(node_editor.camera);
+
+    for(const auto& connection: node_editor.graph.connections)
+    {
+        const glm::vec2 point_a = node_editor.graph.nodes.at(connection.input_port.node_id).position +
+                node_editor.graph.node_types_computed.at(
+                    node_editor.graph.nodes.at(connection.input_port.node_id).node_type
+                ).input_port_positions[connection.input_port.port_id];
+        const glm::vec2 point_b = node_editor.graph.nodes.at(connection.output_port.node_id).position +
+                node_editor.graph.node_types_computed.at(
+                    node_editor.graph.nodes.at(connection.output_port.node_id).node_type
+                ).output_port_positions[connection.output_port.port_id];
+
+        glm::vec2 translate = point_a;
+        glm::vec2 scale = point_b - point_a;
+
+        glm::mat4 model =
+                glm::translate(glm::mat4(1.f), glm::vec3(translate, 1.0f)) *
+                glm::scale(glm::mat4(1.f), glm::vec3(scale, 0.f));
+
+        solid_shader.prepare({
+            .mvp = view_projection * model,
+            .color = glm::vec4(config.connection_color, 1.f)
+        });
+
+        glLineWidth(config.connection_width);
+        glBindVertexArray(line.vao);
+        glDrawArrays(
+                GL_LINES,
+                0,
+                2
+        );
+    }
+
+    glDisable(GL_LINE_SMOOTH);
+
     for(const auto& [id, node_]: node_editor.graph.nodes)
     {
         const Node& node = node_;
