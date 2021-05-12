@@ -3,6 +3,7 @@
 
 #include <variant>
 #include <unordered_set>
+#include <glm/vec2.hpp>
 
 struct NodeDrag
 {

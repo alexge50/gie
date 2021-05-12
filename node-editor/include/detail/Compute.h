@@ -30,7 +30,7 @@ inline void compute_type(NodeEditor& node_editor, NodeTypeId id)
     auto offset = node_type_compute.header_position.y + config.header_height / 2.f;
 
     node_type_compute.output_port_positions.resize(node_type.output_ports.size());
-    for(int i = 0; i < node_type.output_ports.size(); i++)
+    for(size_t i = 0; i < node_type.output_ports.size(); i++)
     {
         node_type_compute.output_port_positions[i] = glm::vec2 {
                 +size.x / 2.f,
@@ -41,7 +41,7 @@ inline void compute_type(NodeEditor& node_editor, NodeTypeId id)
 
     offset = node_type_compute.header_position.y + config.header_height / 2.f;
     node_type_compute.input_port_positions.resize(node_type.input_ports.size());
-    for(int i = 0; i < node_type.input_ports.size(); i++)
+    for(size_t i = 0; i < node_type.input_ports.size(); i++)
     {
         node_type_compute.input_port_positions[i] = glm::vec2 {
                 -size.x / 2.f,
