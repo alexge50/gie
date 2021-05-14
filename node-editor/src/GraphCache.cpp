@@ -40,9 +40,15 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
         for(const auto&[position, port]:
                 ConstZipObject{node_type_computed.input_port_positions, node_type.input_ports})
         {
+            bool disabled = false;
+            if(auto source_port = std::get_if<ConnectionDrag>(&node_editor.input_state.drag_state))
+            {
+                disabled = source_port->source_port.type == Port::Type::INPUT;
+            }
+
             cache.ports.push_back(PortCache{
                 glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_Z_LOCATION),
-                port.color,
+                disabled ? node_editor.styling_config.disabled_port_color : port.color,
             });
 
             cache.port_outline.push_back(PortOutlineCache{
@@ -54,9 +60,15 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
         for(const auto&[position, port]:
                 ConstZipObject{node_type_computed.output_port_positions, node_type.output_ports})
         {
+            bool disabled = false;
+            if(auto source_port = std::get_if<ConnectionDrag>(&node_editor.input_state.drag_state))
+            {
+                disabled = source_port->source_port.type == Port::Type::OUTPUT;
+            }
+
             cache.ports.push_back(PortCache{
                     glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_Z_LOCATION),
-                    port.color,
+                    disabled ? node_editor.styling_config.disabled_port_color : port.color,
             });
 
             cache.port_outline.push_back(PortOutlineCache{

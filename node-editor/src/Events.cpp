@@ -149,6 +149,11 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                                     connection
                                 });
                             }
+
+                            if(node_editor.compute_disabled_ports)
+                            {
+                                node_editor.input_state.disabled_ports = node_editor.compute_disabled_ports(dragged_port->port);
+                            }
                         }
                         else if(auto dragged_node = get_containing_node(node_editor, canvas_position.get()); dragged_node)
                         {
@@ -209,8 +214,17 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                             auto& connection_drag = std::get<ConnectionDrag>(node_editor.input_state.drag_state);
                             auto port = get_containing_port(node_editor, connection_drag.destination_position);
 
-                            if(port && port->port.type != connection_drag.source_port.type)
+                            if(port && port->port.type != connection_drag.source_port.type && !node_editor.input_state.disabled_ports.contains(port->port))
                             {
+                                if(auto index = find_connection(node_editor, port->port); index)
+                                {
+                                    Connection connection =  node_editor.graph.connections[index.value()];
+                                    node_editor.graph.connections.erase(node_editor.graph.connections.begin() + index.value());
+                                    editor_events.push_back(EditorEvents::ConnectionRemoved {
+                                            connection
+                                    });
+                                }
+
                                 {
                                     Connection connection;
 
@@ -230,16 +244,8 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
 
                                     node_editor.graph.connections.push_back(connection);
                                 }
-
-                                if(auto index = find_connection(node_editor, port->port); index)
-                                {
-                                    Connection connection =  node_editor.graph.connections[index.value()];
-                                    node_editor.graph.connections.erase(node_editor.graph.connections.begin() + index.value());
-                                    editor_events.push_back(EditorEvents::ConnectionRemoved {
-                                            connection
-                                    });
-                                }
                             }
+                            node_editor.input_state.disabled_ports.clear();
                         }
 
                         node_editor.input_state.drag_state = NoDrag{};

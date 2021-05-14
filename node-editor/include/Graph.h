@@ -34,6 +34,29 @@ struct Port
     Type type = Type::NOT_APPLICABLE;
 };
 
+static bool operator==(const Port& lhs, const Port& rhs)
+{
+    return lhs.node_id == rhs.node_id &&
+           lhs.port_id == rhs.port_id &&
+           lhs.type == rhs.type;
+}
+
+struct PortHasher
+{
+    size_t operator()(const Port& port) const
+    {
+        size_t r = 0;
+
+        std::hash<int32_t> hasher;
+
+        r ^= hasher(port.node_id) + 0x9e3779b9 + (r << 6) + (r >> 2);
+        r ^= hasher(port.port_id) + 0x9e3779b9 + (r << 6) + (r >> 2);
+        r ^= hasher(static_cast<int>(port.type)) + 0x9e3779b9 + (r << 6) + (r >> 2);
+
+        return r;
+    }
+};
+
 struct Connection
 {
     Port output_port, input_port;

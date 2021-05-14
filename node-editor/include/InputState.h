@@ -30,10 +30,13 @@ struct ViewDrag
 
 struct NoDrag {};
 
+using DisabledPorts = std::unordered_set<Port, PortHasher>;
+
 struct InputState
 {
     std::variant<NoDrag, ViewDrag, SelectDrag, ConnectionDrag, NodeDrag> drag_state = NoDrag{};
     std::unordered_set<NodeId> selected_nodes = {};
+    DisabledPorts disabled_ports = {};
 };
 
 #endif //NODE_EDITOR_INPUTSTATE_H
