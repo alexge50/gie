@@ -145,6 +145,31 @@ void Render::operator()(NodeEditor &node_editor)
         );
     }
 
+    if(std::holds_alternative<ConnectionDrag>(node_editor.input_state.drag_state))
+    {
+        auto& connection_drag = std::get<ConnectionDrag>(node_editor.input_state.drag_state);
+
+        glm::vec2 translate = connection_drag.source_position;
+        glm::vec2 scale = connection_drag.destination_position - connection_drag.source_position;
+
+        glm::mat4 model =
+                glm::translate(glm::mat4(1.f), glm::vec3(translate, 1.0f)) *
+                glm::scale(glm::mat4(1.f), glm::vec3(scale, 0.f));
+
+        solid_shader.prepare({
+                                     .mvp = view_projection * model,
+                                     .color = glm::vec4(config.connection_color, 1.f)
+                             });
+
+        glLineWidth(config.connection_width);
+        glBindVertexArray(line.vao);
+        glDrawArrays(
+                GL_LINES,
+                0,
+                2
+        );
+    }
+
     glDisable(GL_LINE_SMOOTH);
 
     for(const auto& [id, node_]: node_editor.graph.nodes)
@@ -219,11 +244,11 @@ void Render::operator()(NodeEditor &node_editor)
         );
 
 
-        auto render_node = [&node, this, &view_projection, &outline_color, &node_position_z, &config](const auto& position, const auto& port)
+        auto render_port = [&node, this, &view_projection, &outline_color, &node_position_z, &config](const auto& position, const auto& port)
         {
             glm::mat4 model =
                     glm::translate(glm::mat4(1.f), glm::vec3(node.position + position, node_position_z + PORT_Z_LOCATION)) *
-                    glm::scale(glm::mat4(1.f), glm::vec3(10.f, 10.f, 1.f));
+                    glm::scale(glm::mat4(1.f), glm::vec3(config.port_radius, config.port_radius, 1.f));
 
             glm::mat4 mvp = view_projection * model;
 
@@ -241,7 +266,7 @@ void Render::operator()(NodeEditor &node_editor)
 
             model =
                     glm::translate(glm::mat4(1.f), glm::vec3(node.position + position, node_position_z + PORT_OUTLINE_Z_LOCATION)) *
-                    glm::scale(glm::mat4(1.f), glm::vec3(10.f, 10.f, 1.f));
+                    glm::scale(glm::mat4(1.f), glm::vec3(config.port_radius, config.port_radius, 1.f));
 
             mvp = view_projection * model;
 
@@ -262,13 +287,13 @@ void Render::operator()(NodeEditor &node_editor)
         for(const auto&[position, port]:
                 ConstZipObject{node_type_computed.input_port_positions, node_type.input_ports})
         {
-            render_node(position, port);
+            render_port(position, port);
         }
 
         for(const auto&[position, port]:
                 ConstZipObject{node_type_computed.output_port_positions, node_type.output_ports})
         {
-            render_node(position, port);
+            render_port(position, port);
         }
     }
     glDisable(GL_DEPTH_TEST);

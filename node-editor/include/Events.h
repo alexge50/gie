@@ -4,6 +4,8 @@
 #include <vector>
 #include <variant>
 
+#include <Graph.h>
+
 namespace InputEvents
 {
     struct DragBegin
@@ -37,7 +39,7 @@ namespace EditorEvents
 {
     struct ConnectionAdded
     {
-
+        Connection connection;
     };
 
     struct ConnectionRemoved

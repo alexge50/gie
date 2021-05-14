@@ -26,13 +26,64 @@ static std::optional<NodeId> get_containing_node(const NodeEditor& node_editor, 
     else return *node;
 }
 
+struct ContainingPort
+{
+    Port port;
+    glm::vec2 position;
+};
+
+static std::optional<ContainingPort> get_containing_port(const NodeEditor& node_editor, glm::vec2 point)
+{
+    for(const auto& node_id: node_editor.focus_stack)
+    {
+        const Node& node = node_editor.graph.nodes.at(node_id);
+        const NodeTypeCompute& node_type_compute = node_editor.graph.node_types_computed.at(node.node_type);
+
+        for(size_t i = 0; i < node_type_compute.input_port_positions.size(); i++)
+        {
+            const auto& port = node_type_compute.input_port_positions[i];
+
+            if(contains_point(Circle{node.position + port, node_editor.styling_config.port_radius}, point))
+            {
+                return ContainingPort {
+                        Port {
+                                node_id,
+                                static_cast<PortId>(i),
+                                Port::Type::INPUT
+                        },
+                        node.position + port
+                };
+            }
+        }
+
+        for(size_t i = 0; i < node_type_compute.output_port_positions.size(); i++)
+        {
+            const auto& port = node_type_compute.output_port_positions[i];
+
+            if(contains_point(Circle{node.position + port, node_editor.styling_config.port_radius}, point))
+            {
+                return ContainingPort {
+                        Port {
+                                node_id,
+                                static_cast<PortId>(i),
+                                Port::Type::OUTPUT
+                        },
+                        node.position + port
+                };
+            }
+        }
+    }
+
+    return std::nullopt;
+}
+
 static void move_first_focus_stack(NodeEditor& node_editor, NodeId node)
 {
     std::erase(node_editor.focus_stack, node);
     node_editor.focus_stack.insert(node_editor.focus_stack.begin(), node);
 }
 
-void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std::vector<EditorEvent>&)
+void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std::vector<EditorEvent>& editor_events)
 {
     for(const auto& event: input)
     {
@@ -57,7 +108,15 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                     [&](const InputEvents::DragBegin& drag_begin) {
                         auto canvas_position = to_world_space(node_editor.camera, glm::vec2{drag_begin.x, drag_begin.y});
 
-                        if(auto dragged_node = get_containing_node(node_editor, canvas_position.get()); dragged_node)
+                        if(auto dragged_port = get_containing_port(node_editor, canvas_position.get()); dragged_port)
+                        {
+                            node_editor.input_state.drag_state = ConnectionDrag {
+                                    .source_port = dragged_port->port,
+                                    .source_position = dragged_port->position,
+                                    .destination_position = dragged_port->position
+                            };
+                        }
+                        else if(auto dragged_node = get_containing_node(node_editor, canvas_position.get()); dragged_node)
                         {
                             if(!drag_begin.special_key)
                             {
@@ -111,6 +170,36 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                             }
                         }
 
+                        if(std::holds_alternative<ConnectionDrag>(node_editor.input_state.drag_state))
+                        {
+                            auto& connection_drag = std::get<ConnectionDrag>(node_editor.input_state.drag_state);
+                            auto port = get_containing_port(node_editor, connection_drag.destination_position);
+
+                            if(port && port->port.type != connection_drag.source_port.type)
+                            {
+                                Connection connection;
+
+                                if(connection_drag.source_port.type == Port::Type::INPUT)
+                                {
+                                    connection.input_port = connection_drag.source_port;
+                                    connection.output_port = port->port;
+                                }
+                                else
+                                {
+                                    connection.input_port = port->port;
+                                    connection.output_port = connection_drag.source_port;
+                                }
+
+                                editor_events.push_back(EditorEvent{
+                                    EditorEvents::ConnectionAdded{
+                                        connection
+                                    }
+                                });
+
+                                node_editor.graph.connections.push_back(connection);
+                            }
+                        }
+
                         node_editor.input_state.drag_state = NoDrag{};
                     },
                     [&](const InputEvents::DragSustain& drag_sustain) {
@@ -128,6 +217,14 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                                 node_editor.graph.nodes[node].position += delta;
                                 compute_node(node_editor, node);
                             }
+                        }
+
+                        if(std::holds_alternative<ConnectionDrag>(node_editor.input_state.drag_state))
+                        {
+                            auto& connection_drag = std::get<ConnectionDrag>(node_editor.input_state.drag_state);
+                            auto canvas_position = to_world_space(node_editor.camera, glm::vec2{drag_sustain.x, drag_sustain.y});
+
+                            connection_drag.destination_position = canvas_position.get();
                         }
 
                         if(std::holds_alternative<SelectDrag>(node_editor.input_state.drag_state))

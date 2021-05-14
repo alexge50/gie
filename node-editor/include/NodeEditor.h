@@ -28,6 +28,8 @@ struct StylingConfig
     glm::vec3 node_selected_outline_color = {1.f, 1.f, 1.f};
     float node_outline_width = 1.f;
 
+    float port_radius = 10.f;
+
     glm::vec3 connection_color = {1.f, 1.f, 1.f};
     float connection_width = 2.f;
 };

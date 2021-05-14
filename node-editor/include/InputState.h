@@ -12,7 +12,9 @@ struct NodeDrag
 
 struct ConnectionDrag
 {
-
+    Port source_port;
+    glm::vec2 source_position;
+    glm::vec2 destination_position;
 };
 
 struct SelectDrag

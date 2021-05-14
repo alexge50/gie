@@ -20,13 +20,23 @@ struct Node
     glm::vec2 position;
 };
 
+struct Port
+{
+    enum class Type
+    {
+        INPUT,
+        OUTPUT,
+        NOT_APPLICABLE
+    };
+
+    NodeId node_id = -1;
+    PortId port_id = -1;
+    Type type = Type::NOT_APPLICABLE;
+};
+
 struct Connection
 {
-    struct Port
-    {
-        NodeId node_id;
-        PortId port_id;
-    } output_port, input_port;
+    Port output_port, input_port;
 };
 
 struct NodeCompute
