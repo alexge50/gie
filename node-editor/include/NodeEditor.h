@@ -5,6 +5,7 @@
 #include <Camera.h>
 #include <InputState.h>
 #include <GraphCache.h>
+#include <Font.h>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -18,6 +19,7 @@ struct StylingConfig
     float row_height = 14.f;
     float row_padding = 1.f;
     float header_height = 14.f;
+    glm::vec4 text_color = glm::vec4{1.f, 1.f, 1.f, 1.f};
 
     glm::vec3 grid_background = {0.137f, 0.137f, 0.137f};
     glm::vec3 grid_foreground = {0.1f, 0.1f, 0.1f};
@@ -47,6 +49,7 @@ struct NodeEditor
 
     StylingConfig styling_config{};
     std::function<DisabledPorts(Port)> compute_disabled_ports;
+    Font* font;
 };
 
 void compute(NodeEditor&);

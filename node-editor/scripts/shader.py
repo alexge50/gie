@@ -21,6 +21,8 @@ class {shader_name}
     static constexpr const char* fragment_source = "{fragment_source}";
 
 public:
+    using sampler2D = int;
+
     struct UniformData
     {{
 {uniform_data}
@@ -132,6 +134,8 @@ def generate_setup_line(uniform_variable):
         return f"glUniform{size}fv(location.{name}, 1, glm::value_ptr(uniform_data.{name}))"
     elif type_ == 'float':
         return f"glUniform1f(location.{name}, uniform_data.{name})"
+    elif type_ == 'sampler2D':
+        return f"glUniform1i(location.{name}, uniform_data.{name})"
 
 
 uniform_setup = '\n'.join(

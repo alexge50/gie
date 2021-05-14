@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 project(node-editor)
 
+find_package(Freetype REQUIRED)
 find_package (Python3 COMPONENTS Interpreter)
 
 function(add_shader target vertex fragment)
@@ -25,9 +26,10 @@ find_package(OpenGL REQUIRED)
 file(GLOB_RECURSE SHADERS CONFIGURE_DEPENDS shaders/*)
 add_shader(shader_solid shaders/solid.vertex.glsl shaders/solid.fragment.glsl)
 add_shader(shader_background shaders/background.vertex.glsl shaders/background.fragment.glsl)
+add_shader(shader_text shaders/text.vertex.glsl shaders/text.fragment.glsl)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*)
 add_library(node_editor ${SOURCES})
 target_link_libraries(node_editor PRIVATE glad OpenGL::GL)
-target_link_libraries(node_editor PUBLIC glm shader_solid shader_background)
+target_link_libraries(node_editor PUBLIC glm shader_solid shader_background shader_text Freetype::Freetype)
 target_include_directories(node_editor PUBLIC include/)

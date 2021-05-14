@@ -3,31 +3,28 @@
 
 #include "GraphCache.h"
 #include "NodeEditor.h"
+#include "Font.h"
 #include "detail/GeometryBuffer.h"
 #include "shader_solid.h"
 #include "shader_background.h"
-
-static const float OUTLINE_Z_LOCATION = 2.f;
-static const float BASE_Z_LOCATION = 0.f;
-static const float PORT_Z_LOCATION = 3.f;
-static const float PORT_OUTLINE_Z_LOCATION = 4.f;
-static const float HEADER_Z_LOCATION = 1.f;
-static const float STRIDE_Z_LOCATION = 5.f;
-static const float CONNECTION_Z_LOCATION = 1.f;
+#include "shader_text.h"
 
 class Render
 {
 public:
-    Render();
+    Render(const Font&);
     ~Render();
 
     void operator()(const GraphCache& graph_cache, const StylingConfig& styling_config);
 
 private:
+    const Font* font;
     GeometryBuffer quad, quad_outline, circle, line;
+    unsigned glyph_textures[256] {};
 
     Shaders::solid solid_shader;
     Shaders::background background_shader;
+    Shaders::text text_shader;
 };
 
 #endif //NODE_EDITOR_RENDER_H

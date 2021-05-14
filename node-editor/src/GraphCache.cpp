@@ -4,6 +4,15 @@
 
 #include <detail/Zip.h>
 
+static const float OUTLINE_Z_LOCATION = 2.f;
+static const float BASE_Z_LOCATION = 0.f;
+static const float PORT_Z_LOCATION = 3.f;
+static const float PORT_OUTLINE_Z_LOCATION = 4.f;
+static const float HEADER_Z_LOCATION = 1.f;
+static const float TEXT_Z_LOCATION = 4.f;
+static const float STRIDE_Z_LOCATION = 5.f;
+static const float CONNECTION_Z_LOCATION = 1.f;
+
 GraphCache compute_graph_cache(const NodeEditor& node_editor)
 {
     GraphCache cache;
@@ -24,11 +33,22 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
                glm::vec3(node_type_computed.size, 1.f)
         });
 
+        glm::vec3 header_position;
+
         cache.node_headers.push_back(NodeHeaderCache{
-            glm::vec3(node.position + node_type_computed.header_position, z * STRIDE_Z_LOCATION + HEADER_Z_LOCATION),
+            header_position = glm::vec3(node.position + node_type_computed.header_position, z * STRIDE_Z_LOCATION + HEADER_Z_LOCATION),
             glm::vec3(node_type_computed.size.x, node_editor.styling_config.header_height, 1.f),
             node_type.color,
-            node_type.name
+        });
+
+        glm::vec2 text_size = node_editor.font->compute_bounding_box(node_type.name, node_editor.styling_config.text_height);
+        glm::vec2 text_position = glm::vec2{header_position.x, header_position.y} + glm::vec2{-text_size.x, +text_size.y} / 2.f;
+
+        cache.texts.push_back(TextCache{
+            glm::vec3{text_position, z * STRIDE_Z_LOCATION + TEXT_Z_LOCATION},
+            node_editor.styling_config.text_color,
+            node_type.name,
+            node_editor.styling_config.text_height
         });
 
         cache.node_outlines.push_back(NodeOutlineCache{
@@ -51,7 +71,7 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
                 disabled ? node_editor.styling_config.disabled_port_color : port.color,
             });
 
-            cache.port_outline.push_back(PortOutlineCache{
+            cache.port_outlines.push_back(PortOutlineCache{
                     glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_OUTLINE_Z_LOCATION),
                     selected
             });
@@ -71,7 +91,7 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
                     disabled ? node_editor.styling_config.disabled_port_color : port.color,
             });
 
-            cache.port_outline.push_back(PortOutlineCache{
+            cache.port_outlines.push_back(PortOutlineCache{
                     glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_OUTLINE_Z_LOCATION),
                     selected
             });

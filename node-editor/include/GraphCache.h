@@ -22,7 +22,6 @@ struct NodeHeaderCache
     glm::vec3 position;
     glm::vec3 size;
     glm::vec3 color;
-    std::string_view name;
 };
 
 struct NodeOutlineCache
@@ -55,14 +54,23 @@ struct SelectBoxCache
     BoundingBox box;
 };
 
+struct TextCache
+{
+    glm::vec3 position;
+    glm::vec4 color;
+    std::string_view text;
+    float text_height;
+};
+
 struct GraphCache
 {
     std::vector<NodeCache> nodes;
     std::vector<NodeOutlineCache> node_outlines;
     std::vector<NodeHeaderCache> node_headers;
     std::vector<PortCache> ports;
-    std::vector<PortOutlineCache> port_outline;
+    std::vector<PortOutlineCache> port_outlines;
     std::vector<ConnectionCache> connections;
+    std::vector<TextCache> texts;
     std::optional<SelectBoxCache> select_box;
 
     Camera camera{};

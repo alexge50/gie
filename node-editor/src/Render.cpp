@@ -25,7 +25,8 @@ constexpr std::array<glm::vec2, N + 1> generate_circle()
     return r;
 }
 
-Render::Render()
+Render::Render(const Font& font):
+    font{&font}
 {
     quad = create<4>({
         glm::vec2{-0.5f, 0.5f},
@@ -49,6 +50,33 @@ Render::Render()
         glm::vec2{0.f, 0.f},
         glm::vec2{1.f, 1.f},
     });
+
+    glGenTextures(128, glyph_textures);
+    for(int i = 0; i < 128; i++)
+    {
+        Font::Glyph glyph = font.get_glyph(i);
+
+        glBindTexture(GL_TEXTURE_2D, glyph_textures[i]);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RED,
+            glyph.width,
+            glyph.height,
+            0,
+            GL_RED,
+            GL_UNSIGNED_BYTE,
+            glyph.data.data()
+        );
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        //free(texture.data);
+    }
 }
 
 Render::~Render()
@@ -206,7 +234,7 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
         );
     }
 
-    for(const auto& port_outline: graph_cache.port_outline)
+    for(const auto& port_outline: graph_cache.port_outlines)
     {
         glm::mat4 model =
                 glm::translate(glm::mat4(1.f), port_outline.position) *
@@ -272,5 +300,44 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
                 0,
                 4
         );
+    }
+
+    glActiveTexture(GL_TEXTURE0);
+
+    for(const auto& text: graph_cache.texts)
+    {
+        float scale = text.text_height / font->get_font_size();
+        glm::vec2 position = text.position;
+
+        for(char c: text.text)
+        {
+            float position_x = font->get_glyph(c).bearing.x * scale;
+            float position_y = (-static_cast<float>(font->get_glyph(c).bearing.y) + static_cast<float>(font->get_glyph(c).height)) * scale;
+
+            float width = font->get_glyph(c).width * scale;
+            float height = font->get_glyph(c).height * scale;
+
+            glm::mat4 model =
+                    glm::translate(glm::mat4(1.f), glm::vec3(position + glm::vec2{position_x, position_y} + glm::vec2{width, -height} / 2.f, 1.f)) *
+                    glm::scale(glm::mat4(1.f), glm::vec3(glm::vec2{width, height}, 0.f));
+
+            glm::mat4 mvp = view_projection * model;
+
+            text_shader.prepare({
+                                        .mvp = mvp,
+                                        .text = 0,
+                                        .color = glm::vec4{1.f, 1.f, 1.f, 1.f},
+                                });
+
+            glBindTexture(GL_TEXTURE_2D, glyph_textures[int(c)]);
+            glBindVertexArray(quad.vao);
+            glDrawArrays(
+                    GL_TRIANGLE_STRIP,
+                    0,
+                    4
+            );
+
+            position.x += (font->get_glyph(c).advance >> 6) * scale;
+        }
     }
 }

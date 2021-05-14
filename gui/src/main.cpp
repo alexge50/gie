@@ -62,9 +62,11 @@ int main()
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetKeyCallback(window, key_callback);
 
+    Font font{"/usr/share/fonts/liberation-mono/LiberationMono-Regular.ttf", 32};
     NodeEditor node_editor{};
-    Render render;
+    Render render{font};
 
+    node_editor.font = &font;
     node_editor.graph = {
         {
             {1, {1, {0.f, 0.f}}},
