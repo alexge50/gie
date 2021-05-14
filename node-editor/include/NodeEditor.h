@@ -4,7 +4,7 @@
 #include <Graph.h>
 #include <Camera.h>
 #include <InputState.h>
-#include <RenderState.h>
+#include <GraphCache.h>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -39,7 +39,6 @@ struct NodeEditor
     Graph graph{};
     Camera camera{};
 
-    RenderState render_state;
     InputState input_state;
     std::vector<NodeId> focus_stack;
 
