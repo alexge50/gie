@@ -44,12 +44,12 @@ namespace EditorEvents
 
     struct ConnectionRemoved
     {
-
+        Connection connection;
     };
 
     struct NodeRemoved
     {
-
+        NodeId node_id;
     };
 }
 

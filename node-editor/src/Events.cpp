@@ -83,6 +83,31 @@ static void move_first_focus_stack(NodeEditor& node_editor, NodeId node)
     node_editor.focus_stack.insert(node_editor.focus_stack.begin(), node);
 }
 
+static std::optional<size_t> find_connection(NodeEditor& node_editor, Port port)
+{
+    for(size_t i = 0; i < node_editor.graph.connections.size(); i++)
+    {
+        if(port.type == Port::Type::INPUT)
+        {
+            if(node_editor.graph.connections[i].input_port.node_id == port.node_id &&
+               node_editor.graph.connections[i].input_port.port_id == port.port_id)
+            {
+                return i;
+            }
+        }
+        else if(port.type == Port::Type::OUTPUT)
+        {
+            if(node_editor.graph.connections[i].output_port.node_id == port.node_id &&
+               node_editor.graph.connections[i].output_port.port_id == port.port_id)
+            {
+                return i;
+            }
+        }
+    }
+
+    return std::nullopt;
+}
+
 void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std::vector<EditorEvent>& editor_events)
 {
     for(const auto& event: input)
@@ -115,6 +140,15 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                                     .source_position = dragged_port->position,
                                     .destination_position = dragged_port->position
                             };
+
+                            if(auto index = find_connection(node_editor, dragged_port->port); index)
+                            {
+                                Connection connection =  node_editor.graph.connections[index.value()];
+                                node_editor.graph.connections.erase(node_editor.graph.connections.begin() + index.value());
+                                editor_events.push_back(EditorEvents::ConnectionRemoved {
+                                    connection
+                                });
+                            }
                         }
                         else if(auto dragged_node = get_containing_node(node_editor, canvas_position.get()); dragged_node)
                         {
@@ -177,26 +211,34 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
 
                             if(port && port->port.type != connection_drag.source_port.type)
                             {
-                                Connection connection;
-
-                                if(connection_drag.source_port.type == Port::Type::INPUT)
                                 {
-                                    connection.input_port = connection_drag.source_port;
-                                    connection.output_port = port->port;
-                                }
-                                else
-                                {
-                                    connection.input_port = port->port;
-                                    connection.output_port = connection_drag.source_port;
-                                }
+                                    Connection connection;
 
-                                editor_events.push_back(EditorEvent{
-                                    EditorEvents::ConnectionAdded{
-                                        connection
+                                    if (connection_drag.source_port.type == Port::Type::INPUT) {
+                                        connection.input_port = connection_drag.source_port;
+                                        connection.output_port = port->port;
+                                    } else {
+                                        connection.input_port = port->port;
+                                        connection.output_port = connection_drag.source_port;
                                     }
-                                });
 
-                                node_editor.graph.connections.push_back(connection);
+                                    editor_events.push_back(EditorEvent{
+                                            EditorEvents::ConnectionAdded{
+                                                    connection
+                                            }
+                                    });
+
+                                    node_editor.graph.connections.push_back(connection);
+                                }
+
+                                if(auto index = find_connection(node_editor, port->port); index)
+                                {
+                                    Connection connection =  node_editor.graph.connections[index.value()];
+                                    node_editor.graph.connections.erase(node_editor.graph.connections.begin() + index.value());
+                                    editor_events.push_back(EditorEvents::ConnectionRemoved {
+                                            connection
+                                    });
+                                }
                             }
                         }
 
