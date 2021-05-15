@@ -11,8 +11,20 @@ inline void compute_type(NodeEditor& node_editor, NodeTypeId id)
     const NodeType& node_type = node_editor.graph.node_types.at(id);
     NodeTypeCompute& node_type_compute = node_editor.graph.node_types_computed[id];
 
+    float width = 3 * config.margin_padding + 2 * node_editor.font->compute_bounding_box(node_type.name, config.text_height).x;
+
+    for(const auto& port: node_type.output_ports)
+    {
+        width = std::max(width, 3 * config.margin_padding + 2 * node_editor.font->compute_bounding_box(port.name, config.text_height).x);
+    }
+
+    for(const auto& port: node_type.input_ports)
+    {
+        width = std::max(width, 3 * config.margin_padding + 2 * node_editor.font->compute_bounding_box(port.name, config.text_height).x);
+    }
+
     node_type_compute.size = {
-            100.f,
+            width,
             std::max(
                     node_type.input_ports.size() + node_type.output_ports.size(),
                     static_cast<std::size_t>(1)
@@ -39,7 +51,7 @@ inline void compute_type(NodeEditor& node_editor, NodeTypeId id)
         offset += row_real_height;
     }
 
-    offset = node_type_compute.header_position.y + config.header_height / 2.f;
+    //offset = node_type_compute.header_position.y + config.header_height / 2.f;
     node_type_compute.input_port_positions.resize(node_type.input_ports.size());
     for(size_t i = 0; i < node_type.input_ports.size(); i++)
     {

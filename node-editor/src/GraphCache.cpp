@@ -34,22 +34,28 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
         });
 
         glm::vec3 header_position;
+        glm::vec3 header_size;
 
         cache.node_headers.push_back(NodeHeaderCache{
             header_position = glm::vec3(node.position + node_type_computed.header_position, z * STRIDE_Z_LOCATION + HEADER_Z_LOCATION),
-            glm::vec3(node_type_computed.size.x, node_editor.styling_config.header_height, 1.f),
+            header_size = glm::vec3(node_type_computed.size.x, node_editor.styling_config.header_height, 1.f),
             node_type.color,
         });
 
-        glm::vec2 text_size = node_editor.font->compute_bounding_box(node_type.name, node_editor.styling_config.text_height);
-        glm::vec2 text_position = glm::vec2{header_position.x, header_position.y} + glm::vec2{-text_size.x, +text_size.y} / 2.f;
+        {
+            glm::vec2 text_size = node_editor.font->compute_bounding_box(node_type.name,
+                                                                         node_editor.styling_config.text_height);
+            glm::vec2 text_position =
+                    glm::vec2{header_position.x, header_position.y} + glm::vec2{-header_size.x, +text_size.y} / 2.f +
+                    glm::vec2{node_editor.styling_config.margin_padding, 0.f};
 
-        cache.texts.push_back(TextCache{
-            glm::vec3{text_position, z * STRIDE_Z_LOCATION + TEXT_Z_LOCATION},
-            node_editor.styling_config.text_color,
-            node_type.name,
-            node_editor.styling_config.text_height
-        });
+            cache.texts.push_back(TextCache{
+                    glm::vec3{text_position, z * STRIDE_Z_LOCATION + TEXT_Z_LOCATION},
+                    node_editor.styling_config.text_color,
+                    node_type.name,
+                    node_editor.styling_config.text_height
+            });
+        }
 
         cache.node_outlines.push_back(NodeOutlineCache{
                 glm::vec3(node.position, z * STRIDE_Z_LOCATION + OUTLINE_Z_LOCATION),
@@ -75,6 +81,15 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
                     glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_OUTLINE_Z_LOCATION),
                     selected
             });
+
+            glm::vec2 text_size = node_editor.font->compute_bounding_box(port.name, node_editor.styling_config.text_height);
+
+            cache.texts.push_back(TextCache{
+                glm::vec3{position + node.position + glm::vec2{node_editor.styling_config.margin_padding, text_size.y / 2.f}, z * STRIDE_Z_LOCATION + TEXT_Z_LOCATION},
+                node_editor.styling_config.text_color,
+                port.name,
+                node_editor.styling_config.text_height
+            });
         }
 
         for(const auto&[position, port]:
@@ -94,6 +109,15 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
             cache.port_outlines.push_back(PortOutlineCache{
                     glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_OUTLINE_Z_LOCATION),
                     selected
+            });
+
+            glm::vec2 text_size = node_editor.font->compute_bounding_box(port.name, node_editor.styling_config.text_height);
+
+            cache.texts.push_back(TextCache{
+                    glm::vec3{position + node.position + glm::vec2{-node_editor.styling_config.margin_padding - text_size.x, text_size.y / 2.f}, z * STRIDE_Z_LOCATION + TEXT_Z_LOCATION},
+                    node_editor.styling_config.text_color,
+                    port.name,
+                    node_editor.styling_config.text_height
             });
         }
 

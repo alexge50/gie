@@ -18,7 +18,8 @@ struct StylingConfig
     float text_height = 12.f;
     float row_height = 14.f;
     float row_padding = 1.f;
-    float header_height = 14.f;
+    float header_height = 20.f;
+    float margin_padding = 8.0f;
     glm::vec4 text_color = glm::vec4{1.f, 1.f, 1.f, 1.f};
 
     glm::vec3 grid_background = {0.137f, 0.137f, 0.137f};
