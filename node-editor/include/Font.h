@@ -22,6 +22,7 @@ public:
     Glyph get_glyph(char c) const;
     int get_font_size() const;
     glm::vec2 compute_bounding_box(std::string_view, float target_font_size) const;
+    glm::vec2 compute_max_bounding_box(int text_length, float target_font_size) const;
 
 private:
     Glyph glyphs[128];

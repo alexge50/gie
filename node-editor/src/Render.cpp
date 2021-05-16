@@ -311,4 +311,46 @@ void Render::operator()(const RenderData& render_data)
             position.x += (font->get_glyph(c).advance >> 6) * scale;
         }
     }
+
+    for(const auto& text: render_data.stencil_texts)
+    {
+        float scale = text.text_height / font->get_font_size();
+        glm::vec2 position = text.position;
+
+        glm::vec2 box_upper_left = view_projection * glm::vec4{text.box.upper_left, 1.f, 1.f};
+        glm::vec2 box_bottom_right = view_projection * glm::vec4{text.box.bottom_right, 1.f, 1.f};
+
+        for(char c: text.text)
+        {
+            float position_x = font->get_glyph(c).bearing.x * scale;
+            float position_y = (-static_cast<float>(font->get_glyph(c).bearing.y) + static_cast<float>(font->get_glyph(c).height)) * scale;
+
+            float width = font->get_glyph(c).width * scale;
+            float height = font->get_glyph(c).height * scale;
+
+            glm::mat4 model =
+                    glm::translate(glm::mat4(1.f), glm::vec3(position + glm::vec2{position_x, position_y} + glm::vec2{width, -height} / 2.f, 1.f)) *
+                    glm::scale(glm::mat4(1.f), glm::vec3(glm::vec2{width, height}, 0.f));
+
+            glm::mat4 mvp = view_projection * model;
+
+            stencil_text_shader.prepare({
+                                        .mvp = mvp,
+                                        .text = 0,
+                                        .color = glm::vec4{1.f, 1.f, 1.f, 1.f},
+                                        .bounding_box_upper_left = box_upper_left,
+                                        .bounding_box_bottom_right = box_bottom_right,
+                                });
+
+            glBindTexture(GL_TEXTURE_2D, glyph_textures[int(c)]);
+            glBindVertexArray(quad.vao);
+            glDrawArrays(
+                    GL_TRIANGLE_STRIP,
+                    0,
+                    4
+            );
+
+            position.x += (font->get_glyph(c).advance >> 6) * scale;
+        }
+    }
 }

@@ -21,6 +21,11 @@ inline void compute_type(NodeEditor& node_editor, NodeTypeId id)
     for(const auto& port: node_type.input_ports)
     {
         width = std::max(width, 3 * config.margin_padding + 2 * node_editor.font->compute_bounding_box(port.name, config.text_height).x);
+
+        if(auto text_box = std::get_if<PortWidgets::TextBox>(&port.widget))
+        {
+            width = std::max(width, 3 * config.margin_padding + 2 * node_editor.font->compute_max_bounding_box(text_box->max_text_length, config.text_height).x);
+        }
     }
 
     node_type_compute.size = {

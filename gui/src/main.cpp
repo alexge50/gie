@@ -68,15 +68,21 @@ int main()
 
     node_editor.font = &font;
     node_editor.graph = {
-        {
+        .nodes = {
             {1, {1, {0.f, 0.f}}},
             {2, {1, {100.f, 100.f}}},
             {3, {1, {200.f, 200.f}}},
         },
-        { {1, { {{"in", glm::vec3{0.85f, 0.72f, 0.02f}}}, {{"out", glm::vec3{0.85f, 0.72f, 0.02f}}}, "default", {0.36f, 0.17f, 0.54f} }} },
-        {{{1, 0}, {2, 0}}},
-        {},
-        {}
+        .node_types = {
+                {1, {
+                    {{"in", glm::vec3{0.85f, 0.72f, 0.02f}, PortWidgets::TextBox{5}}},
+                    {{"out", glm::vec3{0.85f, 0.72f, 0.02f}}},
+                    "default", {0.36f, 0.17f, 0.54f}
+                }}
+        },
+        .connections = {{{1, 0}, {2, 0}}},
+        .node_computed = {},
+        .node_types_computed = {}
     };
 
     compute(node_editor);

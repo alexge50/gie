@@ -67,4 +67,22 @@ int Font::get_font_size() const
     return font_size;
 }
 
+glm::vec2 Font::compute_max_bounding_box(int text_length, float target_font_size) const
+{
+    float scale = target_font_size / float(font_size);
+    unsigned int max_advance = 0;
+    float height = 0.f;
+
+    for(const auto &glyph: glyphs)
+    {
+        max_advance = std::max(max_advance, glyph.advance);
+        height = std::max(height, static_cast<float>(glyphs->height) * scale);
+    }
+
+    return glm::vec2{
+            (max_advance >> 6) * text_length * scale,
+            height * scale
+    };
+}
+
 

@@ -8,6 +8,7 @@
 #include "shader_solid.h"
 #include "shader_background.h"
 #include "shader_text.h"
+#include "shader_stencil_text.h"
 
 class Render
 {
@@ -25,6 +26,7 @@ private:
     Shaders::solid solid_shader;
     Shaders::background background_shader;
     Shaders::text text_shader;
+    Shaders::stencil_text stencil_text_shader;
 };
 
 #endif //NODE_EDITOR_RENDER_H

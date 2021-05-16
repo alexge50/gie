@@ -2,6 +2,7 @@
 #define NODE_EDITOR_GRAPH_H
 
 #include "detail/BoundingBox.h"
+#include <Widget.h>
 
 #include <vector>
 #include <string>
@@ -73,6 +74,7 @@ struct NodeType
     {
         std::string name;
         glm::vec3 color;
+        PortWidget widget;
     };
 
     std::vector<Port> input_ports;

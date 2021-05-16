@@ -13,6 +13,10 @@ static const float TEXT_Z_LOCATION = 4.f;
 static const float STRIDE_Z_LOCATION = 5.f;
 static const float CONNECTION_Z_LOCATION = 1.f;
 
+static const float TEXT_BOX_BACKGROUND_Z_LOCATION = 1.f;
+static const float TEXT_BOX_OUTLINE_Z_LOCATION = 2.f;
+static const float TEXT_BOX_TEXT_Z_LOCATION = 2.f;
+
 RenderData compute_render_data(const NodeEditor& node_editor)
 {
     RenderData cache;
@@ -26,6 +30,7 @@ RenderData compute_render_data(const NodeEditor& node_editor)
         const NodeTypeCompute& node_type_computed = node_editor.graph.node_types_computed.at(node.node_type);
         const NodeType& node_type = node_editor.graph.node_types.at(node.node_type);
         bool selected = node_editor.input_state.selected_nodes.contains(node_id);
+        glm::vec2 node_size = node_type_computed.size;
 
         cache.quads.push_back(RenderData::Quad{
                glm::vec3(node.position, z * STRIDE_Z_LOCATION),
@@ -92,6 +97,38 @@ RenderData compute_render_data(const NodeEditor& node_editor)
                 port.name,
                 node_editor.styling_config.text_height
             });
+
+            if(std::get_if<PortWidgets::TextBox>(&port.widget))
+            {
+                glm::vec2 text_box_size = glm::vec2 {
+                        (node_size.x - 3 * node_editor.styling_config.margin_padding) / 2.f,
+                        node_editor.styling_config.row_height
+                };
+                glm::vec2 text_box_position = position +
+                        node.position +
+                        glm::vec2{node_size.x - node_editor.styling_config.margin_padding, 0.f} -
+                        glm::vec2{text_box_size.x / 2.f, 0.f};
+
+                cache.quads.push_back(RenderData::Quad{
+                        glm::vec3(text_box_position, z * STRIDE_Z_LOCATION + TEXT_BOX_BACKGROUND_Z_LOCATION),
+                        glm::vec3(text_box_size, 1.f),
+                        node_editor.styling_config.node_background_color,
+                });
+
+                cache.quad_outlines.push_back(RenderData::QuadOutline{
+                        glm::vec3(text_box_position, z * STRIDE_Z_LOCATION + TEXT_BOX_OUTLINE_Z_LOCATION),
+                        glm::vec3(text_box_size, 1.f),
+                        node_editor.styling_config.node_outline_color
+                });
+
+                cache.stencil_texts.push_back(RenderData::StencilText{
+                    glm::vec3{text_box_position - glm::vec2{text_box_size.x / 2.f, -node_editor.styling_config.text_height / 2.f}, z * STRIDE_Z_LOCATION + TEXT_BOX_TEXT_Z_LOCATION},
+                    node_editor.styling_config.text_color,
+                    "hello g",
+                    node_editor.styling_config.text_height,
+                    compute_bounding_box(text_box_position, text_box_size)
+                });
+            }
         }
 
         for(const auto&[position, port]:
