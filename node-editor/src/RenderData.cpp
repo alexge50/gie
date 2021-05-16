@@ -1,4 +1,4 @@
-#include <GraphCache.h>
+#include <RenderData.h>
 #include <NodeEditor.h>
 #include <Render.h>
 
@@ -13,13 +13,12 @@ static const float TEXT_Z_LOCATION = 4.f;
 static const float STRIDE_Z_LOCATION = 5.f;
 static const float CONNECTION_Z_LOCATION = 1.f;
 
-GraphCache compute_graph_cache(const NodeEditor& node_editor)
+RenderData compute_render_data(const NodeEditor& node_editor)
 {
-    GraphCache cache;
+    RenderData cache;
 
-    cache.nodes.reserve(node_editor.graph.nodes.size());
-    cache.node_outlines.reserve(node_editor.graph.nodes.size());
-    cache.node_headers.reserve(node_editor.graph.nodes.size());
+    cache.quads.reserve(2 * node_editor.graph.nodes.size());
+    cache.quad_outlines.reserve(node_editor.graph.nodes.size());
     auto z = static_cast<float>(node_editor.focus_stack.size());
     for(const auto node_id: node_editor.focus_stack)
     {
@@ -28,15 +27,16 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
         const NodeType& node_type = node_editor.graph.node_types.at(node.node_type);
         bool selected = node_editor.input_state.selected_nodes.contains(node_id);
 
-        cache.nodes.push_back(NodeCache{
+        cache.quads.push_back(RenderData::Quad{
                glm::vec3(node.position, z * STRIDE_Z_LOCATION),
-               glm::vec3(node_type_computed.size, 1.f)
+               glm::vec3(node_type_computed.size, 1.f),
+               node_editor.styling_config.node_background_color
         });
 
         glm::vec3 header_position;
         glm::vec3 header_size;
 
-        cache.node_headers.push_back(NodeHeaderCache{
+        cache.quads.push_back(RenderData::Quad{
             header_position = glm::vec3(node.position + node_type_computed.header_position, z * STRIDE_Z_LOCATION + HEADER_Z_LOCATION),
             header_size = glm::vec3(node_type_computed.size.x, node_editor.styling_config.header_height, 1.f),
             node_type.color,
@@ -49,7 +49,7 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
                     glm::vec2{header_position.x, header_position.y} + glm::vec2{-header_size.x, +text_size.y} / 2.f +
                     glm::vec2{node_editor.styling_config.margin_padding, 0.f};
 
-            cache.texts.push_back(TextCache{
+            cache.texts.push_back(RenderData::Text{
                     glm::vec3{text_position, z * STRIDE_Z_LOCATION + TEXT_Z_LOCATION},
                     node_editor.styling_config.text_color,
                     node_type.name,
@@ -57,10 +57,10 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
             });
         }
 
-        cache.node_outlines.push_back(NodeOutlineCache{
+        cache.quad_outlines.push_back(RenderData::QuadOutline{
                 glm::vec3(node.position, z * STRIDE_Z_LOCATION + OUTLINE_Z_LOCATION),
                 glm::vec3(node_type_computed.size, 1.f),
-                selected
+                selected ? node_editor.styling_config.node_selected_outline_color : node_editor.styling_config.node_outline_color
         });
 
         for(const auto&[position, port]:
@@ -72,19 +72,21 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
                 disabled = source_port->source_port.type == Port::Type::INPUT;
             }
 
-            cache.ports.push_back(PortCache{
-                glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_Z_LOCATION),
-                disabled ? node_editor.styling_config.disabled_port_color : port.color,
+            cache.circles.push_back(RenderData::Circle{
+                    glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_Z_LOCATION),
+                    node_editor.styling_config.port_radius,
+                    disabled ? node_editor.styling_config.disabled_port_color : port.color,
             });
 
-            cache.port_outlines.push_back(PortOutlineCache{
+            cache.circle_outlines.push_back(RenderData::CircleOutline{
                     glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_OUTLINE_Z_LOCATION),
-                    selected
+                    node_editor.styling_config.port_radius,
+                    selected ? node_editor.styling_config.node_selected_outline_color : node_editor.styling_config.node_outline_color
             });
 
             glm::vec2 text_size = node_editor.font->compute_bounding_box(port.name, node_editor.styling_config.text_height);
 
-            cache.texts.push_back(TextCache{
+            cache.texts.push_back(RenderData::Text{
                 glm::vec3{position + node.position + glm::vec2{node_editor.styling_config.margin_padding, text_size.y / 2.f}, z * STRIDE_Z_LOCATION + TEXT_Z_LOCATION},
                 node_editor.styling_config.text_color,
                 port.name,
@@ -101,19 +103,21 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
                 disabled = source_port->source_port.type == Port::Type::OUTPUT;
             }
 
-            cache.ports.push_back(PortCache{
+            cache.circles.push_back(RenderData::Circle{
                     glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_Z_LOCATION),
+                    node_editor.styling_config.port_radius,
                     disabled ? node_editor.styling_config.disabled_port_color : port.color,
             });
 
-            cache.port_outlines.push_back(PortOutlineCache{
+            cache.circle_outlines.push_back(RenderData::CircleOutline{
                     glm::vec3(position + node.position, z * STRIDE_Z_LOCATION + PORT_OUTLINE_Z_LOCATION),
-                    selected
+                    node_editor.styling_config.port_radius,
+                    selected ? node_editor.styling_config.node_selected_outline_color : node_editor.styling_config.node_outline_color
             });
 
             glm::vec2 text_size = node_editor.font->compute_bounding_box(port.name, node_editor.styling_config.text_height);
 
-            cache.texts.push_back(TextCache{
+            cache.texts.push_back(RenderData::Text{
                     glm::vec3{position + node.position + glm::vec2{-node_editor.styling_config.margin_padding - text_size.x, text_size.y / 2.f}, z * STRIDE_Z_LOCATION + TEXT_Z_LOCATION},
                     node_editor.styling_config.text_color,
                     port.name,
@@ -124,7 +128,7 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
         z--;
     }
 
-    cache.connections.reserve(node_editor.graph.connections.size() + 1);
+    cache.lines.reserve(node_editor.graph.connections.size() + 1);
     for(const auto& connection: node_editor.graph.connections)
     {
         const glm::vec2 source_position = node_editor.graph.nodes.at(connection.input_port.node_id).position +
@@ -136,28 +140,35 @@ GraphCache compute_graph_cache(const NodeEditor& node_editor)
                                           node_editor.graph.nodes.at(connection.output_port.node_id).node_type
                                   ).output_port_positions[connection.output_port.port_id];
 
-        cache.connections.push_back(ConnectionCache{
+        cache.lines.push_back(RenderData::Line{
             glm::vec3(source_position, CONNECTION_Z_LOCATION),
             glm::vec3(destination_position, CONNECTION_Z_LOCATION),
+            node_editor.styling_config.connection_color
         });
     }
 
     if(auto connection_drag = std::get_if<ConnectionDrag>(&node_editor.input_state.drag_state))
     {
         auto connection_z = static_cast<float>(node_editor.focus_stack.size() + 1) * STRIDE_Z_LOCATION + 1.f;
-        cache.connections.push_back(ConnectionCache{
+        cache.lines.push_back(RenderData::Line{
                 glm::vec3(connection_drag->source_position, connection_z),
                 glm::vec3(connection_drag->destination_position, connection_z),
+                node_editor.styling_config.connection_color
         });
     }
     else if(auto select_drag = std::get_if<SelectDrag>(&node_editor.input_state.drag_state))
     {
-        cache.select_box = SelectBoxCache{
-                {select_drag->begin_corner, select_drag->current_corner}
+        cache.select_box = RenderData::SelectBox{
+                {select_drag->begin_corner, select_drag->current_corner},
+                node_editor.styling_config.select_rectangle_color,
+                node_editor.styling_config.select_rectangle_outline_color,
         };
     }
 
     cache.camera = node_editor.camera;
+    cache.line_width = node_editor.styling_config.node_outline_width;
+    cache.background_color = node_editor.styling_config.grid_background;
+    cache.foreground_color = node_editor.styling_config.grid_foreground;
 
     return cache;
 }

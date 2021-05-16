@@ -1,5 +1,5 @@
 #include <Render.h>
-#include <GraphCache.h>
+#include <RenderData.h>
 #include <detail/Compute.h>
 #include <detail/Zip.h>
 
@@ -84,9 +84,9 @@ Render::~Render()
 
 }
 
-void Render::operator()(const GraphCache& graph_cache, const StylingConfig& config)
+void Render::operator()(const RenderData& render_data)
 {
-    glm::vec2 screen_size = graph_cache.camera.screen_size;
+    glm::vec2 screen_size = render_data.camera.screen_size;
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -96,17 +96,17 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
         glm::mat4 model =
                 glm::scale(glm::mat4(1.f), glm::vec3(float(screen_size.x), float(screen_size.y), 0.f));
 
-        glm::mat4 mvp = background_mat(graph_cache.camera) * model;
+        glm::mat4 mvp = background_mat(render_data.camera) * model;
 
         glBindVertexArray(quad.vao);
         background_shader.prepare({
             .mvp = mvp,
             .model = model,
             .scale = scale,
-            .camera_position = graph_cache.camera.position,
-            .zoom = graph_cache.camera.zoom,
-            .foreground = config.grid_foreground,
-            .background = config.grid_background,
+            .camera_position = render_data.camera.position,
+            .zoom = render_data.camera.zoom,
+            .foreground = render_data.foreground_color,
+            .background = render_data.background_color,
         });
 
         glDrawArrays(
@@ -119,12 +119,12 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LINE_SMOOTH);
 
-    glm::mat4 view_projection = world_space_mat(graph_cache.camera);
+    glm::mat4 view_projection = world_space_mat(render_data.camera);
 
-    for(const auto& connection: graph_cache.connections)
+    for(const auto& line_: render_data.lines)
     {
-        glm::vec3 translate = connection.source_position;
-        glm::vec3 scale = connection.destination_position - connection.source_position;
+        glm::vec3 translate = line_.source_position;
+        glm::vec3 scale = line_.destination_position - line_.source_position;
 
         glm::mat4 model =
                 glm::translate(glm::mat4(1.f), translate) *
@@ -132,10 +132,10 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
 
         solid_shader.prepare({
             .mvp = view_projection * model,
-            .color = glm::vec4(config.connection_color, 1.f)
+            .color = glm::vec4(line_.color, 1.f)
         });
 
-        glLineWidth(config.connection_width);
+        glLineWidth(render_data.line_width);
         glBindVertexArray(line.vao);
         glDrawArrays(
                 GL_LINES,
@@ -146,17 +146,17 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
 
     glDisable(GL_LINE_SMOOTH);
 
-    for(const auto& node: graph_cache.nodes)
+    for(const auto& quad_: render_data.quads)
     {
         glm::mat4 model =
-                glm::translate(glm::mat4(1.f), node.position) *
-                glm::scale(glm::mat4(1.f), node.size);
+                glm::translate(glm::mat4(1.f), quad_.position) *
+                glm::scale(glm::mat4(1.f), quad_.size);
 
         glm::mat4 mvp = view_projection * model;
 
         solid_shader.prepare({
                                      .mvp = mvp,
-                                     .color = glm::vec4(config.node_background_color, 1.f)
+                                     .color = glm::vec4(quad_.color, 1.f)
                              });
 
         glBindVertexArray(quad.vao);
@@ -167,44 +167,20 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
         );
     }
 
-    for(const auto& node_header: graph_cache.node_headers)
+    for(const auto& quad_outline_: render_data.quad_outlines)
     {
         glm::mat4 model =
-                glm::translate(glm::mat4(1.f), node_header.position) *
-                glm::scale(glm::mat4(1.f), node_header.size);
+                glm::translate(glm::mat4(1.f), quad_outline_.position) *
+                glm::scale(glm::mat4(1.f), quad_outline_.size);
+
         glm::mat4 mvp = view_projection * model;
 
         solid_shader.prepare({
                                      .mvp = mvp,
-                                     .color = glm::vec4(node_header.color, 1.f)
+                                     .color = glm::vec4(quad_outline_.color, 1.f)
                              });
 
-        glDrawArrays(
-                GL_TRIANGLE_STRIP,
-                0,
-                4
-        );
-    }
-
-    for(const auto& node_outline: graph_cache.node_outlines)
-    {
-        glm::mat4 model =
-                glm::translate(glm::mat4(1.f), node_outline.position) *
-                glm::scale(glm::mat4(1.f), node_outline.size);
-
-        glm::mat4 mvp = view_projection * model;
-
-        glm::vec3 outline_color =
-                !node_outline.selected ?
-                config.node_outline_color :
-                config.node_selected_outline_color;
-
-        solid_shader.prepare({
-                                     .mvp = mvp,
-                                     .color = glm::vec4(outline_color, 1.f)
-                             });
-
-        glLineWidth(config.node_outline_width);
+        glLineWidth(render_data.line_width);
         glBindVertexArray(quad_outline.vao);
         glDrawArrays(
                 GL_LINE_LOOP,
@@ -213,17 +189,17 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
         );
     }
 
-    for(const auto& port: graph_cache.ports)
+    for(const auto& circle_: render_data.circles)
     {
         glm::mat4 model =
-                glm::translate(glm::mat4(1.f), port.position) *
-                glm::scale(glm::mat4(1.f), glm::vec3(config.port_radius, config.port_radius, 1.f));
+                glm::translate(glm::mat4(1.f), circle_.position) *
+                glm::scale(glm::mat4(1.f), glm::vec3(circle_.radius, circle_.radius, 1.f));
 
         glm::mat4 mvp = view_projection * model;
 
         solid_shader.prepare({
                                      .mvp = mvp,
-                                     .color = glm::vec4(port.color, 1.f)
+                                     .color = glm::vec4(circle_.color, 1.f)
                              });
 
         glBindVertexArray(circle.vao);
@@ -234,25 +210,20 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
         );
     }
 
-    for(const auto& port_outline: graph_cache.port_outlines)
+    for(const auto& circle_outline_: render_data.circle_outlines)
     {
         glm::mat4 model =
-                glm::translate(glm::mat4(1.f), port_outline.position) *
-                glm::scale(glm::mat4(1.f), glm::vec3(config.port_radius, config.port_radius, 1.f));
+                glm::translate(glm::mat4(1.f), circle_outline_.position) *
+                glm::scale(glm::mat4(1.f), glm::vec3(circle_outline_.radius, circle_outline_.radius, 1.f));
 
         glm::mat4 mvp = view_projection * model;
 
-        glm::vec3 outline_color =
-                !port_outline.selected ?
-                config.node_outline_color :
-                config.node_selected_outline_color;
-
         solid_shader.prepare({
                                      .mvp = mvp,
-                                     .color = glm::vec4(outline_color, 1.f)
+                                     .color = glm::vec4(circle_outline_.color, 1.f)
                              });
 
-        glLineWidth(config.node_outline_width * 1.5f);
+        glLineWidth(render_data.line_width * 1.5f);
         glBindVertexArray(circle.vao);
         glDrawArrays(
                 GL_LINE_LOOP,
@@ -263,9 +234,9 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
 
     glDisable(GL_DEPTH_TEST);
 
-    if(graph_cache.select_box)
+    if(render_data.select_box)
     {
-        auto box = graph_cache.select_box->box;
+        auto box = render_data.select_box->box;
 
         glm::vec2 box_size = {
             fabsf(box.upper_left.x - box.bottom_right.x),
@@ -276,11 +247,11 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
                 glm::translate(glm::mat4(1.f), glm::vec3((box.upper_left + box.bottom_right) / 2.f, 0.f)) *
                 glm::scale(glm::mat4(1.f), glm::vec3(box_size, 0.f));
 
-        glm::mat4 mvp = screen_projection_mat(graph_cache.camera) * model;
+        glm::mat4 mvp = screen_projection_mat(render_data.camera) * model;
 
         solid_shader.prepare({
             .mvp = mvp,
-            .color = config.select_rectangle_color
+            .color = render_data.select_box->color
         });
 
         glBindVertexArray(quad.vao);
@@ -292,7 +263,7 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
 
         solid_shader.prepare({
             .mvp = mvp,
-            .color = config.select_rectangle_outline_color
+            .color = render_data.select_box->outline_color
         });
         glBindVertexArray(quad_outline.vao);
         glDrawArrays(
@@ -304,7 +275,7 @@ void Render::operator()(const GraphCache& graph_cache, const StylingConfig& conf
 
     glActiveTexture(GL_TEXTURE0);
 
-    for(const auto& text: graph_cache.texts)
+    for(const auto& text: render_data.texts)
     {
         float scale = text.text_height / font->get_font_size();
         glm::vec2 position = text.position;

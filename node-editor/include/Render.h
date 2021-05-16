@@ -1,7 +1,7 @@
 #ifndef NODE_EDITOR_RENDER_H
 #define NODE_EDITOR_RENDER_H
 
-#include "GraphCache.h"
+#include "RenderData.h"
 #include "NodeEditor.h"
 #include "Font.h"
 #include "detail/GeometryBuffer.h"
@@ -15,7 +15,7 @@ public:
     Render(const Font&);
     ~Render();
 
-    void operator()(const GraphCache& graph_cache, const StylingConfig& styling_config);
+    void operator()(const RenderData& render_data);
 
 private:
     const Font* font;

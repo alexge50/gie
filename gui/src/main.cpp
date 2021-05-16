@@ -96,7 +96,7 @@ int main()
         process(node_editor, input_events, editor_events);
         input_events.clear();
 
-        render(compute_graph_cache(node_editor), node_editor.styling_config);
+        render(compute_render_data(node_editor));
 
         glfwSwapBuffers(window);
         glfwPollEvents();
