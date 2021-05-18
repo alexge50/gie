@@ -29,6 +29,11 @@ namespace InputEvents
 
     struct Delete {};
 
+    struct Character
+    {
+        char c;
+    };
+
     struct Scroll
     {
         float value;
@@ -53,7 +58,7 @@ namespace EditorEvents
     };
 }
 
-using InputEvent = std::variant<InputEvents::Click, InputEvents::Delete, InputEvents::DragBegin, InputEvents::DragEnd, InputEvents::DragSustain, InputEvents::Scroll>;
+using InputEvent = std::variant<InputEvents::Click, InputEvents::Delete, InputEvents::DragBegin, InputEvents::DragEnd, InputEvents::DragSustain, InputEvents::Scroll, InputEvents::Character>;
 using EditorEvent = std::variant<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved>;
 
 struct NodeEditor;

@@ -27,6 +27,7 @@ void scroll_callback(GLFWwindow* window, double x, double y);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void cursor_position_callback(GLFWwindow* window, double x, double y);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void character_callback(GLFWwindow* window, unsigned int codepoint);
 
 int main()
 {
@@ -61,6 +62,7 @@ int main()
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCharCallback(window, character_callback);
 
     Font font{"/usr/share/fonts/liberation-mono/LiberationMono-Regular.ttf", 32};
     NodeEditor node_editor{};
@@ -86,6 +88,24 @@ int main()
     };
 
     compute(node_editor);
+
+    for(const auto node_id: node_editor.focus_stack)
+    {
+        const Node& node = node_editor.graph.nodes.at(node_id);
+        const NodeType& node_type = node_editor.graph.node_types.at(node.node_type);
+
+        for(size_t i = 0; i < node_type.input_ports.size(); i++)
+        {
+            if(std::get_if<PortWidgets::TextBox>(&node_type.input_ports[i].widget))
+            {
+                node_editor.input_state.text_widget_state.push_back(InputState::PortTextWidgetState{
+                   .port = {node_id, static_cast<int>(i), Port::Type::INPUT},
+                   .state = {},
+                   .order = {}
+                });
+            }
+        }
+    }
 
     while (!glfwWindowShouldClose(window))
     {
@@ -173,5 +193,12 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         parameters->mouse_clicked = false;
         parameters->super_clicked = false;
     }
+}
 
+void character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+    auto parameters = static_cast<Parameters*>(glfwGetWindowUserPointer(window));
+
+    if(codepoint >= 0 && codepoint < 128)
+        parameters->input_events->push_back(InputEvents::Character{static_cast<char>(codepoint)});
 }

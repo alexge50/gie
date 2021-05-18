@@ -77,6 +77,19 @@ static std::optional<ContainingPort> get_containing_port(const NodeEditor& node_
     return std::nullopt;
 }
 
+std::optional<InputState::PortTextWidgetState> get_containing_widget(const NodeEditor& node_editor, glm::vec2 point)
+{
+    for(const auto& text_widget: node_editor.input_state.text_widget_state)
+    {
+        if(contains_point(compute_bounding_box(text_widget.state.box.center, text_widget.state.box.size), point))
+        {
+            return text_widget;
+        }
+    }
+
+    return std::nullopt;
+}
+
 static void move_first_focus_stack(NodeEditor& node_editor, NodeId node)
 {
     std::erase(node_editor.focus_stack, node);
@@ -110,12 +123,48 @@ static std::optional<size_t> find_connection(NodeEditor& node_editor, Port port)
 
 void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std::vector<EditorEvent>& editor_events)
 {
+
+    {
+        int order = 0;
+        for(const auto& node_id: node_editor.focus_stack)
+        {
+            const Node& node = node_editor.graph.nodes.at(node_id);
+            const NodeTypeCompute& node_type_computed = node_editor.graph.node_types_computed.at(node.node_type);
+
+
+            for(auto& text_widget_state: node_editor.input_state.text_widget_state)
+            {
+                if(text_widget_state.port.node_id == node_id)
+                {
+                    text_widget_state.order = order;
+                    text_widget_state.state.box = node_type_computed.input_widget_boxes[text_widget_state.port.port_id];
+                    text_widget_state.state.box.center += node.position;
+                }
+            }
+
+            order++;
+        }
+
+        std::sort(node_editor.input_state.text_widget_state.begin(), node_editor.input_state.text_widget_state.end(),
+                  [](const auto& lhs, const auto& rhs){
+            return lhs.order < rhs.order;
+        });
+    }
+
+
     for(const auto& event: input)
     {
         std::visit(
                 overloaded {
                     [&](const InputEvents::Click& click) {
                         auto canvas_position = to_world_space(node_editor.camera, glm::vec2{click.x, click.y});
+
+
+                        if(auto clicked_text_box = get_containing_widget(node_editor, canvas_position.get()); clicked_text_box)
+                        {
+                            node_editor.input_state.active_text_widget = clicked_text_box->port;
+                        }
+                        else node_editor.input_state.active_text_widget = std::nullopt;
 
                         if(auto clicked_node = get_containing_node(node_editor, canvas_position.get()); clicked_node)
                         {
@@ -298,6 +347,19 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                     [&](const InputEvents::Scroll& scroll) {
                         node_editor.camera.zoom += scroll.value;
                         node_editor.camera.zoom = glm::clamp(node_editor.camera.zoom, 0.1f, 3.f);
+                    },
+                    [&](const InputEvents::Character& character) {
+                        if(node_editor.input_state.active_text_widget)
+                        {
+                            Port active_text_widget = *node_editor.input_state.active_text_widget;
+                            for(auto& text_widget: node_editor.input_state.text_widget_state)
+                            {
+                                if(text_widget.port == active_text_widget)
+                                {
+                                    text_widget.state.data += character.c;
+                                }
+                            }
+                        }
                     }
                 },
                 event

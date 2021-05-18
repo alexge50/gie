@@ -2,6 +2,7 @@
 #define NODE_EDITOR_GRAPH_H
 
 #include "detail/BoundingBox.h"
+#include "detail/CenteredBox.h"
 #include <Widget.h>
 
 #include <vector>
@@ -86,6 +87,7 @@ struct NodeType
 struct NodeTypeCompute
 {
     std::vector<glm::vec2> input_port_positions;
+    std::vector<CenteredBox> input_widget_boxes;
     std::vector<glm::vec2> output_port_positions;
 
     glm::vec2 size;

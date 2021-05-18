@@ -58,12 +58,29 @@ inline void compute_type(NodeEditor& node_editor, NodeTypeId id)
 
     //offset = node_type_compute.header_position.y + config.header_height / 2.f;
     node_type_compute.input_port_positions.resize(node_type.input_ports.size());
+    node_type_compute.input_widget_boxes.resize(node_type.input_ports.size());
     for(size_t i = 0; i < node_type.input_ports.size(); i++)
     {
         node_type_compute.input_port_positions[i] = glm::vec2 {
                 -size.x / 2.f,
                 offset + row_real_height / 2.f
         };
+
+        glm::vec2 widget_size = glm::vec2 {
+                (size.x - 3 * node_editor.styling_config.margin_padding) / 2.f,
+                node_editor.styling_config.row_height
+        };
+        glm::vec2 widget_position =
+                                      glm::vec2{size.x / 2.f - node_editor.styling_config.margin_padding, offset + row_real_height / 2.f} -
+                                      glm::vec2{widget_size.x / 2.f, 0.f};
+
+        node_type_compute.input_widget_boxes[i] = {
+                CenteredBox{
+                        widget_position,
+                        widget_size
+                }
+        };
+
         offset += row_real_height;
     }
 }

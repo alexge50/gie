@@ -30,7 +30,7 @@ RenderData compute_render_data(const NodeEditor& node_editor)
         const NodeTypeCompute& node_type_computed = node_editor.graph.node_types_computed.at(node.node_type);
         const NodeType& node_type = node_editor.graph.node_types.at(node.node_type);
         bool selected = node_editor.input_state.selected_nodes.contains(node_id);
-        glm::vec2 node_size = node_type_computed.size;
+        //glm::vec2 node_size = node_type_computed.size;
 
         cache.quads.push_back(RenderData::Quad{
                glm::vec3(node.position, z * STRIDE_Z_LOCATION),
@@ -68,6 +68,7 @@ RenderData compute_render_data(const NodeEditor& node_editor)
                 selected ? node_editor.styling_config.node_selected_outline_color : node_editor.styling_config.node_outline_color
         });
 
+        int port_id = 0;
         for(const auto&[position, port]:
                 ConstZipObject{node_type_computed.input_port_positions, node_type.input_ports})
         {
@@ -100,14 +101,8 @@ RenderData compute_render_data(const NodeEditor& node_editor)
 
             if(std::get_if<PortWidgets::TextBox>(&port.widget))
             {
-                glm::vec2 text_box_size = glm::vec2 {
-                        (node_size.x - 3 * node_editor.styling_config.margin_padding) / 2.f,
-                        node_editor.styling_config.row_height
-                };
-                glm::vec2 text_box_position = position +
-                        node.position +
-                        glm::vec2{node_size.x - node_editor.styling_config.margin_padding, 0.f} -
-                        glm::vec2{text_box_size.x / 2.f, 0.f};
+                glm::vec2 text_box_size = node_type_computed.input_widget_boxes[port_id].size;
+                glm::vec2 text_box_position = node.position + node_type_computed.input_widget_boxes[port_id].center;
 
                 cache.quads.push_back(RenderData::Quad{
                         glm::vec3(text_box_position, z * STRIDE_Z_LOCATION + TEXT_BOX_BACKGROUND_Z_LOCATION),
@@ -121,14 +116,26 @@ RenderData compute_render_data(const NodeEditor& node_editor)
                         node_editor.styling_config.node_outline_color
                 });
 
+                const std::string* data;
+
+                for(const auto& text_widget: node_editor.input_state.text_widget_state)
+                {
+                    if(text_widget.port == Port{node_id, port_id, Port::Type::INPUT})
+                    {
+                        data = &text_widget.state.data;
+                    }
+                }
+
                 cache.stencil_texts.push_back(RenderData::StencilText{
                     glm::vec3{text_box_position - glm::vec2{text_box_size.x / 2.f, -node_editor.styling_config.text_height / 2.f}, z * STRIDE_Z_LOCATION + TEXT_BOX_TEXT_Z_LOCATION},
                     node_editor.styling_config.text_color,
-                    "hello g",
+                    *data,
                     node_editor.styling_config.text_height,
                     compute_bounding_box(text_box_position, text_box_size)
                 });
             }
+
+            port_id ++;
         }
 
         for(const auto&[position, port]:
