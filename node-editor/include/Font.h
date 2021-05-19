@@ -4,7 +4,7 @@
 #include <string_view>
 #include <vector>
 
-#include <detail/CenteredBox.h>
+#include <detail/BoundingArea.h>
 
 class Font
 {

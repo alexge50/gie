@@ -1,6 +1,5 @@
 #include <Render.h>
 #include <RenderData.h>
-#include <detail/Compute.h>
 #include <detail/Zip.h>
 
 #include <glm/glm.hpp>

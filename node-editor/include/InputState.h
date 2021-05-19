@@ -37,17 +37,6 @@ using DisabledPorts = std::unordered_set<Port, PortHasher>;
 struct InputState
 {
     std::variant<NoDrag, ViewDrag, SelectDrag, ConnectionDrag, NodeDrag> drag_state = NoDrag{};
-    std::unordered_set<NodeId> selected_nodes = {};
-    DisabledPorts disabled_ports = {};
-
-    struct PortTextWidgetState
-    {
-        Port port;
-        PortWidgets::TextBoxState state;
-        int order;
-    };
-
-    std::vector<PortTextWidgetState> text_widget_state;
     std::optional<Port> active_text_widget;
 };
 

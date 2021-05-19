@@ -40,6 +40,9 @@ namespace InputEvents
     };
 }
 
+using InputEvent = std::variant<InputEvents::Click, InputEvents::Delete, InputEvents::DragBegin, InputEvents::DragEnd, InputEvents::DragSustain, InputEvents::Scroll, InputEvents::Character>;
+
+
 namespace EditorEvents
 {
     struct ConnectionAdded
@@ -56,10 +59,30 @@ namespace EditorEvents
     {
         NodeId node_id;
     };
+
+    struct SelectedNodesMoved
+    {
+        glm::vec2 delta;
+    };
+
+    struct ConnectionDrag
+    {
+        Port source_port;
+    };
+
+    struct ConnectionDragEnded
+    {
+
+    };
+
+    struct WidgetInputEvent
+    {
+        Port widget_port;
+        InputEvent input_event;
+    };
 }
 
-using InputEvent = std::variant<InputEvents::Click, InputEvents::Delete, InputEvents::DragBegin, InputEvents::DragEnd, InputEvents::DragSustain, InputEvents::Scroll, InputEvents::Character>;
-using EditorEvent = std::variant<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved>;
+using EditorEvent = std::variant<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved, EditorEvents::WidgetInputEvent, EditorEvents::ConnectionDrag, EditorEvents::SelectedNodesMoved, EditorEvents::ConnectionDragEnded>;
 
 struct NodeEditor;
 void process(NodeEditor&, const std::vector<InputEvent>&, std::vector<EditorEvent>&);

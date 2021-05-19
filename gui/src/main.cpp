@@ -87,25 +87,7 @@ int main()
         .node_types_computed = {}
     };
 
-    compute(node_editor);
-
-    for(const auto node_id: node_editor.focus_stack)
-    {
-        const Node& node = node_editor.graph.nodes.at(node_id);
-        const NodeType& node_type = node_editor.graph.node_types.at(node.node_type);
-
-        for(size_t i = 0; i < node_type.input_ports.size(); i++)
-        {
-            if(std::get_if<PortWidgets::TextBox>(&node_type.input_ports[i].widget))
-            {
-                node_editor.input_state.text_widget_state.push_back(InputState::PortTextWidgetState{
-                   .port = {node_id, static_cast<int>(i), Port::Type::INPUT},
-                   .state = {},
-                   .order = {}
-                });
-            }
-        }
-    }
+    compute_state(node_editor, node_editor.state);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -118,7 +100,9 @@ int main()
 
 
         node_editor.camera.screen_size = {float(width), float(height)};
+        compute_state(node_editor, node_editor.state);
 
+        editor_events.clear();
         process(node_editor, input_events, editor_events);
         input_events.clear();
 

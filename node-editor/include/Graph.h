@@ -1,8 +1,7 @@
 #ifndef NODE_EDITOR_GRAPH_H
 #define NODE_EDITOR_GRAPH_H
 
-#include "detail/BoundingBox.h"
-#include "detail/CenteredBox.h"
+#include "detail/BoundingArea.h"
 #include <Widget.h>
 
 #include <vector>

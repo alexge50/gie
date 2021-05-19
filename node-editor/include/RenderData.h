@@ -7,7 +7,7 @@
 #include <vector>
 #include <string_view>
 
-#include <detail/BoundingBox.h>
+#include <detail/BoundingArea.h>
 #include <Camera.h>
 
 

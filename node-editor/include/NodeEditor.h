@@ -5,6 +5,7 @@
 #include <Camera.h>
 #include <InputState.h>
 #include <RenderData.h>
+#include <State.h>
 #include <Font.h>
 
 #include <glm/vec2.hpp>
@@ -45,12 +46,10 @@ struct NodeEditor
     Graph graph{};
     Camera camera{};
 
-    InputState input_state;
-    std::vector<NodeId> focus_stack;
+    NodeEditorState state;
 
     StylingConfig styling_config{};
-    std::function<DisabledPorts(Port)> compute_disabled_ports;
-    Font* font;
+    Font* font = nullptr;
 };
 
 void compute(NodeEditor&);
