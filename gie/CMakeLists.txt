@@ -8,7 +8,7 @@ include(GNUInstallDirs)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*)
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS include/*)
 
-find_package(Boost COMPONENTS python REQUIRED)
+find_package(Boost COMPONENTS python3 REQUIRED)
 find_package(PythonLibs REQUIRED)
 
 add_library(gie STATIC ${SOURCES} ${HEADERS} include/gie/NodeId.h)
@@ -27,13 +27,14 @@ install(
 install(
         EXPORT gie-config
         NAMESPACE gie::
-        DESTINATION lib/cmake/gie)
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/gie)
 
 # TESTS
+
 add_executable(gie_test tests/test.cpp)
 target_link_libraries(gie_test gie Catch2)
 
-file(INSTALL tests/test_modules DESTINATION ./)
+file(INSTALL tests/test_modules DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(gie_dev_test tests/dev_test.cpp)
 target_link_libraries(gie_dev_test gie)
