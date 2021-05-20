@@ -225,6 +225,4 @@ void compute_state(const NodeEditor& node_editor, NodeEditorState& node_editor_s
             return std::get_if<InteractiveElementState::Node>(&rhs.element);
         else return false;
     });
-
-    node_editor_state.camera = node_editor.camera;
 }

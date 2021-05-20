@@ -28,7 +28,7 @@ RenderData compute_render_data(const NodeEditor& node_editor)
         cache.quads.push_back(RenderData::Quad{
                glm::vec3(node.position, node.order * STRIDE_Z_LOCATION),
                glm::vec3(node.size, 1.f),
-               node_editor.styling_config.node_background_color
+               glm::vec4{node_editor.styling_config.node_background_color, 1.f}
         });
 
         glm::vec3 header_position;
@@ -37,7 +37,7 @@ RenderData compute_render_data(const NodeEditor& node_editor)
         cache.quads.push_back(RenderData::Quad{
             header_position = glm::vec3(node.header_position, node.order * STRIDE_Z_LOCATION + HEADER_Z_LOCATION),
             header_size = glm::vec3(node.header_size, 1.f),
-            node.color,
+            glm::vec4{node.color, 1.f},
         });
 
         {
@@ -58,7 +58,10 @@ RenderData compute_render_data(const NodeEditor& node_editor)
         cache.quad_outlines.push_back(RenderData::QuadOutline{
                 glm::vec3(node.position, node.order * STRIDE_Z_LOCATION + OUTLINE_Z_LOCATION),
                 glm::vec3(node.size, 1.f),
-                node.selected ? node_editor.styling_config.node_selected_outline_color : node_editor.styling_config.node_outline_color
+                glm::vec4 {
+                        node.selected ? node_editor.styling_config.node_selected_outline_color : node_editor.styling_config.node_outline_color,
+                        1.f
+                }
         });
     }
 
@@ -114,13 +117,13 @@ RenderData compute_render_data(const NodeEditor& node_editor)
         cache.quads.push_back(RenderData::Quad{
                 glm::vec3(metadata.box.center, metadata.order * STRIDE_Z_LOCATION + TEXT_BOX_BACKGROUND_Z_LOCATION),
                 glm::vec3(metadata.box.size, 1.f),
-                node_editor.styling_config.node_background_color,
+                glm::vec4{node_editor.styling_config.node_background_color, 1.f},
         });
 
         cache.quad_outlines.push_back(RenderData::QuadOutline{
                 glm::vec3(metadata.box.center, metadata.order * STRIDE_Z_LOCATION + TEXT_BOX_OUTLINE_Z_LOCATION),
                 glm::vec3(metadata.box.size, 1.f),
-                node_editor.styling_config.node_outline_color
+                glm::vec4{node_editor.styling_config.node_outline_color, 1.f}
         });
 
         cache.stencil_texts.push_back(RenderData::StencilText{
@@ -143,11 +146,19 @@ RenderData compute_render_data(const NodeEditor& node_editor)
     }
     else if(auto select_drag = std::get_if<SelectDrag>(&node_editor.state.input_state.drag_state))
     {
-        cache.select_box = RenderData::SelectBox{
-                {select_drag->begin_corner, select_drag->current_corner},
-                node_editor.styling_config.select_rectangle_color,
-                node_editor.styling_config.select_rectangle_outline_color,
-        };
+        auto select_box_z = static_cast<float>(node_editor.state.focus_stack.size() + 1) * STRIDE_Z_LOCATION + 1.f;
+
+        cache.quads.emplace_back(RenderData::Quad{
+                .position = glm::vec3{(select_drag->begin_corner + select_drag->current_corner) / 2.f, select_box_z},
+                .size = glm::vec3{glm::abs(select_drag->begin_corner - select_drag->current_corner), 0.f},
+                .color = node_editor.styling_config.select_rectangle_color
+        });
+
+        cache.quad_outlines.emplace_back(RenderData::QuadOutline{
+                .position = glm::vec3{(select_drag->begin_corner + select_drag->current_corner) / 2.f, select_box_z + 1.f},
+                .size = glm::vec3{glm::abs(select_drag->begin_corner - select_drag->current_corner), 0.f},
+                .color = node_editor.styling_config.select_rectangle_outline_color
+        });
     }
 
     cache.camera = node_editor.camera;

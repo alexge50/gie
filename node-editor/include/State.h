@@ -108,7 +108,6 @@ struct NodeEditorState
     std::unordered_map<NodeId, int> order;
 
     InputState input_state;
-    Camera camera;
 };
 
 struct NodeEditor;

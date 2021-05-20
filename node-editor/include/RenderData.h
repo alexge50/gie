@@ -18,14 +18,14 @@ struct RenderData
     {
         glm::vec3 position;
         glm::vec3 size;
-        glm::vec3 color;
+        glm::vec4 color;
     };
 
     struct QuadOutline
     {
         glm::vec3 position;
         glm::vec3 size;
-        glm::vec3 color;
+        glm::vec4 color;
     };
 
     struct Circle
@@ -47,13 +47,6 @@ struct RenderData
         glm::vec3 source_position;
         glm::vec3 destination_position;
         glm::vec3 color;
-    };
-
-    struct SelectBox
-    {
-        BoundingBox box;
-        glm::vec4 color;
-        glm::vec4 outline_color;
     };
 
     struct Text
@@ -80,7 +73,6 @@ struct RenderData
     std::vector<Line> lines;
     std::vector<Text> texts;
     std::vector<StencilText> stencil_texts;
-    std::optional<SelectBox> select_box;
 
     float line_width;
     glm::vec3 background_color;

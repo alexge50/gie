@@ -5,25 +5,28 @@
 #include <variant>
 
 #include <Graph.h>
+#include <Camera.h>
 
 namespace InputEvents
 {
     struct DragBegin
     {
-        float x, y;
+        WorldSpaceCoordinates position;
+        ScreenSpaceCoordinates screen_space_position;
         bool special_key; // for drag select
     };
 
     struct DragSustain
     {
-        float x, y;
+        WorldSpaceCoordinates position;
+        ScreenSpaceCoordinates screen_space_position;
     };
 
     struct DragEnd {};
 
     struct Click
     {
-        float x, y;
+        WorldSpaceCoordinates position;
         bool special_key;
     };
 
@@ -80,9 +83,15 @@ namespace EditorEvents
         Port widget_port;
         InputEvent input_event;
     };
+
+    struct CameraModified
+    {
+        glm::vec2 delta_position;
+        float delta_zoom;
+    };
 }
 
-using EditorEvent = std::variant<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved, EditorEvents::WidgetInputEvent, EditorEvents::ConnectionDrag, EditorEvents::SelectedNodesMoved, EditorEvents::ConnectionDragEnded>;
+using EditorEvent = std::variant<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved, EditorEvents::WidgetInputEvent, EditorEvents::ConnectionDrag, EditorEvents::SelectedNodesMoved, EditorEvents::ConnectionDragEnded, EditorEvents::CameraModified>;
 
 struct NodeEditor;
 void process(NodeEditor&, const std::vector<InputEvent>&, std::vector<EditorEvent>&);

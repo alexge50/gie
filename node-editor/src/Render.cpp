@@ -155,7 +155,7 @@ void Render::operator()(const RenderData& render_data)
 
         solid_shader.prepare({
                                      .mvp = mvp,
-                                     .color = glm::vec4(quad_.color, 1.f)
+                                     .color = quad_.color,
                              });
 
         glBindVertexArray(quad.vao);
@@ -176,7 +176,7 @@ void Render::operator()(const RenderData& render_data)
 
         solid_shader.prepare({
                                      .mvp = mvp,
-                                     .color = glm::vec4(quad_outline_.color, 1.f)
+                                     .color = quad_outline_.color
                              });
 
         glLineWidth(render_data.line_width);
@@ -232,45 +232,6 @@ void Render::operator()(const RenderData& render_data)
     }
 
     glDisable(GL_DEPTH_TEST);
-
-    if(render_data.select_box)
-    {
-        auto box = render_data.select_box->box;
-
-        glm::vec2 box_size = {
-            fabsf(box.upper_left.x - box.bottom_right.x),
-            fabsf(box.upper_left.y - box.bottom_right.y)
-        };
-
-        glm::mat4 model =
-                glm::translate(glm::mat4(1.f), glm::vec3((box.upper_left + box.bottom_right) / 2.f, 0.f)) *
-                glm::scale(glm::mat4(1.f), glm::vec3(box_size, 0.f));
-
-        glm::mat4 mvp = screen_projection_mat(render_data.camera) * model;
-
-        solid_shader.prepare({
-            .mvp = mvp,
-            .color = render_data.select_box->color
-        });
-
-        glBindVertexArray(quad.vao);
-        glDrawArrays(
-                GL_TRIANGLE_STRIP,
-                0,
-                4
-        );
-
-        solid_shader.prepare({
-            .mvp = mvp,
-            .color = render_data.select_box->outline_color
-        });
-        glBindVertexArray(quad_outline.vao);
-        glDrawArrays(
-                GL_LINE_LOOP,
-                0,
-                4
-        );
-    }
 
     glActiveTexture(GL_TEXTURE0);
 

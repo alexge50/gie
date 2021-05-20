@@ -45,9 +45,7 @@ static void process(NodeEditorState& state, const std::vector<InputEvent>& input
         std::visit(
                 overloaded {
                         [&](const InputEvents::Click& click) {
-                            auto canvas_position = to_world_space(state.camera, glm::vec2{click.x, click.y});
-
-                            if(auto element = get_interactive_element(state, canvas_position.get()))
+                            if(auto element = get_interactive_element(state, click.position.get()))
                             {
                                 if(state.input_state.active_text_widget)
                                     state.widget_metadata[*state.input_state.active_text_widget].active = false;
@@ -71,9 +69,7 @@ static void process(NodeEditorState& state, const std::vector<InputEvent>& input
 
                         },
                         [&](const InputEvents::DragBegin& drag_begin) {
-                            auto canvas_position = to_world_space(state.camera, glm::vec2{drag_begin.x, drag_begin.y});
-
-                            if(state.input_state.active_text_widget && contains_point(state.widget_metadata[*state.input_state.active_text_widget].box, canvas_position.get()))
+                            if(state.input_state.active_text_widget && contains_point(state.widget_metadata[*state.input_state.active_text_widget].box, drag_begin.position.get()))
                             {
                                 output.emplace_back(
                                         EditorEvents::WidgetInputEvent{
@@ -89,7 +85,7 @@ static void process(NodeEditorState& state, const std::vector<InputEvent>& input
                                 state.input_state.active_text_widget = std::nullopt;
                             }
 
-                            if(auto element = get_interactive_element(state, canvas_position.get()))
+                            if(auto element = get_interactive_element(state, drag_begin.position.get()))
                             {
                                 if(auto node = std::get_if<InteractiveElementState::Node>(&element->element))
                                 {
@@ -101,15 +97,15 @@ static void process(NodeEditorState& state, const std::vector<InputEvent>& input
                                     }
 
                                     state.input_state.drag_state = NodeDrag {
-                                            canvas_position.get()
+                                            drag_begin.position.get()
                                     };
                                 }
                                 else if(auto port = std::get_if<InteractiveElementState::Port>(&element->element))
                                 {
                                     state.input_state.drag_state = ConnectionDrag {
                                             .source_port = port->port_id,
-                                            .source_position = canvas_position.get(),
-                                            .destination_position = canvas_position.get()
+                                            .source_position = drag_begin.position.get(),
+                                            .destination_position = drag_begin.position.get()
                                     };
 
                                     output.emplace_back(EditorEvents::ConnectionDrag{
@@ -122,14 +118,14 @@ static void process(NodeEditorState& state, const std::vector<InputEvent>& input
                                 if(drag_begin.special_key)
                                 {
                                     state.input_state.drag_state = SelectDrag {
-                                            {drag_begin.x, drag_begin.y},
-                                            {drag_begin.x, drag_begin.y}
+                                            drag_begin.position.get(),
+                                            drag_begin.position.get()
                                     };
                                 }
                                 else
                                 {
                                     state.input_state.drag_state = ViewDrag {
-                                            {drag_begin.x, drag_begin.y}
+                                            drag_begin.screen_space_position.get()
                                     };
                                 }
                             }
@@ -152,8 +148,8 @@ static void process(NodeEditorState& state, const std::vector<InputEvent>& input
                                 auto& select_drag = std::get<SelectDrag>(state.input_state.drag_state);
 
                                 glm::vec2 p[2] = {
-                                        to_world_space(state.camera, select_drag.current_corner).get(),
-                                        to_world_space(state.camera, select_drag.begin_corner).get(),
+                                        select_drag.current_corner,
+                                        select_drag.begin_corner,
                                 };
 
                                 glm::vec2 box_size = {
@@ -205,9 +201,7 @@ static void process(NodeEditorState& state, const std::vector<InputEvent>& input
                             state.input_state.drag_state = NoDrag{};
                         },
                         [&](const InputEvents::DragSustain& drag_sustain) {
-                            auto canvas_position = to_world_space(state.camera, glm::vec2{drag_sustain.x, drag_sustain.y});
-
-                            if(state.input_state.active_text_widget && contains_point(state.widget_metadata[*state.input_state.active_text_widget].box, canvas_position.get()))
+                            if(state.input_state.active_text_widget && contains_point(state.widget_metadata[*state.input_state.active_text_widget].box, drag_sustain.position.get()))
                             {
                                 output.emplace_back(
                                         EditorEvents::WidgetInputEvent{
@@ -219,15 +213,12 @@ static void process(NodeEditorState& state, const std::vector<InputEvent>& input
                                 return ;
                             }
 
-
                             if(std::holds_alternative<NodeDrag>(state.input_state.drag_state))
                             {
                                 auto& node_drag = std::get<NodeDrag>(state.input_state.drag_state);
 
-                                auto canvas_position = to_world_space(state.camera, glm::vec2{drag_sustain.x, drag_sustain.y});
-
-                                glm::vec2 delta = canvas_position - node_drag.begin_position;
-                                node_drag.begin_position = canvas_position.get();
+                                glm::vec2 delta = drag_sustain.position.get() - node_drag.begin_position;
+                                node_drag.begin_position = drag_sustain.position.get();
 
                                 output.emplace_back(
                                         EditorEvents::SelectedNodesMoved{
@@ -239,29 +230,28 @@ static void process(NodeEditorState& state, const std::vector<InputEvent>& input
                             if(std::holds_alternative<ConnectionDrag>(state.input_state.drag_state))
                             {
                                 auto& connection_drag = std::get<ConnectionDrag>(state.input_state.drag_state);
-                                auto canvas_position = to_world_space(state.camera, glm::vec2{drag_sustain.x, drag_sustain.y});
 
-                                connection_drag.destination_position = canvas_position.get();
+                                connection_drag.destination_position = drag_sustain.position.get();
                             }
 
                             if(std::holds_alternative<SelectDrag>(state.input_state.drag_state))
                             {
                                 auto& select_drag = std::get<SelectDrag>(state.input_state.drag_state);
 
-                                select_drag.current_corner = {
-                                        drag_sustain.x,
-                                        drag_sustain.y
-                                };
+                                select_drag.current_corner = drag_sustain.position.get();
                             }
 
                             if(std::holds_alternative<ViewDrag>(state.input_state.drag_state))
                             {
-                                auto& node_drag = std::get<ViewDrag>(state.input_state.drag_state);
+                                auto& view_drag = std::get<ViewDrag>(state.input_state.drag_state);
 
-                                glm::vec2 delta = glm::vec2{drag_sustain.x, drag_sustain.y} - node_drag.begin_position;
-                                node_drag.begin_position = glm::vec2{drag_sustain.x, drag_sustain.y};
+                                glm::vec2 delta = drag_sustain.screen_space_position.get() - view_drag.begin_position;
+                                view_drag.begin_position = drag_sustain.screen_space_position.get();
 
-                                state.camera.position -= delta;
+                                output.emplace_back(EditorEvents::CameraModified{
+                                   .delta_position = -delta,
+                                   .delta_zoom = 0.f
+                                });
                             }
                         },
                         [&](const InputEvents::Scroll& scroll) {
@@ -277,9 +267,10 @@ static void process(NodeEditorState& state, const std::vector<InputEvent>& input
                                 return ;
                             }
 
-
-                            state.camera.zoom += scroll.value;
-                            state.camera.zoom = glm::clamp(state.camera.zoom, 0.1f, 3.f);
+                            output.emplace_back(EditorEvents::CameraModified{
+                                    .delta_position = glm::vec2{0.f, 0.f},
+                                    .delta_zoom = scroll.value
+                            });
                         },
                         [&](const InputEvents::Character& character) {
                             if(state.input_state.active_text_widget)
@@ -327,7 +318,6 @@ static std::optional<size_t> find_connection(NodeEditor& node_editor, Port port)
 void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std::vector<EditorEvent>& output)
 {
     process(node_editor.state, input, output);
-    node_editor.camera = node_editor.state.camera;
 
     for(size_t i = 0; i < output.size(); i++)
     {
@@ -380,6 +370,12 @@ void process(NodeEditor& node_editor, const std::vector<InputEvent>& input, std:
                 node_editor.graph.connections.erase(node_editor.graph.connections.begin() + connection_index);
             }
             node_editor.graph.connections.emplace_back(connection_added->connection);
+        }
+        else if(auto camera_modified = std::get_if<EditorEvents::CameraModified>(&event))
+        {
+            node_editor.camera.position += camera_modified->delta_position;
+            node_editor.camera.zoom += camera_modified->delta_zoom;
+            node_editor.camera.zoom = glm::clamp(node_editor.camera.zoom, 0.1f, 3.f);
         }
     }
 }

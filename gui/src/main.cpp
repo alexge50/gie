@@ -16,11 +16,14 @@ const int SCREEN_HEIGHT = 1024;
 struct Parameters
 {
     std::vector<InputEvent>* input_events = nullptr;
+    Camera* camera = nullptr;
 
     bool dragging = false;
     bool mouse_clicked = false;
     bool super_clicked = false;
-    float mouse_x, mouse_y;
+    //float mouse_x, mouse_y;
+    WorldSpaceCoordinates mouse_position = glm::vec2{};
+    ScreenSpaceCoordinates mouse_position_screen_space = glm::vec2{};
 };
 
 void scroll_callback(GLFWwindow* window, double x, double y);
@@ -89,6 +92,7 @@ int main()
 
     compute_state(node_editor, node_editor.state);
 
+    parameters.camera = &node_editor.camera;
     while (!glfwWindowShouldClose(window))
     {
         int width, height;
@@ -138,18 +142,20 @@ void cursor_position_callback(GLFWwindow* window, double x, double y)
 {
     auto parameters = static_cast<Parameters*>(glfwGetWindowUserPointer(window));
 
-    parameters->mouse_x = x;
-    parameters->mouse_y = y;
+    parameters->mouse_position = to_world_space(*parameters->camera, glm::vec2{float(x), float(y)});
+    parameters->mouse_position_screen_space = glm::vec2{float(x), float(y)};
 
     if(parameters->mouse_clicked)
     {
+
+
         if(!parameters->dragging)
         {
-            parameters->input_events->push_back(InputEvents::DragBegin{static_cast<float>(x), static_cast<float>(y), parameters->super_clicked});
+            parameters->input_events->push_back(InputEvents::DragBegin{parameters->mouse_position, parameters->mouse_position_screen_space, parameters->super_clicked});
             parameters->dragging = true;
         }
         else
-            parameters->input_events->push_back(InputEvents::DragSustain{static_cast<float>(x), static_cast<float>(y)});
+            parameters->input_events->push_back(InputEvents::DragSustain{parameters->mouse_position, parameters->mouse_position_screen_space});
     }
 }
 
@@ -163,8 +169,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         parameters->super_clicked = mods & GLFW_MOD_SHIFT;
 
         parameters->input_events->push_back(InputEvents::Click{
-            static_cast<float>(parameters->mouse_x),
-            static_cast<float>(parameters->mouse_y),
+            parameters->mouse_position,
             parameters->super_clicked
         });
     }
