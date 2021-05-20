@@ -6,12 +6,17 @@ find_package (Python3 COMPONENTS Interpreter)
 
 function(add_shader target vertex fragment)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/shader/)
-    add_custom_target(
-            ${target}_gen
+    add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shader/${target}.h
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/shader.py ${CMAKE_CURRENT_SOURCE_DIR}/${vertex} ${CMAKE_CURRENT_SOURCE_DIR}/${fragment} ${CMAKE_CURRENT_BINARY_DIR}/shader/${target}.h
             BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/shader/${target}.h
             WORKING_DIRECTORY ..
-            DEPENDS ${vertex} ${fragment}
+            DEPENDS ${vertex} ${fragment} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/shader.py
+    )
+
+    add_custom_target(
+            ${target}_gen
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/shader/${target}.h
     )
 
     add_library(${target} INTERFACE)
