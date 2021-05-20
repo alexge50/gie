@@ -15,7 +15,7 @@ const int SCREEN_HEIGHT = 1024;
 
 struct Parameters
 {
-    std::vector<InputEvent>* input_events = nullptr;
+    InputEventVector* input_events = nullptr;
     Camera* camera = nullptr;
 
     bool dragging = false;
@@ -56,8 +56,8 @@ int main()
     glfwMakeContextCurrent(window);
     gladLoadGL();
 
-    std::vector<InputEvent> input_events;
-    std::vector<EditorEvent> editor_events;
+    InputEventVector input_events;
+    EditorEventVector editor_events;
 
     Parameters parameters {&input_events};
     glfwSetWindowUserPointer(window, &parameters);
@@ -125,7 +125,7 @@ void scroll_callback(GLFWwindow* window, double x, double y)
 {
     auto parameters = static_cast<Parameters*>(glfwGetWindowUserPointer(window));
 
-    parameters->input_events->push_back(InputEvents::Scroll{static_cast<float>(y) * 0.2f});
+    parameters->input_events->add(InputEvents::Scroll{static_cast<float>(y) * 0.2f});
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -134,7 +134,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
     if (key == GLFW_KEY_DELETE && action == GLFW_PRESS)
     {
-        parameters->input_events->push_back(InputEvents::Delete{});
+        parameters->input_events->add(InputEvents::Delete{});
     }
 }
 
@@ -151,11 +151,11 @@ void cursor_position_callback(GLFWwindow* window, double x, double y)
 
         if(!parameters->dragging)
         {
-            parameters->input_events->push_back(InputEvents::DragBegin{parameters->mouse_position, parameters->mouse_position_screen_space, parameters->super_clicked});
+            parameters->input_events->add(InputEvents::DragBegin{parameters->mouse_position, parameters->mouse_position_screen_space, parameters->super_clicked});
             parameters->dragging = true;
         }
         else
-            parameters->input_events->push_back(InputEvents::DragSustain{parameters->mouse_position, parameters->mouse_position_screen_space});
+            parameters->input_events->add(InputEvents::DragSustain{parameters->mouse_position, parameters->mouse_position_screen_space});
     }
 }
 
@@ -168,7 +168,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         parameters->mouse_clicked = true;
         parameters->super_clicked = mods & GLFW_MOD_SHIFT;
 
-        parameters->input_events->push_back(InputEvents::Click{
+        parameters->input_events->add(InputEvents::Click{
             parameters->mouse_position,
             parameters->super_clicked
         });
@@ -176,7 +176,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
     {
         if(parameters->dragging)
-            parameters->input_events->push_back(InputEvents::DragEnd{});
+            parameters->input_events->add(InputEvents::DragEnd{});
 
         parameters->dragging = false;
         parameters->mouse_clicked = false;
@@ -189,5 +189,5 @@ void character_callback(GLFWwindow* window, unsigned int codepoint)
     auto parameters = static_cast<Parameters*>(glfwGetWindowUserPointer(window));
 
     if(codepoint >= 0 && codepoint < 128)
-        parameters->input_events->push_back(InputEvents::Character{static_cast<char>(codepoint)});
+        parameters->input_events->add(InputEvents::Character{static_cast<char>(codepoint)});
 }

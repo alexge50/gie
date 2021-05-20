@@ -7,6 +7,8 @@
 #include <Graph.h>
 #include <Camera.h>
 
+#include <detail/EventVector.h>
+
 namespace InputEvents
 {
     struct DragBegin
@@ -43,8 +45,8 @@ namespace InputEvents
     };
 }
 
+using InputEventVector = EventVector<InputEvents::Click, InputEvents::Delete, InputEvents::DragBegin, InputEvents::DragEnd, InputEvents::DragSustain, InputEvents::Scroll, InputEvents::Character>;
 using InputEvent = std::variant<InputEvents::Click, InputEvents::Delete, InputEvents::DragBegin, InputEvents::DragEnd, InputEvents::DragSustain, InputEvents::Scroll, InputEvents::Character>;
-
 
 namespace EditorEvents
 {
@@ -91,9 +93,9 @@ namespace EditorEvents
     };
 }
 
-using EditorEvent = std::variant<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved, EditorEvents::WidgetInputEvent, EditorEvents::ConnectionDrag, EditorEvents::SelectedNodesMoved, EditorEvents::ConnectionDragEnded, EditorEvents::CameraModified>;
+using EditorEventVector = EventVector<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved, EditorEvents::WidgetInputEvent, EditorEvents::ConnectionDrag, EditorEvents::SelectedNodesMoved, EditorEvents::ConnectionDragEnded, EditorEvents::CameraModified>;
 
 struct NodeEditor;
-void process(NodeEditor&, const std::vector<InputEvent>&, std::vector<EditorEvent>&);
+void process(NodeEditor&, const InputEventVector &, EditorEventVector &);
 
 #endif //NODE_EDITOR_EVENTS_H
