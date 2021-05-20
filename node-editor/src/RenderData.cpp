@@ -20,6 +20,7 @@ static const float TEXT_BOX_TEXT_Z_LOCATION = 2.f;
 static void compute_render_data_widget(
         RenderData& cache,
         const StylingConfig& config,
+        const Font& font,
         const Widgets::TextBoxState& state,
         CenteredBox box,
         int order,
@@ -28,18 +29,20 @@ static void compute_render_data_widget(
     cache.quads.push_back(RenderData::Quad{
             glm::vec3(box.center, order * STRIDE_Z_LOCATION + TEXT_BOX_BACKGROUND_Z_LOCATION),
             glm::vec3(box.size, 1.f),
-            glm::vec4{config.node_background_color, 1.f},
+            glm::vec4{config.text_box_widget_background_color, 1.f},
     });
 
     cache.quad_outlines.push_back(RenderData::QuadOutline{
             glm::vec3(box.center, order * STRIDE_Z_LOCATION + TEXT_BOX_OUTLINE_Z_LOCATION),
             glm::vec3(box.size, 1.f),
-            glm::vec4{config.node_outline_color, 1.f}
+            glm::vec4{active ? config.text_box_widget_outline_active_color : config.text_box_widget_outline_color, 1.f}
     });
 
+    float max_height = font.max_height(config.text_height);
+    float max_sub_line = font.max_sub_line(config.text_height);
     cache.stencil_texts.push_back(RenderData::StencilText{
-            glm::vec3{box.center - glm::vec2{box.size.x / 2.f, -config.text_height / 2.f}, order * STRIDE_Z_LOCATION + TEXT_BOX_TEXT_Z_LOCATION},
-            config.text_color,
+            glm::vec3{box.center - glm::vec2{box.size.x / 2.f, -max_height / 2.f + max_sub_line}, order * STRIDE_Z_LOCATION + TEXT_BOX_TEXT_Z_LOCATION},
+            glm::vec4{config.text_box_widget_text_color, 1.f},
             state.data,
             config.text_height,
             compute_bounding_box(box.center, box.size)
@@ -49,6 +52,7 @@ static void compute_render_data_widget(
 static void compute_render_data_widget(
         RenderData& cache,
         const StylingConfig& config,
+        const Font& font,
         const Widgets::None& state,
         CenteredBox box,
         int order,
@@ -79,10 +83,11 @@ RenderData compute_render_data(const NodeEditor& node_editor)
         });
 
         {
-            glm::vec2 text_size = node_editor.font->compute_bounding_box(node.title,
-                                                                         node_editor.styling_config.text_height);
+            float max_sub_line = node_editor.font->max_sub_line(node_editor.styling_config.text_height);
+            float max_height = node_editor.font->max_height(node_editor.styling_config.text_height);
+
             glm::vec2 text_position =
-                    glm::vec2{header_position.x, header_position.y} + glm::vec2{-header_size.x, +text_size.y} / 2.f +
+                    glm::vec2{header_position.x, header_position.y} + glm::vec2{-header_size.x / 2.f, max_height / 2.f - max_sub_line} +
                     glm::vec2{node_editor.styling_config.margin_padding, 0.f};
 
             cache.texts.push_back(RenderData::Text{
@@ -123,8 +128,11 @@ RenderData compute_render_data(const NodeEditor& node_editor)
                        node_editor.styling_config.margin_padding:
                        -node_editor.styling_config.margin_padding - text_size.x;
 
+        float max_sub_line = node_editor.font->max_sub_line(node_editor.styling_config.text_height);
+        float max_height = node_editor.font->max_height(node_editor.styling_config.text_height);
+
         cache.texts.push_back(RenderData::Text{
-            glm::vec3{port.position + glm::vec2{text_x, text_size.y / 2.f}, port.order * STRIDE_Z_LOCATION + TEXT_Z_LOCATION},
+            glm::vec3{port.position + glm::vec2{text_x, max_height / 2.f - max_sub_line}, port.order * STRIDE_Z_LOCATION + TEXT_Z_LOCATION},
             node_editor.styling_config.text_color,
             port.label,
             node_editor.styling_config.text_height
@@ -153,7 +161,7 @@ RenderData compute_render_data(const NodeEditor& node_editor)
         const auto& state_data = state_data_binded;
 
         std::visit([&](const auto& state) {
-            compute_render_data_widget(cache, node_editor.styling_config, state, state_data.box, state_data.order, state_data.active);
+            compute_render_data_widget(cache, node_editor.styling_config, *node_editor.font, state, state_data.box, state_data.order, state_data.active);
         }, state_data.state);
     }
 

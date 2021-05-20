@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <cmath>
 #include <algorithm>
 
 #include <ft2build.h>
@@ -26,6 +27,9 @@ Font::Font(const char *font_file, int font_size):
 
     FT_Set_Pixel_Sizes(face, 0, font_size);
 
+    max_height_ = 0.f;
+    float max_bearing = 0.f;
+    max_sub_line_ = 0.f;
     for(int i = 0; i < 128; i ++)
     {
         if(FT_Load_Char(face, i, FT_LOAD_RENDER))
@@ -39,7 +43,11 @@ Font::Font(const char *font_file, int font_size):
         glyphs[i].height = face->glyph->bitmap.rows;
         glyphs[i].advance = face->glyph->advance.x;
         glyphs[i].bearing = glm::vec2{face->glyph->bitmap_left, face->glyph->bitmap_top};
+
+        max_bearing = std::max(max_bearing, static_cast<float>(glyphs[i].bearing.y));
+        max_sub_line_ = std::max(max_sub_line_, static_cast<float>(glyphs[i].height) - static_cast<float>(glyphs[i].bearing.y));
     }
+    max_height_ = max_bearing + max_sub_line_;
 }
 
 Font::Glyph Font::get_glyph(char c) const
@@ -81,8 +89,20 @@ glm::vec2 Font::compute_max_bounding_box(int text_length, float target_font_size
 
     return glm::vec2{
             (max_advance >> 6) * text_length * scale,
-            height * scale
+            max_height_ * scale
     };
+}
+
+float Font::max_height(float target_font_size) const
+{
+    float scale = target_font_size / float(font_size);
+    return max_height_ * scale;
+}
+
+float Font::max_sub_line(float target_font_size) const
+{
+    float scale = target_font_size / float(font_size);
+    return max_sub_line_ * scale;
 }
 
 

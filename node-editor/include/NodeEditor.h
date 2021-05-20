@@ -21,6 +21,7 @@ struct StylingConfig
     float row_padding = 1.f;
     float header_height = 20.f;
     float margin_padding = 8.0f;
+    float bottom_padding = 6.f;
     glm::vec4 text_color = glm::vec4{1.f, 1.f, 1.f, 1.f};
 
     glm::vec3 grid_background = {0.137f, 0.137f, 0.137f};
@@ -39,6 +40,11 @@ struct StylingConfig
 
     glm::vec3 connection_color = {1.f, 1.f, 1.f};
     float connection_width = 2.f;
+
+    glm::vec3 text_box_widget_background_color = {0.28f, 0.28f, 0.28f};
+    glm::vec3 text_box_widget_outline_color = {0.36f, 0.36f, 0.36f};
+    glm::vec3 text_box_widget_outline_active_color = {1.f, 1.f, 1.f};
+    glm::vec3 text_box_widget_text_color = {1.f, 1.f, 1.f};
 };
 
 struct NodeEditor

@@ -28,7 +28,8 @@ static void compute_type(NodeEditorState& node_editor_state, const StylingConfig
                     node_type.input_ports.size() + node_type.output_ports.size(),
                     static_cast<std::size_t>(1)
             ) * row_real_height +
-            config.header_height
+            config.header_height +
+            config.bottom_padding
     };
 
     node_editor_state.node_type_state[node_type_id] =  {
