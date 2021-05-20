@@ -16,7 +16,7 @@ static void compute_type(NodeEditorState& node_editor_state, const StylingConfig
     {
         width = std::max(width, 3 * config.margin_padding + 2 * font.compute_bounding_box(port.name, config.text_height).x);
 
-        if(auto text_box = std::get_if<PortWidgets::TextBox>(&port.widget))
+        if(auto text_box = std::get_if<Widgets::TextBox>(&port.widget))
         {
             width = std::max(width, 3 * config.margin_padding + 2 * font.compute_max_bounding_box(text_box->max_text_length, config.text_height).x);
         }
@@ -136,22 +136,24 @@ static void compute_node(NodeEditorState& node_editor_state, const StylingConfig
             .order = node_state.order
         });
 
-        if(!std::holds_alternative<PortWidgets::None>(port_type.port_widget))
+        if(!std::holds_alternative<Widgets::None>(port_type.port_widget))
         {
-            node_editor_state.widget_metadata[Port{node_id, i, Port::Type::INPUT}] = WidgetMetadata{
-                    .widget = port_type.port_widget,
-                    .box = port_type.widget_box,
-                    .order = node_state.order
+            auto& widget_state = node_editor_state.widget_state[Port{node_id, i, Port::Type::INPUT}];
+
+            widget_state = WidgetDataState {
+                .state = widget_state.state,
+                .box = port_type.widget_box,
+                .order = node_state.order,
+                .active = widget_state.active
             };
-            node_editor_state.widget_metadata[Port{node_id, i, Port::Type::INPUT}].box.center += node.position;
+
+            widget_state.box.center += node.position;
 
             node_editor_state.interactive_element_state.push_back(InteractiveElementState{
                     .element = InteractiveElementState::Widget{Port{node_id, i, Port::Type::INPUT}},
-                    .area = {node_editor_state.widget_metadata[Port{node_id, i, Port::Type::INPUT}].box},
+                    .area = widget_state.box,
                     .order = node_state.order
             });
-
-            node_editor_state.text_box_state.insert({Port{node_id, i, Port::Type::INPUT}, {}});
         }
     }
 

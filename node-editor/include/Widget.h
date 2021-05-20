@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <string>
 
-namespace PortWidgets
+namespace Widgets
 {
     struct TextBox
     {
@@ -17,16 +17,16 @@ namespace PortWidgets
     struct TextBoxState
     {
         std::string data{};
-        int cursor_position = 0.f;
-
-        CenteredBox box;
+        int cursor_position = 0;
     };
 
     struct None
     {};
 }
 
-using PortWidget = std::variant<PortWidgets::TextBox, PortWidgets::None>;
+using Widget = std::variant<Widgets::TextBox, Widgets::None>;
+using WidgetState = std::variant<Widgets::TextBoxState, Widgets::None>;
+
 
 
 #endif //GIE_WIDGET_H

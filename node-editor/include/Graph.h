@@ -74,7 +74,7 @@ struct NodeType
     {
         std::string name;
         glm::vec3 color;
-        PortWidget widget;
+        Widget widget;
     };
 
     std::vector<Port> input_ports;

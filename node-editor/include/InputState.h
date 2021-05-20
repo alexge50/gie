@@ -2,6 +2,7 @@
 #define NODE_EDITOR_INPUTSTATE_H
 
 #include <Graph.h>
+#include <WidgetId.h>
 
 #include <variant>
 #include <unordered_set>
@@ -37,7 +38,7 @@ using DisabledPorts = std::unordered_set<Port, PortHasher>;
 struct InputState
 {
     std::variant<NoDrag, ViewDrag, SelectDrag, ConnectionDrag, NodeDrag> drag_state = NoDrag{};
-    std::optional<Port> active_text_widget;
+    std::optional<WidgetId> active_widget;
 };
 
 #endif //NODE_EDITOR_INPUTSTATE_H

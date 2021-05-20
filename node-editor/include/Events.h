@@ -6,6 +6,7 @@
 
 #include <Graph.h>
 #include <Camera.h>
+#include <WidgetId.h>
 
 #include <detail/EventVector.h>
 
@@ -82,7 +83,7 @@ namespace EditorEvents
 
     struct WidgetInputEvent
     {
-        Port widget_port;
+        WidgetId widget;
         InputEvent input_event;
     };
 

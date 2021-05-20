@@ -39,11 +39,14 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
 {
     for(const auto& click: filter_events<InputEvents::Click>(input))
     {
+        if(state.input_state.active_widget)
+        {
+            state.input_state.active_widget = std::nullopt;
+            state.widget_state[*state.input_state.active_widget].active = false;
+        }
+
         if(auto element = get_interactive_element(state, click.position.get()))
         {
-            if(state.input_state.active_text_widget)
-                state.widget_metadata[*state.input_state.active_text_widget].active = false;
-
             if(auto node = std::get_if<InteractiveElementState::Node>(&element->element))
             {
                 if(!click.special_key)
@@ -54,8 +57,8 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
             }
             else if(auto widget = std::get_if<InteractiveElementState::Widget>(&element->element))
             {
-                state.input_state.active_text_widget = widget->port_id;
-                state.widget_metadata[widget->port_id].active = true;
+                state.input_state.active_widget = widget->widget_id;
+                state.widget_state[*state.input_state.active_widget].active = true;
             }
         }
     }
@@ -67,26 +70,12 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
 
     for(const auto& drag_begin: filter_events<InputEvents::DragBegin>(input))
     {
-        if(state.input_state.active_text_widget && contains_point(state.widget_metadata[*state.input_state.active_text_widget].box, drag_begin.position.get()))
-        {
-            output.add(
-                    EditorEvents::WidgetInputEvent{
-                            .widget_port = *state.input_state.active_text_widget,
-                            .input_event = drag_begin
-                    }
-            );
-
-            return ;
-        }
-        else
-        {
-            state.input_state.active_text_widget = std::nullopt;
-        }
-
         if(auto element = get_interactive_element(state, drag_begin.position.get()))
         {
             if(auto node = std::get_if<InteractiveElementState::Node>(&element->element))
             {
+                state.input_state.active_widget = std::nullopt;
+
                 if(!drag_begin.special_key)
                 {
                     clear_selected(state);
@@ -100,6 +89,8 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
             }
             else if(auto port = std::get_if<InteractiveElementState::Port>(&element->element))
             {
+                state.input_state.active_widget = std::nullopt;
+
                 state.input_state.drag_state = ConnectionDrag {
                         .source_port = port->port_id,
                         .source_position = drag_begin.position.get(),
@@ -110,9 +101,34 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
                         port->port_id
                 });
             }
+            else if(auto widget = std::get_if<InteractiveElementState::Widget>(&element->element))
+            {
+                if(state.input_state.active_widget && *state.input_state.active_widget != widget->widget_id)
+                {
+                    state.widget_state[*state.input_state.active_widget].active = false;
+                    state.input_state.active_widget = widget->widget_id;
+                    state.widget_state[*state.input_state.active_widget].active = true;
+                }
+                else if(!state.input_state.active_widget)
+                {
+                    state.input_state.active_widget = widget->widget_id;
+                    state.widget_state[*state.input_state.active_widget].active = true;
+                }
+
+                output.add(EditorEvents::WidgetInputEvent{
+                    .widget = *state.input_state.active_widget,
+                    .input_event = drag_begin
+                });
+            }
         }
         else
         {
+            if(state.input_state.active_widget)
+            {
+                state.widget_state[*state.input_state.active_widget].active = false;
+                state.input_state.active_widget = std::nullopt;
+            }
+
             if(drag_begin.special_key)
             {
                 state.input_state.drag_state = SelectDrag {
@@ -131,11 +147,11 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
 
     for([[maybe_unused]] const auto& drag_end: filter_events<InputEvents::DragEnd>(input))
     {
-        if(state.input_state.active_text_widget)
+        if(state.input_state.active_widget)
         {
             output.add(
                     EditorEvents::WidgetInputEvent{
-                            .widget_port = *state.input_state.active_text_widget,
+                            .widget = *state.input_state.active_widget,
                             .input_event = InputEvents::DragEnd{}
                     }
             );
@@ -203,11 +219,11 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
 
     for(const auto& drag_sustain: filter_events<InputEvents::DragSustain>(input))
     {
-        if(state.input_state.active_text_widget && contains_point(state.widget_metadata[*state.input_state.active_text_widget].box, drag_sustain.position.get()))
+        if(state.input_state.active_widget)
         {
             output.add(
                     EditorEvents::WidgetInputEvent{
-                            .widget_port = *state.input_state.active_text_widget,
+                            .widget = *state.input_state.active_widget,
                             .input_event = drag_sustain
                     }
             );
@@ -259,24 +275,26 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
 
     for(const auto& character: filter_events<InputEvents::Character>(input))
     {
-        if(state.input_state.active_text_widget)
+        if(state.input_state.active_widget)
         {
             output.add(
                     EditorEvents::WidgetInputEvent{
-                            .widget_port = *state.input_state.active_text_widget,
+                            .widget = *state.input_state.active_widget,
                             .input_event = character
                     }
             );
+
+            return ;
         }
     }
 
     for(const auto& scroll: filter_events<InputEvents::Scroll>(input))
     {
-        if(state.input_state.active_text_widget)
+        if(state.input_state.active_widget)
         {
             output.add(
                     EditorEvents::WidgetInputEvent{
-                            .widget_port = *state.input_state.active_text_widget,
+                            .widget = *state.input_state.active_widget,
                             .input_event = scroll
                     }
             );
@@ -335,8 +353,10 @@ void process(NodeEditor& node_editor, const InputEventVector& input, EditorEvent
     {
         if(auto character = std::get_if<InputEvents::Character>(&widget_input->input_event))
         {
-            Port active_text_widget = *node_editor.state.input_state.active_text_widget;
-            node_editor.state.text_box_state[active_text_widget].data += character->c;
+            WidgetId active_text_widget = widget_input->widget;
+            std::get_if<Widgets::TextBoxState>(
+                    &node_editor.state.widget_state[active_text_widget].state
+            )->data += character->c;
         }
     }
 

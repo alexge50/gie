@@ -4,6 +4,7 @@
 #include <Graph.h>
 #include <InputState.h>
 #include <Camera.h>
+#include <WidgetId.h>
 
 #include <glm/vec2.hpp>
 #include <detail/BoundingArea.h>
@@ -30,7 +31,7 @@ struct NodeTypeInputPortState
     std::string label;
     float radius;
     CenteredBox widget_box;
-    PortWidget port_widget;
+    Widget port_widget;
 };
 
 struct NodeTypeOutputPortState
@@ -77,7 +78,7 @@ struct InteractiveElementState
 
     struct Widget
     {
-        ::Port port_id;
+        WidgetId widget_id;
     };
 
     std::variant<Port, Node, Widget> element;
@@ -85,9 +86,9 @@ struct InteractiveElementState
     int order;
 };
 
-struct WidgetMetadata
+struct WidgetDataState
 {
-    PortWidget widget;
+    WidgetState state;
     CenteredBox box;
     int order;
     bool active;
@@ -102,8 +103,7 @@ struct NodeEditorState
     std::unordered_map<NodeId, NodeState> node_state;
     std::unordered_map<Port, PortState, PortHasher> port_state;
     std::vector<InteractiveElementState> interactive_element_state;
-    std::unordered_map<Port, WidgetMetadata, PortHasher> widget_metadata;
-    std::unordered_map<Port, PortWidgets::TextBoxState, PortHasher> text_box_state;
+    std::unordered_map<WidgetId, WidgetDataState, WidgetIdHasher> widget_state;
     std::vector<NodeId> focus_stack;
     std::unordered_map<NodeId, int> order;
 

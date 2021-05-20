@@ -17,6 +17,44 @@ static const float TEXT_BOX_BACKGROUND_Z_LOCATION = 1.f;
 static const float TEXT_BOX_OUTLINE_Z_LOCATION = 2.f;
 static const float TEXT_BOX_TEXT_Z_LOCATION = 2.f;
 
+static void compute_render_data_widget(
+        RenderData& cache,
+        const StylingConfig& config,
+        const Widgets::TextBoxState& state,
+        CenteredBox box,
+        int order,
+        bool active)
+{
+    cache.quads.push_back(RenderData::Quad{
+            glm::vec3(box.center, order * STRIDE_Z_LOCATION + TEXT_BOX_BACKGROUND_Z_LOCATION),
+            glm::vec3(box.size, 1.f),
+            glm::vec4{config.node_background_color, 1.f},
+    });
+
+    cache.quad_outlines.push_back(RenderData::QuadOutline{
+            glm::vec3(box.center, order * STRIDE_Z_LOCATION + TEXT_BOX_OUTLINE_Z_LOCATION),
+            glm::vec3(box.size, 1.f),
+            glm::vec4{config.node_outline_color, 1.f}
+    });
+
+    cache.stencil_texts.push_back(RenderData::StencilText{
+            glm::vec3{box.center - glm::vec2{box.size.x / 2.f, -config.text_height / 2.f}, order * STRIDE_Z_LOCATION + TEXT_BOX_TEXT_Z_LOCATION},
+            config.text_color,
+            state.data,
+            config.text_height,
+            compute_bounding_box(box.center, box.size)
+    });
+}
+
+static void compute_render_data_widget(
+        RenderData& cache,
+        const StylingConfig& config,
+        const Widgets::None& state,
+        CenteredBox box,
+        int order,
+        bool active)
+{}
+
 RenderData compute_render_data(const NodeEditor& node_editor)
 {
     RenderData cache;
@@ -110,29 +148,13 @@ RenderData compute_render_data(const NodeEditor& node_editor)
         });
     }
 
-    for(const auto& [port, text_widget_state]: node_editor.state.text_box_state)
+    for(const auto& [_, state_data_binded]: node_editor.state.widget_state)
     {
-        const auto& metadata = node_editor.state.widget_metadata.at(port);
+        const auto& state_data = state_data_binded;
 
-        cache.quads.push_back(RenderData::Quad{
-                glm::vec3(metadata.box.center, metadata.order * STRIDE_Z_LOCATION + TEXT_BOX_BACKGROUND_Z_LOCATION),
-                glm::vec3(metadata.box.size, 1.f),
-                glm::vec4{node_editor.styling_config.node_background_color, 1.f},
-        });
-
-        cache.quad_outlines.push_back(RenderData::QuadOutline{
-                glm::vec3(metadata.box.center, metadata.order * STRIDE_Z_LOCATION + TEXT_BOX_OUTLINE_Z_LOCATION),
-                glm::vec3(metadata.box.size, 1.f),
-                glm::vec4{node_editor.styling_config.node_outline_color, 1.f}
-        });
-
-        cache.stencil_texts.push_back(RenderData::StencilText{
-                glm::vec3{metadata.box.center - glm::vec2{metadata.box.size.x / 2.f, -node_editor.styling_config.text_height / 2.f}, metadata.order * STRIDE_Z_LOCATION + TEXT_BOX_TEXT_Z_LOCATION},
-                node_editor.styling_config.text_color,
-                text_widget_state.data,
-                node_editor.styling_config.text_height,
-                compute_bounding_box(metadata.box.center, metadata.box.size)
-        });
+        std::visit([&](const auto& state) {
+            compute_render_data_widget(cache, node_editor.styling_config, state, state_data.box, state_data.order, state_data.active);
+        }, state_data.state);
     }
 
     if(auto connection_drag = std::get_if<ConnectionDrag>(&node_editor.state.input_state.drag_state))
