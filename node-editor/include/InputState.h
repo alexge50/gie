@@ -5,6 +5,7 @@
 #include <WidgetId.h>
 
 #include <variant>
+#include <optional>
 #include <unordered_set>
 #include <glm/vec2.hpp>
 
