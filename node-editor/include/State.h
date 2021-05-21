@@ -88,7 +88,7 @@ struct InteractiveElementState
 
 struct WidgetDataState
 {
-    WidgetState state;
+    WidgetState state = Widgets::None{};
     CenteredBox box;
     int order;
     bool active;

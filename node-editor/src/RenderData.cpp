@@ -42,11 +42,11 @@ static void compute_render_data_widget(
     float max_height = font.max_height(config.text_height);
     float max_sub_line = font.max_sub_line(config.text_height);
     cache.stencil_texts.push_back(RenderData::StencilText{
-            glm::vec3{box.center - glm::vec2{box.size.x / 2.f, -max_height / 2.f + max_sub_line}, order * STRIDE_Z_LOCATION + TEXT_BOX_TEXT_Z_LOCATION},
+            glm::vec3{state.text_box.center - glm::vec2{state.text_box.size.x / 2.f + state.view_position, -max_height / 2.f + max_sub_line}, order * STRIDE_Z_LOCATION + TEXT_BOX_TEXT_Z_LOCATION},
             glm::vec4{config.text_box_widget_text_color, 1.f},
             state.data,
             config.text_height,
-            compute_bounding_box(box.center, box.size - glm::vec2{2 * config.text_box_margin_padding, 0.f})
+            compute_bounding_box(state.text_box.center, state.text_box.size)
     });
 
     if(active)
@@ -57,7 +57,7 @@ static void compute_render_data_widget(
         ).x;
 
         cache.quads.emplace_back(RenderData::Quad{
-            .position = glm::vec3{box.center.x + cursor_position - box.size.x / 2.f + config.text_box_margin_padding, box.center.y, order * STRIDE_Z_LOCATION + TEXT_BOX_CURSOR_Z_LOCATION},
+            .position = glm::vec3{state.text_box.center.x + cursor_position - state.text_box.size.x / 2.f - state.view_position, state.text_box.center.y, order * STRIDE_Z_LOCATION + TEXT_BOX_CURSOR_Z_LOCATION},
             .size = glm::vec3{config.text_box_cursor_width, config.text_height, 0.f},
             .color = glm::vec4{1.f, 1.f, 1.f, 1.f}
         });

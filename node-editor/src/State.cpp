@@ -141,6 +141,17 @@ static void compute_node(NodeEditorState& node_editor_state, const StylingConfig
         {
             auto& widget_state = node_editor_state.widget_state[Port{node_id, i, Port::Type::INPUT}];
 
+            if(std::get_if<Widgets::TextBox>(&port_type.port_widget))
+            {
+                if(!std::get_if<Widgets::TextBoxState>(&widget_state.state))
+                    widget_state.state = Widgets::TextBoxState{};
+
+                auto& text_box_state = std::get<Widgets::TextBoxState>(widget_state.state);
+                text_box_state.text_box = port_type.widget_box;
+                text_box_state.text_box.center += node.position;
+                text_box_state.text_box.size.x -= config.text_box_margin_padding * 2.f;
+            }
+
             widget_state = WidgetDataState {
                 .state = widget_state.state,
                 .box = port_type.widget_box,

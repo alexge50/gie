@@ -2,6 +2,7 @@
 #define GIE_WIDGET_H
 
 #include <Graph.h>
+#include <detail/BoundingArea.h>
 
 #include <variant>
 #include <unordered_map>
@@ -18,6 +19,9 @@ namespace Widgets
     {
         std::string data{};
         size_t cursor_position = 0;
+        float view_position = 0.f;
+
+        CenteredBox text_box;
     };
 
     struct None
