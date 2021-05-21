@@ -33,7 +33,21 @@ namespace InputEvents
         bool special_key;
     };
 
-    struct Delete {};
+    struct KeyPressed
+    {
+        enum class Key: char
+        {
+            DELETE = 0,
+            LEFT_ARROW = 1,
+            RIGHT_ARROW = 2,
+            UP_ARROW = 3,
+            DOWN_ARROW = 4,
+            BACKSPACE = 5,
+            ENTER = 6
+        };
+
+        Key key;
+    };
 
     struct Character
     {
@@ -46,8 +60,8 @@ namespace InputEvents
     };
 }
 
-using InputEventVector = EventVector<InputEvents::Click, InputEvents::Delete, InputEvents::DragBegin, InputEvents::DragEnd, InputEvents::DragSustain, InputEvents::Scroll, InputEvents::Character>;
-using InputEvent = std::variant<InputEvents::Click, InputEvents::Delete, InputEvents::DragBegin, InputEvents::DragEnd, InputEvents::DragSustain, InputEvents::Scroll, InputEvents::Character>;
+using InputEventVector = EventVector<InputEvents::Click, InputEvents::KeyPressed, InputEvents::DragBegin, InputEvents::DragEnd, InputEvents::DragSustain, InputEvents::Scroll, InputEvents::Character>;
+using InputEvent = std::variant<InputEvents::Click, InputEvents::KeyPressed, InputEvents::DragBegin, InputEvents::DragEnd, InputEvents::DragSustain, InputEvents::Scroll, InputEvents::Character>;
 
 namespace EditorEvents
 {

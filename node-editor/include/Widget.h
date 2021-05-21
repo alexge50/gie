@@ -17,7 +17,7 @@ namespace Widgets
     struct TextBoxState
     {
         std::string data{};
-        int cursor_position = 0;
+        size_t cursor_position = 0;
     };
 
     struct None

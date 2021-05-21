@@ -134,7 +134,31 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
     if (key == GLFW_KEY_DELETE && action == GLFW_PRESS)
     {
-        parameters->input_events->add(InputEvents::Delete{});
+        parameters->input_events->add(InputEvents::KeyPressed{InputEvents::KeyPressed::Key::DELETE});
+    }
+    else if(key == GLFW_KEY_BACKSPACE && action == GLFW_PRESS)
+    {
+        parameters->input_events->add(InputEvents::KeyPressed{InputEvents::KeyPressed::Key::BACKSPACE});
+    }
+    else if(key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+    {
+        parameters->input_events->add(InputEvents::KeyPressed{InputEvents::KeyPressed::Key::LEFT_ARROW});
+    }
+    else if(key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+    {
+        parameters->input_events->add(InputEvents::KeyPressed{InputEvents::KeyPressed::Key::RIGHT_ARROW});
+    }
+    else if(key == GLFW_KEY_UP && action == GLFW_PRESS)
+    {
+        parameters->input_events->add(InputEvents::KeyPressed{InputEvents::KeyPressed::Key::UP_ARROW});
+    }
+    else if(key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+    {
+        parameters->input_events->add(InputEvents::KeyPressed{InputEvents::KeyPressed::Key::DOWN_ARROW});
+    }
+    else if(key == GLFW_KEY_ENTER && action == GLFW_PRESS)
+    {
+        parameters->input_events->add(InputEvents::KeyPressed{InputEvents::KeyPressed::Key::ENTER});
     }
 }
 

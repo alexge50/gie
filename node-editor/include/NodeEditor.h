@@ -45,6 +45,8 @@ struct StylingConfig
     glm::vec3 text_box_widget_outline_color = {0.36f, 0.36f, 0.36f};
     glm::vec3 text_box_widget_outline_active_color = {1.f, 1.f, 1.f};
     glm::vec3 text_box_widget_text_color = {1.f, 1.f, 1.f};
+    float text_box_cursor_width = 1.f;
+    float text_box_margin_padding = 1.f;
 };
 
 struct NodeEditor

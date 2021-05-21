@@ -16,6 +16,7 @@ static const float CONNECTION_Z_LOCATION = 1.f;
 static const float TEXT_BOX_BACKGROUND_Z_LOCATION = 1.f;
 static const float TEXT_BOX_OUTLINE_Z_LOCATION = 2.f;
 static const float TEXT_BOX_TEXT_Z_LOCATION = 2.f;
+static const float TEXT_BOX_CURSOR_Z_LOCATION = 3.f;
 
 static void compute_render_data_widget(
         RenderData& cache,
@@ -45,8 +46,22 @@ static void compute_render_data_widget(
             glm::vec4{config.text_box_widget_text_color, 1.f},
             state.data,
             config.text_height,
-            compute_bounding_box(box.center, box.size)
+            compute_bounding_box(box.center, box.size - glm::vec2{2 * config.text_box_margin_padding, 0.f})
     });
+
+    if(active)
+    {
+        float cursor_position = font.compute_bounding_box(
+            std::string_view{state.data.data(), std::min(state.data.size(), state.cursor_position)},
+            config.text_height
+        ).x;
+
+        cache.quads.emplace_back(RenderData::Quad{
+            .position = glm::vec3{box.center.x + cursor_position - box.size.x / 2.f + config.text_box_margin_padding, box.center.y, order * STRIDE_Z_LOCATION + TEXT_BOX_CURSOR_Z_LOCATION},
+            .size = glm::vec3{config.text_box_cursor_width, config.text_height, 0.f},
+            .color = glm::vec4{1.f, 1.f, 1.f, 1.f}
+        });
+    }
 }
 
 static void compute_render_data_widget(

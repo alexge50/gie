@@ -63,9 +63,19 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
         }
     }
 
-    for([[maybe_unused]] const auto& delete_: filter_events<InputEvents::Delete>(input))
+    for(const auto& key_pressed: filter_events<InputEvents::KeyPressed>(input))
     {
+        if(state.input_state.active_widget)
+        {
+            output.add(
+                    EditorEvents::WidgetInputEvent{
+                            .widget = *state.input_state.active_widget,
+                            .input_event = key_pressed
+                    }
+            );
 
+            return ;
+        }
     }
 
     for(const auto& drag_begin: filter_events<InputEvents::DragBegin>(input))
@@ -288,6 +298,21 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
         }
     }
 
+    for(const auto& key: filter_events<InputEvents::KeyPressed>(input))
+    {
+        if(state.input_state.active_widget)
+        {
+            output.add(
+                    EditorEvents::WidgetInputEvent{
+                            .widget = *state.input_state.active_widget,
+                            .input_event = key
+                    }
+            );
+
+            return ;
+        }
+    }
+
     for(const auto& scroll: filter_events<InputEvents::Scroll>(input))
     {
         if(state.input_state.active_widget)
@@ -353,10 +378,52 @@ void process(NodeEditor& node_editor, const InputEventVector& input, EditorEvent
     {
         if(auto character = std::get_if<InputEvents::Character>(&widget_input->input_event))
         {
-            WidgetId active_text_widget = widget_input->widget;
-            std::get_if<Widgets::TextBoxState>(
-                    &node_editor.state.widget_state[active_text_widget].state
-            )->data += character->c;
+            WidgetId active_widget = widget_input->widget;
+
+            if(auto* text_widget = std::get_if<Widgets::TextBoxState>(&node_editor.state.widget_state[active_widget].state))
+            {
+                text_widget->data += character->c;
+                text_widget->cursor_position += 1;
+            }
+        }
+        else if(auto key = std::get_if<InputEvents::KeyPressed>(&widget_input->input_event))
+        {
+            WidgetId active_widget = widget_input->widget;
+
+            if(auto* text_widget = std::get_if<Widgets::TextBoxState>(&node_editor.state.widget_state[active_widget].state))
+            {
+               if(key->key == InputEvents::KeyPressed::Key::RIGHT_ARROW)
+               {
+                   text_widget->cursor_position = std::min(text_widget->cursor_position + 1, text_widget->data.size());
+               }
+               else if(key->key == InputEvents::KeyPressed::Key::LEFT_ARROW)
+               {
+                   if(text_widget->cursor_position != 0)
+                   {
+                       text_widget->cursor_position -= 1;
+                   }
+               }
+               else if(key->key == InputEvents::KeyPressed::Key::BACKSPACE)
+               {
+                   if(text_widget->cursor_position != 0)
+                   {
+                       text_widget->data.erase(text_widget->data.begin() + (text_widget->cursor_position - 1));
+                       text_widget->cursor_position -= 1;
+                   }
+               }
+               else if(key->key == InputEvents::KeyPressed::Key::DELETE)
+               {
+                   if(text_widget->cursor_position != text_widget->data.size())
+                   {
+                       text_widget->data.erase(text_widget->data.begin() + (text_widget->cursor_position));
+                   }
+               }
+               else if(key->key == InputEvents::KeyPressed::Key::ENTER)
+               {
+                   node_editor.state.widget_state[active_widget].active = false;
+                   node_editor.state.input_state.active_widget = std::nullopt;
+               }
+            }
         }
     }
 
