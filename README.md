@@ -1,3 +1,6 @@
+# DISCLAIMER
+**The project is currently undergoing heavy maintanence and rewriting. Follow the development on branches `develop` and `node-editor`. The GUI system is being rewritten from scratch to be more flexible.**
+
 # GIE
 ![](https://img.shields.io/badge/version-0.2.0-blue.svg)
 
