@@ -101,6 +101,16 @@ namespace EditorEvents
         InputEvent input_event;
     };
 
+    struct WidgetDeactivated
+    {
+        WidgetId widget;
+    };
+
+    struct WidgetValueChanged
+    {
+        WidgetId widget;
+    };
+
     struct CameraModified
     {
         glm::vec2 delta_position;
@@ -108,7 +118,7 @@ namespace EditorEvents
     };
 }
 
-using EditorEventVector = EventVector<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved, EditorEvents::WidgetInputEvent, EditorEvents::ConnectionDrag, EditorEvents::SelectedNodesMoved, EditorEvents::ConnectionDragEnded, EditorEvents::CameraModified>;
+using EditorEventVector = EventVector<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved, EditorEvents::WidgetInputEvent, EditorEvents::ConnectionDrag, EditorEvents::SelectedNodesMoved, EditorEvents::ConnectionDragEnded, EditorEvents::CameraModified, EditorEvents::WidgetDeactivated, EditorEvents::WidgetValueChanged>;
 
 struct NodeEditor;
 void process(NodeEditor&, const InputEventVector &, EditorEventVector &);

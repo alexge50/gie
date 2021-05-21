@@ -39,11 +39,7 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
 {
     for(const auto& click: filter_events<InputEvents::Click>(input))
     {
-        if(state.input_state.active_widget)
-        {
-            state.input_state.active_widget = std::nullopt;
-            state.widget_state[*state.input_state.active_widget].active = false;
-        }
+        bool widget_still_active = false;
 
         if(auto element = get_interactive_element(state, click.position.get()))
         {
@@ -57,8 +53,37 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
             }
             else if(auto widget = std::get_if<InteractiveElementState::Widget>(&element->element))
             {
-                state.input_state.active_widget = widget->widget_id;
-                state.widget_state[*state.input_state.active_widget].active = true;
+                if(!state.input_state.active_widget)
+                {
+                    state.input_state.active_widget = widget->widget_id;
+                    state.widget_state[*state.input_state.active_widget].active = true;
+                    widget_still_active = true;
+                }
+                else if(widget->widget_id != *state.input_state.active_widget)
+                {
+                    output.add(EditorEvents::WidgetDeactivated {
+                        *state.input_state.active_widget
+                    });
+                    state.widget_state[*state.input_state.active_widget].active = false;
+                    state.input_state.active_widget = std::nullopt;
+
+                    state.input_state.active_widget = widget->widget_id;
+                    state.widget_state[*state.input_state.active_widget].active = true;
+                    widget_still_active = true;
+                }
+                else widget_still_active = true;
+            }
+        }
+
+        if(!widget_still_active)
+        {
+            if(state.input_state.active_widget)
+            {
+                output.add(EditorEvents::WidgetDeactivated {
+                        *state.input_state.active_widget
+                });
+                state.widget_state[*state.input_state.active_widget].active = false;
+                state.input_state.active_widget = std::nullopt;
             }
         }
     }
@@ -115,6 +140,9 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
             {
                 if(state.input_state.active_widget && *state.input_state.active_widget != widget->widget_id)
                 {
+                    output.add(EditorEvents::WidgetDeactivated {
+                            *state.input_state.active_widget
+                    });
                     state.widget_state[*state.input_state.active_widget].active = false;
                     state.input_state.active_widget = widget->widget_id;
                     state.widget_state[*state.input_state.active_widget].active = true;
@@ -135,6 +163,9 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
         {
             if(state.input_state.active_widget)
             {
+                output.add(EditorEvents::WidgetDeactivated {
+                        *state.input_state.active_widget
+                });
                 state.widget_state[*state.input_state.active_widget].active = false;
                 state.input_state.active_widget = std::nullopt;
             }
@@ -417,6 +448,10 @@ void process(NodeEditor& node_editor, const InputEventVector& input, EditorEvent
                 {
                     node_editor.state.widget_state[active_widget].active = false;
                     node_editor.state.input_state.active_widget = std::nullopt;
+
+                    output.add(EditorEvents::WidgetDeactivated {
+                        active_widget
+                    });
                 }
             }
 
@@ -434,6 +469,13 @@ void process(NodeEditor& node_editor, const InputEventVector& input, EditorEvent
                 text_widget->view_position = cursor_position - text_widget->text_box.size.x;
             }
         }
+    }
+
+    for(auto widget_deactivated: filter_events<EditorEvents::WidgetDeactivated>(output))
+    {
+        output.add(EditorEvents::WidgetValueChanged{
+            widget_deactivated->widget
+        });
     }
 
     for(auto connection_drag: filter_events<EditorEvents::ConnectionDrag>(output))
