@@ -413,7 +413,7 @@ void process(NodeEditor& node_editor, const InputEventVector& input, EditorEvent
         {
             if(auto character = std::get_if<InputEvents::Character>(&widget_input->input_event))
             {
-                text_widget->data += character->c;
+                text_widget->data.insert(text_widget->data.begin() + text_widget->cursor_position, character->c);
                 text_widget->cursor_position += 1;
             }
             else if(auto key = std::get_if<InputEvents::KeyPressed>(&widget_input->input_event))
