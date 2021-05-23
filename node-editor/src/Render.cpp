@@ -231,8 +231,6 @@ void Render::operator()(const RenderData& render_data)
         );
     }
 
-    glDisable(GL_DEPTH_TEST);
-
     glActiveTexture(GL_TEXTURE0);
 
     for(const auto& text: render_data.texts)
@@ -249,8 +247,8 @@ void Render::operator()(const RenderData& render_data)
             float height = font->get_glyph(c).height * scale;
 
             glm::mat4 model =
-                    glm::translate(glm::mat4(1.f), glm::vec3(position + glm::vec2{position_x, position_y} + glm::vec2{width, -height} / 2.f, 1.f)) *
-                    glm::scale(glm::mat4(1.f), glm::vec3(glm::vec2{width, height}, 0.f));
+                    glm::translate(glm::mat4(1.f), glm::vec3(position + glm::vec2{position_x, position_y} + glm::vec2{width, -height} / 2.f, text.position.z)) *
+                    glm::scale(glm::mat4(1.f), glm::vec3(glm::vec2{width, height},1.f));
 
             glm::mat4 mvp = view_projection * model;
 
@@ -289,8 +287,8 @@ void Render::operator()(const RenderData& render_data)
             float height = font->get_glyph(c).height * scale;
 
             glm::mat4 model =
-                    glm::translate(glm::mat4(1.f), glm::vec3(position + glm::vec2{position_x, position_y} + glm::vec2{width, -height} / 2.f, 1.f)) *
-                    glm::scale(glm::mat4(1.f), glm::vec3(glm::vec2{width, height}, 0.f));
+                    glm::translate(glm::mat4(1.f), glm::vec3(position + glm::vec2{position_x, position_y} + glm::vec2{width, -height} / 2.f, text.position.z)) *
+                    glm::scale(glm::mat4(1.f), glm::vec3(glm::vec2{width, height}, 1.f));
 
             glm::mat4 mvp = view_projection * model;
 
@@ -313,4 +311,5 @@ void Render::operator()(const RenderData& render_data)
             position.x += (font->get_glyph(c).advance >> 6) * scale;
         }
     }
+    glDisable(GL_DEPTH_TEST);
 }
