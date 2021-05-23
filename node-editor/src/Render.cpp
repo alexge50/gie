@@ -240,7 +240,8 @@ void Render::operator()(const RenderData& render_data)
         glm::mat4 mvp = view_projection * model;
 
         color_space.prepare({
-            .mvp = mvp
+            .mvp = mvp,
+            .luminance = color_space_.luminance
         });
 
         glBindVertexArray(quad.vao);

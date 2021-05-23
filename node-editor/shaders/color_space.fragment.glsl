@@ -3,6 +3,7 @@
 in vec2 uv_coordinates;
 
 out vec4 Color;
+uniform float luminance;
 
 // https://stackoverflow.com/a/17897228
 vec3 hsv2rgb(vec3 c)
@@ -21,5 +22,5 @@ void main()
     theta += 3.1415926535898;
     theta /= 2 * 3.1412926535898;
 
-    Color = vec4(hsv2rgb(vec3(theta, center_offset / 0.5, 1.)), opacity);
+    Color = vec4(hsv2rgb(vec3(theta, center_offset / 0.5, luminance)), opacity);
 }

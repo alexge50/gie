@@ -70,6 +70,7 @@ struct RenderData
     {
         glm::vec3 position;
         glm::vec3 size;
+        float luminance;
     };
 
     struct MonochromeGradient

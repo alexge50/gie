@@ -39,7 +39,7 @@ static bool contains_point(BoundingBox box, glm::vec2 point)
 static bool contains_point(Circle circle, glm::vec2 point)
 {
     return (point.x - circle.center.x) * (point.x - circle.center.x) +
-           (point.y - circle.center.y) * (point.y - circle.center.y) <= circle.radius;
+           (point.y - circle.center.y) * (point.y - circle.center.y) <= circle.radius * circle.radius;
 }
 
 static bool contains_point(CenteredBox box, glm::vec2 point)

@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/color_space.hpp>
 
 static std::optional<InteractiveElementState> get_interactive_element(const NodeEditorState& state, glm::vec2 point)
 {
@@ -59,6 +60,11 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
                             widget->widget_id
                     });
 
+                    output.add(EditorEvents::WidgetInputEvent {
+                       .widget = widget->widget_id,
+                       .input_event = click
+                    });
+
                     state.input_state.active_widget = widget->widget_id;
                     state.widget_state[*state.input_state.active_widget].active = true;
                     widget_still_active = true;
@@ -71,6 +77,11 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
 
                     output.add(EditorEvents::WidgetActivated {
                             widget->widget_id
+                    });
+
+                    output.add(EditorEvents::WidgetInputEvent {
+                            .widget = widget->widget_id,
+                            .input_event = click
                     });
 
                     state.widget_state[*state.input_state.active_widget].active = false;
@@ -94,6 +105,13 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
                 state.widget_state[*state.input_state.active_widget].active = false;
                 state.input_state.active_widget = std::nullopt;
             }
+        }
+        else
+        {
+            output.add(EditorEvents::WidgetInputEvent{
+                    .widget = *state.input_state.active_widget,
+                    .input_event = click
+            });
         }
     }
 
@@ -408,6 +426,87 @@ static std::optional<size_t> find_connection(NodeEditor& node_editor, Port port)
     return std::nullopt;
 }
 
+void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& input_event)
+{
+    auto process_wheel = [&](glm::vec2 mouse_position)
+    {
+        auto luminance = glm::hsvColor(state.color).z;
+
+        glm::vec2 position = mouse_position - state.popup->color_wheel.center;
+        position /= state.popup->color_wheel.size.x / 2.f;
+        position = glm::clamp(position, -1.f, 1.f);
+
+        float theta = glm::atan(position.y, position.x);
+        float offset = glm::sqrt(position.x * position.x + position.y * position.y);
+
+        theta += M_PI;
+        theta /= 2 * M_PI;
+
+        state.color = glm::rgbColor(glm::vec3(theta * 360.f, offset, luminance));
+    };
+
+    auto process_luminance = [&](glm::vec2 mouse_position)
+    {
+        auto hsv_color = glm::hsvColor(state.color);
+
+        float luminance = 0.5f - (mouse_position - state.popup->luminance_bar.center).y
+                                 / state.popup->luminance_bar.size.y;
+        luminance = glm::clamp(luminance, 0.f, 1.f);
+        hsv_color.z = luminance;
+        state.color = glm::rgbColor(hsv_color);
+    };
+
+    if(auto click = std::get_if<InputEvents::Click>(&input_event))
+    {
+        if(contains_point(Circle{
+                state.popup->color_wheel.center,
+                state.popup->color_wheel.size.x / 2.f
+        }, click->position.get()))
+        {
+            process_wheel(click->position.get());
+        }
+
+        if(contains_point(state.popup->luminance_bar, click->position.get()))
+        {
+            process_luminance(click->position.get());
+        }
+    }
+    else if(auto drag_begin = std::get_if<InputEvents::DragBegin>(&input_event))
+    {
+        if(contains_point(Circle{
+                state.popup->color_wheel.center,
+                state.popup->color_wheel.size.x / 2.f
+        }, drag_begin->position.get()))
+        {
+            state.popup->drag_wheel = true;
+            process_wheel(drag_begin->position.get());
+        }
+
+        if(contains_point(state.popup->luminance_bar, drag_begin->position.get()))
+        {
+            state.popup->drag_luminance_bar = true;
+            process_luminance(drag_begin->position.get());
+        }
+    }
+    else if(auto drag_sustain = std::get_if<InputEvents::DragSustain>(&input_event))
+    {
+        if(state.popup->drag_wheel)
+        {
+            process_wheel(drag_sustain->position.get());
+        }
+
+        if(state.popup->drag_luminance_bar)
+        {
+            process_luminance(drag_sustain->position.get());
+        }
+    }
+    else if(std::get_if<InputEvents::DragEnd>(&input_event))
+    {
+        state.popup->drag_wheel = false;
+        state.popup->drag_luminance_bar = false;
+    }
+}
+
 void process(NodeEditor& node_editor, const InputEventVector& input, EditorEventVector& output)
 {
     process(node_editor.state, input, output);
@@ -486,6 +585,10 @@ void process(NodeEditor& node_editor, const InputEventVector& input, EditorEvent
             {
                 text_widget->view_position = cursor_position - text_widget->text_box.size.x;
             }
+        }
+        else if(auto color_picker = std::get_if<Widgets::ColorPickerState>(&node_editor.state.widget_state[active_widget].state))
+        {
+            process_color_picker(*color_picker, widget_input->input_event);
         }
     }
 

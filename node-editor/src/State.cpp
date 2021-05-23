@@ -163,20 +163,53 @@ static void compute_node(NodeEditorState& node_editor_state, const StylingConfig
 
                 if(widget_state.popup)
                 {
-                    color_picker_state.popup_box = CenteredBox{
+                    if(!color_picker_state.popup)
+                    {
+                        color_picker_state.popup = Widgets::ColorPickerState::Popup{};
+                    }
+
+                    CenteredBox popup_box = CenteredBox{
                         node.position + glm::vec2{node_state.size.x + config.color_picker_popup_margin_node, 0.f},
                         config.color_picker_popup_size
                     };
 
+                    glm::vec2 position = popup_box.center - glm::vec2{popup_box.size.x, popup_box.size.y} / 2.f;
+                    position += config.color_picker_margin_padding;
+
+                    float size =
+                            std::min(popup_box.size.x, popup_box.size.y)
+                            - 3 * config.color_picker_margin_padding
+                            - config.color_picker_luminance_width;
+
+                    CenteredBox color_wheel = {
+                            position + glm::vec2{size, size} / 2.f,
+                            glm::vec2{size, size}
+                    };
+
+                    position.x += size + config.color_picker_margin_padding;
+
+                    CenteredBox luminance_bar = {
+                            position + glm::vec2{config.color_picker_luminance_width, size} / 2.f,
+                            glm::vec3{config.color_picker_luminance_width, size, 1.f}
+                    };
+
+                    color_picker_state.popup = Widgets::ColorPickerState::Popup{
+                            .box = popup_box,
+                            .color_wheel = color_wheel,
+                            .luminance_bar = luminance_bar,
+                            .drag_wheel = color_picker_state.popup->drag_wheel,
+                            .drag_luminance_bar = color_picker_state.popup->drag_luminance_bar,
+                    };
+
                     node_editor_state.interactive_element_state.push_back(InteractiveElementState{
                             .element = InteractiveElementState::Widget{Port{node_id, i, Port::Type::INPUT}},
-                            .area = { *color_picker_state.popup_box },
+                            .area = { popup_box },
                             .order = node_state.order
                     });
                 }
                 else
                 {
-                    color_picker_state.popup_box = std::nullopt;
+                    color_picker_state.popup = std::nullopt;
                 }
             }
 

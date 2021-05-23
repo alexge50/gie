@@ -32,9 +32,18 @@ namespace Widgets
 
     struct ColorPickerState
     {
+        struct Popup
+        {
+            CenteredBox box;
+            CenteredBox color_wheel;
+            CenteredBox luminance_bar;
+            bool drag_wheel = false;
+            bool drag_luminance_bar = false;
+        };
+
         glm::vec3 color;
 
-        std::optional<CenteredBox> popup_box;
+        std::optional<Popup> popup;
         std::optional<CenteredBox> port_widget_box;
     };
 
