@@ -231,6 +231,46 @@ void Render::operator()(const RenderData& render_data)
         );
     }
 
+    for(const auto& color_space_: render_data.circle_color_space)
+    {
+        glm::mat4 model =
+                glm::translate(glm::mat4(1.f), color_space_.position) *
+                glm::scale(glm::mat4(1.f), color_space_.size);
+
+        glm::mat4 mvp = view_projection * model;
+
+        color_space.prepare({
+            .mvp = mvp
+        });
+
+        glBindVertexArray(quad.vao);
+        glDrawArrays(
+                GL_TRIANGLE_STRIP,
+                0,
+                4
+        );
+    }
+
+    for(const auto& monochrome_gradient_: render_data.monochrome_gradient)
+    {
+        glm::mat4 model =
+                glm::translate(glm::mat4(1.f), monochrome_gradient_.position) *
+                glm::scale(glm::mat4(1.f), monochrome_gradient_.size);
+
+        glm::mat4 mvp = view_projection * model;
+
+        monochrome_gradient.prepare({
+                                    .mvp = mvp
+                            });
+
+        glBindVertexArray(quad.vao);
+        glDrawArrays(
+                GL_TRIANGLE_STRIP,
+                0,
+                4
+        );
+    }
+
     glActiveTexture(GL_TEXTURE0);
 
     for(const auto& text: render_data.texts)

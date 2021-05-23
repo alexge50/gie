@@ -55,6 +55,10 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
             {
                 if(!state.input_state.active_widget)
                 {
+                    output.add(EditorEvents::WidgetActivated {
+                            widget->widget_id
+                    });
+
                     state.input_state.active_widget = widget->widget_id;
                     state.widget_state[*state.input_state.active_widget].active = true;
                     widget_still_active = true;
@@ -64,6 +68,11 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
                     output.add(EditorEvents::WidgetDeactivated {
                         *state.input_state.active_widget
                     });
+
+                    output.add(EditorEvents::WidgetActivated {
+                            widget->widget_id
+                    });
+
                     state.widget_state[*state.input_state.active_widget].active = false;
                     state.input_state.active_widget = std::nullopt;
 
@@ -143,12 +152,21 @@ static void process(NodeEditorState& state, const InputEventVector& input, Edito
                     output.add(EditorEvents::WidgetDeactivated {
                             *state.input_state.active_widget
                     });
+
+                    output.add(EditorEvents::WidgetActivated {
+                            widget->widget_id
+                    });
+
                     state.widget_state[*state.input_state.active_widget].active = false;
                     state.input_state.active_widget = widget->widget_id;
                     state.widget_state[*state.input_state.active_widget].active = true;
                 }
                 else if(!state.input_state.active_widget)
                 {
+                    output.add(EditorEvents::WidgetActivated {
+                            widget->widget_id
+                    });
+
                     state.input_state.active_widget = widget->widget_id;
                     state.widget_state[*state.input_state.active_widget].active = true;
                 }
@@ -476,6 +494,19 @@ void process(NodeEditor& node_editor, const InputEventVector& input, EditorEvent
         output.add(EditorEvents::WidgetValueChanged{
             widget_deactivated->widget
         });
+
+        if([[maybe_unused]]auto* color_picker = std::get_if<Widgets::ColorPickerState>(&node_editor.state.widget_state[widget_deactivated->widget].state))
+        {
+            node_editor.state.widget_state[widget_deactivated->widget].popup = false;
+        }
+    }
+
+    for(auto widget_activated: filter_events<EditorEvents::WidgetActivated>(output))
+    {
+        if([[maybe_unused]]auto* color_picker = std::get_if<Widgets::ColorPickerState>(&node_editor.state.widget_state[widget_activated->widget].state))
+        {
+            node_editor.state.widget_state[widget_activated->widget].popup = true;
+        }
     }
 
     for(auto connection_drag: filter_events<EditorEvents::ConnectionDrag>(output))

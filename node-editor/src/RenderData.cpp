@@ -68,6 +68,65 @@ static void compute_render_data_widget(
         RenderData& cache,
         const StylingConfig& config,
         const Font& font,
+        const Widgets::ColorPickerState& state,
+        CenteredBox box,
+        int order,
+        bool active)
+{
+    if(state.port_widget_box)
+    {
+        cache.quads.push_back(RenderData::Quad{
+                glm::vec3(box.center, order * STRIDE_Z_LOCATION + TEXT_BOX_BACKGROUND_Z_LOCATION),
+                glm::vec3(box.size, 1.f),
+                glm::vec4{state.color, 1.f},
+        });
+
+        cache.quad_outlines.push_back(RenderData::QuadOutline{
+                glm::vec3(box.center, order * STRIDE_Z_LOCATION + TEXT_BOX_OUTLINE_Z_LOCATION),
+                glm::vec3(box.size, 1.f),
+                glm::vec4{active ? config.text_box_widget_outline_active_color : config.text_box_widget_outline_color, 1.f}
+        });
+    }
+
+    if(state.popup_box)
+    {
+        cache.quads.push_back(RenderData::Quad{
+                glm::vec3(state.popup_box->center, order * STRIDE_Z_LOCATION + BASE_Z_LOCATION),
+                glm::vec3(state.popup_box->size, 1.f),
+                glm::vec4{config.node_background_color, 1.f},
+        });
+
+        cache.quad_outlines.push_back(RenderData::QuadOutline{
+                glm::vec3(state.popup_box->center, order * STRIDE_Z_LOCATION + OUTLINE_Z_LOCATION),
+                glm::vec3(state.popup_box->size, 1.f),
+                glm::vec4{active ? config.node_selected_outline_color : config.node_outline_color, 1.f}
+        });
+
+        glm::vec2 position = state.popup_box->center - glm::vec2{state.popup_box->size.x, state.popup_box->size.y} / 2.f;
+
+        position += glm::vec2{config.color_picker_margin_padding, config.color_picker_margin_padding};
+        float size =
+                std::min(state.popup_box->size.x, state.popup_box->size.y)
+                - 3 * config.color_picker_margin_padding
+                - config.color_picker_luminance_width;
+        cache.circle_color_space.push_back(RenderData::CircleColorSpace {
+                glm::vec3{position + glm::vec2{size, size} / 2.f, order * STRIDE_Z_LOCATION + OUTLINE_Z_LOCATION},
+                glm::vec3{size, size, 1.f}
+        });
+
+        position.x += size + config.color_picker_margin_padding;
+
+        cache.monochrome_gradient.push_back(RenderData::MonochromeGradient {
+                glm::vec3{position + glm::vec2{config.color_picker_luminance_width, size} / 2.f, order * STRIDE_Z_LOCATION + OUTLINE_Z_LOCATION},
+                glm::vec3{config.color_picker_luminance_width, size, 1.f}
+        });
+    }
+}
+
+static void compute_render_data_widget(
+        RenderData& cache,
+        const StylingConfig& config,
+        const Font& font,
         const Widgets::None& state,
         CenteredBox box,
         int order,

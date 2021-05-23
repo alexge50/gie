@@ -7,6 +7,9 @@
 #include <variant>
 #include <unordered_map>
 #include <string>
+#include <optional>
+
+#include <glm/vec3.hpp>
 
 namespace Widgets
 {
@@ -24,12 +27,23 @@ namespace Widgets
         CenteredBox text_box;
     };
 
+    struct ColorPicker
+    {};
+
+    struct ColorPickerState
+    {
+        glm::vec3 color;
+
+        std::optional<CenteredBox> popup_box;
+        std::optional<CenteredBox> port_widget_box;
+    };
+
     struct None
     {};
 }
 
-using Widget = std::variant<Widgets::TextBox, Widgets::None>;
-using WidgetState = std::variant<Widgets::TextBoxState, Widgets::None>;
+using Widget = std::variant<Widgets::TextBox, Widgets::ColorPicker, Widgets::None>;
+using WidgetState = std::variant<Widgets::TextBoxState, Widgets::ColorPickerState, Widgets::None>;
 
 
 

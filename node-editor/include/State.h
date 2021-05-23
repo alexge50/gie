@@ -92,6 +92,7 @@ struct WidgetDataState
     CenteredBox box;
     int order;
     bool active;
+    bool popup;
 };
 
 struct NodeEditorState

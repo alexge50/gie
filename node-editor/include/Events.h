@@ -101,6 +101,11 @@ namespace EditorEvents
         InputEvent input_event;
     };
 
+    struct WidgetActivated
+    {
+        WidgetId widget;
+    };
+
     struct WidgetDeactivated
     {
         WidgetId widget;
@@ -118,7 +123,7 @@ namespace EditorEvents
     };
 }
 
-using EditorEventVector = EventVector<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved, EditorEvents::WidgetInputEvent, EditorEvents::ConnectionDrag, EditorEvents::SelectedNodesMoved, EditorEvents::ConnectionDragEnded, EditorEvents::CameraModified, EditorEvents::WidgetDeactivated, EditorEvents::WidgetValueChanged>;
+using EditorEventVector = EventVector<EditorEvents::ConnectionAdded, EditorEvents::ConnectionRemoved, EditorEvents::NodeRemoved, EditorEvents::WidgetInputEvent, EditorEvents::ConnectionDrag, EditorEvents::SelectedNodesMoved, EditorEvents::ConnectionDragEnded, EditorEvents::CameraModified, EditorEvents::WidgetDeactivated, EditorEvents::WidgetValueChanged, EditorEvents::WidgetActivated>;
 
 struct NodeEditor;
 void process(NodeEditor&, const InputEventVector &, EditorEventVector &);

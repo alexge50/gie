@@ -47,6 +47,11 @@ struct StylingConfig
     glm::vec3 text_box_widget_text_color = {1.f, 1.f, 1.f};
     float text_box_cursor_width = 1.f;
     float text_box_margin_padding = 1.f;
+
+    glm::vec2 color_picker_popup_size = {100.f, 200.f};
+    float color_picker_popup_margin_node = 5.f;
+    float color_picker_margin_padding = 4.f;
+    float color_picker_luminance_width = 10.f;
 };
 
 struct NodeEditor

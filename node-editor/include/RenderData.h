@@ -66,6 +66,18 @@ struct RenderData
         BoundingBox box;
     };
 
+    struct CircleColorSpace
+    {
+        glm::vec3 position;
+        glm::vec3 size;
+    };
+
+    struct MonochromeGradient
+    {
+        glm::vec3 position;
+        glm::vec3 size;
+    };
+
     std::vector<Quad> quads;
     std::vector<QuadOutline> quad_outlines;
     std::vector<Circle> circles;
@@ -73,6 +85,8 @@ struct RenderData
     std::vector<Line> lines;
     std::vector<Text> texts;
     std::vector<StencilText> stencil_texts;
+    std::vector<CircleColorSpace> circle_color_space;
+    std::vector<MonochromeGradient> monochrome_gradient;
 
     float line_width;
     glm::vec3 background_color;

@@ -80,7 +80,10 @@ int main()
         },
         .node_types = {
                 {1, {
-                    {{"in", glm::vec3{0.85f, 0.72f, 0.02f}, Widgets::TextBox{5}}},
+                    {
+                        {"in", glm::vec3{0.85f, 0.72f, 0.02f}, Widgets::TextBox{5}},
+                        {"color", glm::vec3{0.85f, 0.72f, 0.02f}, Widgets::ColorPicker{}}
+                    },
                     {{"out", glm::vec3{0.85f, 0.72f, 0.02f}}},
                     "default", {0.36f, 0.17f, 0.54f}
                 }}

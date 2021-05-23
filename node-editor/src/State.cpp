@@ -152,11 +152,40 @@ static void compute_node(NodeEditorState& node_editor_state, const StylingConfig
                 text_box_state.text_box.size.x -= config.text_box_margin_padding * 2.f;
             }
 
+            if(std::get_if<Widgets::ColorPicker>(&port_type.port_widget))
+            {
+                if(!std::get_if<Widgets::ColorPickerState>(&widget_state.state))
+                    widget_state.state = Widgets::ColorPickerState{};
+
+                auto& color_picker_state = std::get<Widgets::ColorPickerState>(widget_state.state);
+                color_picker_state.port_widget_box = port_type.widget_box;
+                color_picker_state.port_widget_box->center += node.position;
+
+                if(widget_state.popup)
+                {
+                    color_picker_state.popup_box = CenteredBox{
+                        node.position + glm::vec2{node_state.size.x + config.color_picker_popup_margin_node, 0.f},
+                        config.color_picker_popup_size
+                    };
+
+                    node_editor_state.interactive_element_state.push_back(InteractiveElementState{
+                            .element = InteractiveElementState::Widget{Port{node_id, i, Port::Type::INPUT}},
+                            .area = { *color_picker_state.popup_box },
+                            .order = node_state.order
+                    });
+                }
+                else
+                {
+                    color_picker_state.popup_box = std::nullopt;
+                }
+            }
+
             widget_state = WidgetDataState {
                 .state = widget_state.state,
                 .box = port_type.widget_box,
                 .order = node_state.order,
-                .active = widget_state.active
+                .active = widget_state.active,
+                .popup = widget_state.popup
             };
 
             widget_state.box.center += node.position;
@@ -229,6 +258,26 @@ void compute_state(const NodeEditor& node_editor, NodeEditorState& node_editor_s
     for(const auto& [node_id, node]: node_editor.graph.nodes)
     {
         compute_node(node_editor_state, node_editor.styling_config, node, node_id);
+    }
+
+    {
+        int order = static_cast<int>(node_editor_state.focus_stack.size()) + 2;
+        for (auto& [widget_id, widget]: node_editor_state.widget_state)
+        {
+            if (widget.popup || !std::get_if<Port>(&widget_id))
+            {
+                widget.order = order ++;
+                for(auto& element: node_editor_state.interactive_element_state)
+                {
+                    if(auto element_widget_id = std::get_if<InteractiveElementState::Widget>(&element.element);
+                        element_widget_id && element_widget_id->widget_id == widget_id
+                    )
+                    {
+                        element.order = widget.order;
+                    }
+                }
+            }
+        }
     }
 
     std::sort(node_editor_state.interactive_element_state.begin(), node_editor_state.interactive_element_state.end(),
