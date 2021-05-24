@@ -54,6 +54,4 @@ namespace Widgets
 using Widget = std::variant<Widgets::TextBox, Widgets::ColorPicker, Widgets::None>;
 using WidgetState = std::variant<Widgets::TextBoxState, Widgets::ColorPickerState, Widgets::None>;
 
-
-
 #endif //GIE_WIDGET_H

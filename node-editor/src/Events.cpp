@@ -426,6 +426,66 @@ static std::optional<size_t> find_connection(NodeEditor& node_editor, Port port)
     return std::nullopt;
 }
 
+bool process_text_box(Widgets::TextBoxState& state, const InputEvent& input_event, const Font& font, float text_height)
+{
+    bool deactivated = false;
+
+    if(auto character = std::get_if<InputEvents::Character>(&input_event))
+    {
+        state.data.insert(state.data.begin() + state.cursor_position, character->c);
+        state.cursor_position += 1;
+    }
+    else if(auto key = std::get_if<InputEvents::KeyPressed>(&input_event))
+    {
+        if(key->key == InputEvents::KeyPressed::Key::RIGHT_ARROW)
+        {
+            state.cursor_position = std::min(state.cursor_position + 1, state.data.size());
+        }
+        else if(key->key == InputEvents::KeyPressed::Key::LEFT_ARROW)
+        {
+            if(state.cursor_position != 0)
+            {
+                state.cursor_position -= 1;
+            }
+        }
+        else if(key->key == InputEvents::KeyPressed::Key::BACKSPACE)
+        {
+            if(state.cursor_position != 0)
+            {
+                state.data.erase(state.data.begin() + (state.cursor_position - 1));
+                state.cursor_position -= 1;
+            }
+        }
+        else if(key->key == InputEvents::KeyPressed::Key::DELETE)
+        {
+            if(state.cursor_position != state.data.size())
+            {
+                state.data.erase(state.data.begin() + (state.cursor_position));
+            }
+        }
+        else if(key->key == InputEvents::KeyPressed::Key::ENTER)
+        {
+            deactivated = true;
+        }
+    }
+
+    float cursor_position = font.compute_bounding_box(
+            std::string_view{state.data.data(), std::min(state.data.size(), state.cursor_position)},
+            text_height
+    ).x;
+
+    if(cursor_position - state.view_position < 0.f)
+    {
+        state.view_position = cursor_position;
+    }
+    else if(cursor_position - state.view_position > state.text_box.size.x)
+    {
+        state.view_position = cursor_position - state.text_box.size.x;
+    }
+
+    return deactivated;
+}
+
 void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& input_event)
 {
     auto process_wheel = [&](glm::vec2 mouse_position)
@@ -528,62 +588,14 @@ void process(NodeEditor& node_editor, const InputEventVector& input, EditorEvent
 
         if(auto* text_widget = std::get_if<Widgets::TextBoxState>(&node_editor.state.widget_state[active_widget].state))
         {
-            if(auto character = std::get_if<InputEvents::Character>(&widget_input->input_event))
+            if(process_text_box(*text_widget, widget_input->input_event, *node_editor.font, node_editor.styling_config.text_height))
             {
-                text_widget->data.insert(text_widget->data.begin() + text_widget->cursor_position, character->c);
-                text_widget->cursor_position += 1;
-            }
-            else if(auto key = std::get_if<InputEvents::KeyPressed>(&widget_input->input_event))
-            {
-                if(key->key == InputEvents::KeyPressed::Key::RIGHT_ARROW)
-                {
-                    text_widget->cursor_position = std::min(text_widget->cursor_position + 1, text_widget->data.size());
-                }
-                else if(key->key == InputEvents::KeyPressed::Key::LEFT_ARROW)
-                {
-                    if(text_widget->cursor_position != 0)
-                    {
-                        text_widget->cursor_position -= 1;
-                    }
-                }
-                else if(key->key == InputEvents::KeyPressed::Key::BACKSPACE)
-                {
-                    if(text_widget->cursor_position != 0)
-                    {
-                        text_widget->data.erase(text_widget->data.begin() + (text_widget->cursor_position - 1));
-                        text_widget->cursor_position -= 1;
-                    }
-                }
-                else if(key->key == InputEvents::KeyPressed::Key::DELETE)
-                {
-                    if(text_widget->cursor_position != text_widget->data.size())
-                    {
-                        text_widget->data.erase(text_widget->data.begin() + (text_widget->cursor_position));
-                    }
-                }
-                else if(key->key == InputEvents::KeyPressed::Key::ENTER)
-                {
-                    node_editor.state.widget_state[active_widget].active = false;
-                    node_editor.state.input_state.active_widget = std::nullopt;
+                output.add(EditorEvents::WidgetDeactivated{
+                        *node_editor.state.input_state.active_widget
+                });
 
-                    output.add(EditorEvents::WidgetDeactivated {
-                        active_widget
-                    });
-                }
-            }
-
-            float cursor_position = node_editor.font->compute_bounding_box(
-                    std::string_view{text_widget->data.data(), std::min(text_widget->data.size(), text_widget->cursor_position)},
-                    node_editor.styling_config.text_height
-            ).x;
-
-            if(cursor_position - text_widget->view_position < 0.f)
-            {
-                text_widget->view_position = cursor_position;
-            }
-            else if(cursor_position - text_widget->view_position > text_widget->text_box.size.x)
-            {
-                text_widget->view_position = cursor_position - text_widget->text_box.size.x;
+                node_editor.state.widget_state[active_widget].active = false;
+                node_editor.state.input_state.active_widget = std::nullopt;
             }
         }
         else if(auto color_picker = std::get_if<Widgets::ColorPickerState>(&node_editor.state.widget_state[active_widget].state))

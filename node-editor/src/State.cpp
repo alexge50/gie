@@ -137,98 +137,9 @@ static void compute_node(NodeEditorState& node_editor_state, const StylingConfig
             .order = node_state.order
         });
 
-        if(!std::holds_alternative<Widgets::None>(port_type.port_widget))
-        {
-            auto& widget_state = node_editor_state.widget_state[Port{node_id, i, Port::Type::INPUT}];
-
-            if(std::get_if<Widgets::TextBox>(&port_type.port_widget))
-            {
-                if(!std::get_if<Widgets::TextBoxState>(&widget_state.state))
-                    widget_state.state = Widgets::TextBoxState{};
-
-                auto& text_box_state = std::get<Widgets::TextBoxState>(widget_state.state);
-                text_box_state.text_box = port_type.widget_box;
-                text_box_state.text_box.center += node.position;
-                text_box_state.text_box.size.x -= config.text_box_margin_padding * 2.f;
-            }
-
-            if(std::get_if<Widgets::ColorPicker>(&port_type.port_widget))
-            {
-                if(!std::get_if<Widgets::ColorPickerState>(&widget_state.state))
-                    widget_state.state = Widgets::ColorPickerState{};
-
-                auto& color_picker_state = std::get<Widgets::ColorPickerState>(widget_state.state);
-                color_picker_state.port_widget_box = port_type.widget_box;
-                color_picker_state.port_widget_box->center += node.position;
-
-                if(widget_state.popup)
-                {
-                    if(!color_picker_state.popup)
-                    {
-                        color_picker_state.popup = Widgets::ColorPickerState::Popup{};
-                    }
-
-                    CenteredBox popup_box = CenteredBox{
-                        node.position + glm::vec2{node_state.size.x + config.color_picker_popup_margin_node, 0.f},
-                        config.color_picker_popup_size
-                    };
-
-                    glm::vec2 position = popup_box.center - glm::vec2{popup_box.size.x, popup_box.size.y} / 2.f;
-                    position += config.color_picker_margin_padding;
-
-                    float size =
-                            std::min(popup_box.size.x, popup_box.size.y)
-                            - 3 * config.color_picker_margin_padding
-                            - config.color_picker_luminance_width;
-
-                    CenteredBox color_wheel = {
-                            position + glm::vec2{size, size} / 2.f,
-                            glm::vec2{size, size}
-                    };
-
-                    position.x += size + config.color_picker_margin_padding;
-
-                    CenteredBox luminance_bar = {
-                            position + glm::vec2{config.color_picker_luminance_width, size} / 2.f,
-                            glm::vec3{config.color_picker_luminance_width, size, 1.f}
-                    };
-
-                    color_picker_state.popup = Widgets::ColorPickerState::Popup{
-                            .box = popup_box,
-                            .color_wheel = color_wheel,
-                            .luminance_bar = luminance_bar,
-                            .drag_wheel = color_picker_state.popup->drag_wheel,
-                            .drag_luminance_bar = color_picker_state.popup->drag_luminance_bar,
-                    };
-
-                    node_editor_state.interactive_element_state.push_back(InteractiveElementState{
-                            .element = InteractiveElementState::Widget{Port{node_id, i, Port::Type::INPUT}},
-                            .area = { popup_box },
-                            .order = node_state.order
-                    });
-                }
-                else
-                {
-                    color_picker_state.popup = std::nullopt;
-                }
-            }
-
-            widget_state = WidgetDataState {
-                .state = widget_state.state,
-                .box = port_type.widget_box,
-                .order = node_state.order,
-                .active = widget_state.active,
-                .popup = widget_state.popup
-            };
-
-            widget_state.box.center += node.position;
-
-            node_editor_state.interactive_element_state.push_back(InteractiveElementState{
-                    .element = InteractiveElementState::Widget{Port{node_id, i, Port::Type::INPUT}},
-                    .area = widget_state.box,
-                    .order = node_state.order
-            });
-        }
+        node_editor_state.widget_state[Port{node_id, i, Port::Type::INPUT}].widget = port_type.port_widget;
+        node_editor_state.widget_state[Port{node_id, i, Port::Type::INPUT}].box = port_type.widget_box;
+        node_editor_state.widget_state[Port{node_id, i, Port::Type::INPUT}].box.center += node.position;
     }
 
     for(int i = 0; i < node_type.output_port_count; i++)
@@ -254,13 +165,93 @@ static void compute_node(NodeEditorState& node_editor_state, const StylingConfig
 
 }
 
-void compute_state(const NodeEditor& node_editor, NodeEditorState& node_editor_state)
+static void compute_widgets(const NodeEditor& node_editor, NodeEditorState& node_editor_state)
 {
-    for(const auto& [node_type_id, node_type]: node_editor.graph.node_types)
+    for(auto& [widget_id, widget]: node_editor_state.widget_state)
     {
-        compute_type(node_editor_state, node_editor.styling_config, *node_editor.font, node_type, node_type_id);
-    }
+        if(!std::holds_alternative<Widgets::None>(widget.widget))
+        {
+            if(std::get_if<Widgets::TextBox>(&widget.widget))
+            {
+                if(!std::get_if<Widgets::TextBoxState>(&widget.state))
+                    widget.state = Widgets::TextBoxState{};
 
+                auto& text_box_state = std::get<Widgets::TextBoxState>(widget.state);
+                text_box_state.text_box = widget.box;
+                text_box_state.text_box.size.x -= node_editor.styling_config.text_box_margin_padding * 2.f;
+            }
+
+            if(std::get_if<Widgets::ColorPicker>(&widget.widget))
+            {
+                if(!std::get_if<Widgets::ColorPickerState>(&widget.state))
+                    widget.state = Widgets::ColorPickerState{};
+
+                auto& color_picker_state = std::get<Widgets::ColorPickerState>(widget.state);
+                color_picker_state.port_widget_box = widget.box;
+
+                if(widget.popup)
+                {
+                    if(!color_picker_state.popup)
+                    {
+                        color_picker_state.popup = Widgets::ColorPickerState::Popup{};
+                    }
+
+                    CenteredBox popup_box = CenteredBox{
+                            widget.box.center + glm::vec2{widget.box.size.x / 2.f + node_editor.styling_config.color_picker_popup_size.x / 2.f + node_editor.styling_config.color_picker_popup_margin_node, 0.f},
+                            node_editor.styling_config.color_picker_popup_size
+                    };
+
+                    glm::vec2 position = popup_box.center - glm::vec2{popup_box.size.x, popup_box.size.y} / 2.f;
+                    position += node_editor.styling_config.color_picker_margin_padding;
+
+                    float size =
+                            std::min(popup_box.size.x, popup_box.size.y)
+                            - 3 * node_editor.styling_config.color_picker_margin_padding
+                            - node_editor.styling_config.color_picker_luminance_width;
+
+                    CenteredBox color_wheel = {
+                            position + glm::vec2{size, size} / 2.f,
+                            glm::vec2{size, size}
+                    };
+
+                    position.x += size + node_editor.styling_config.color_picker_margin_padding;
+
+                    CenteredBox luminance_bar = {
+                            position + glm::vec2{node_editor.styling_config.color_picker_luminance_width, size} / 2.f,
+                            glm::vec3{node_editor.styling_config.color_picker_luminance_width, size, 1.f}
+                    };
+
+                    color_picker_state.popup = Widgets::ColorPickerState::Popup{
+                            .box = popup_box,
+                            .color_wheel = color_wheel,
+                            .luminance_bar = luminance_bar,
+                            .drag_wheel = color_picker_state.popup->drag_wheel,
+                            .drag_luminance_bar = color_picker_state.popup->drag_luminance_bar,
+                    };
+
+                    node_editor_state.interactive_element_state.push_back(InteractiveElementState{
+                            .element = InteractiveElementState::Widget{widget_id},
+                            .area = { popup_box },
+                            .order = widget.order
+                    });
+                }
+                else
+                {
+                    color_picker_state.popup = std::nullopt;
+                }
+            }
+
+            node_editor_state.interactive_element_state.push_back(InteractiveElementState{
+                    .element = InteractiveElementState::Widget{widget_id},
+                    .area = widget.box,
+                    .order = widget.order
+            });
+        }
+    }
+}
+
+static void rebase_state(const NodeEditor& node_editor, NodeEditorState& node_editor_state)
+{
     for(const auto& [node_id, node]: node_editor.graph.nodes)
     {
         if(!node_editor_state.order.contains(node_id))
@@ -277,7 +268,10 @@ void compute_state(const NodeEditor& node_editor, NodeEditorState& node_editor_s
             // remove from focus stack and order
         }
     }
+}
 
+static void compute_order(const NodeEditor& node_editor, NodeEditorState& node_editor_state)
+{
     {
         int order = static_cast<int>(node_editor_state.focus_stack.size());
         for(const auto& node_id: node_editor_state.focus_stack)
@@ -287,31 +281,40 @@ void compute_state(const NodeEditor& node_editor, NodeEditorState& node_editor_s
         }
     }
 
+    {
+        int order = static_cast<int>(node_editor_state.focus_stack.size()) + 1;
+        for (auto& [widget_id, widget]: node_editor_state.widget_state)
+        {
+            if (widget.popup || !std::get_if<Port>(&widget_id))
+            {
+                widget.order = order ++;
+            }
+            else
+            {
+                widget.order = node_editor_state.order[std::get_if<Port>(&widget_id)->node_id];
+            }
+        }
+
+    }
+}
+
+void compute_state(const NodeEditor& node_editor, NodeEditorState& node_editor_state)
+{
+    for(const auto& [node_type_id, node_type]: node_editor.graph.node_types)
+    {
+        compute_type(node_editor_state, node_editor.styling_config, *node_editor.font, node_type, node_type_id);
+    }
+
+    rebase_state(node_editor, node_editor_state);
+    compute_order(node_editor, node_editor_state);
+
     node_editor_state.interactive_element_state.clear();
     for(const auto& [node_id, node]: node_editor.graph.nodes)
     {
         compute_node(node_editor_state, node_editor.styling_config, node, node_id);
     }
 
-    {
-        int order = static_cast<int>(node_editor_state.focus_stack.size()) + 2;
-        for (auto& [widget_id, widget]: node_editor_state.widget_state)
-        {
-            if (widget.popup || !std::get_if<Port>(&widget_id))
-            {
-                widget.order = order ++;
-                for(auto& element: node_editor_state.interactive_element_state)
-                {
-                    if(auto element_widget_id = std::get_if<InteractiveElementState::Widget>(&element.element);
-                        element_widget_id && element_widget_id->widget_id == widget_id
-                    )
-                    {
-                        element.order = widget.order;
-                    }
-                }
-            }
-        }
-    }
+    compute_widgets(node_editor, node_editor_state);
 
     std::sort(node_editor_state.interactive_element_state.begin(), node_editor_state.interactive_element_state.end(),
               [](const auto& lhs, const auto& rhs) -> bool{
