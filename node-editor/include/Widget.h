@@ -39,6 +39,10 @@ namespace Widgets
             CenteredBox luminance_bar;
             bool drag_wheel = false;
             bool drag_luminance_bar = false;
+
+            TextBoxState channel_text_box[3];
+            CenteredBox channel_input_area[3];
+            std::optional<int> active_text_box;
         };
 
         glm::vec3 color;

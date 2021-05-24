@@ -114,6 +114,47 @@ static void compute_render_data_widget(
                 glm::vec3{state.popup->luminance_bar.center, order * STRIDE_Z_LOCATION + OUTLINE_Z_LOCATION},
                 glm::vec3{state.popup->luminance_bar.size, 1.f}
         });
+
+        float max_height = font.max_height(config.text_height);
+        float max_sub_line = font.max_sub_line(config.text_height);
+        cache.texts.push_back(RenderData::Text{
+                glm::vec3{
+                    state.popup->box.center.x - state.popup->box.size.x / 2.f + config.color_picker_margin_padding,
+                    state.popup->channel_input_area[0].center.y + max_height / 2.f - max_sub_line,
+                    order * STRIDE_Z_LOCATION + OUTLINE_Z_LOCATION
+                    },
+                glm::vec4{config.text_box_widget_text_color, 1.f},
+                "r:",
+                config.text_height,
+        });
+
+        cache.texts.push_back(RenderData::Text{
+                glm::vec3{
+                        state.popup->box.center.x - state.popup->box.size.x / 2.f + config.color_picker_margin_padding,
+                        state.popup->channel_input_area[1].center.y + max_height / 2.f - max_sub_line,
+                        order * STRIDE_Z_LOCATION + OUTLINE_Z_LOCATION
+                },
+                glm::vec4{config.text_box_widget_text_color, 1.f},
+                "g:",
+                config.text_height,
+        });
+
+        cache.texts.push_back(RenderData::Text{
+                glm::vec3{
+                        state.popup->box.center.x - state.popup->box.size.x / 2.f + config.color_picker_margin_padding,
+                        state.popup->channel_input_area[2].center.y + max_height / 2.f - max_sub_line,
+                        order * STRIDE_Z_LOCATION + OUTLINE_Z_LOCATION
+                },
+                glm::vec4{config.text_box_widget_text_color, 1.f},
+                "b:",
+                config.text_height,
+        });
+
+        int active_text_box = state.popup->active_text_box ? *state.popup->active_text_box : -1;
+
+        compute_render_data_widget(cache, config, font, state.popup->channel_text_box[0], state.popup->channel_input_area[0], order, active_text_box == 0);
+        compute_render_data_widget(cache, config, font, state.popup->channel_text_box[1], state.popup->channel_input_area[1], order, active_text_box == 1);
+        compute_render_data_widget(cache, config, font, state.popup->channel_text_box[2], state.popup->channel_input_area[2], order, active_text_box == 2);
     }
 }
 

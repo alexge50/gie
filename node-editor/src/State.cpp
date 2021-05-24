@@ -221,13 +221,33 @@ static void compute_widgets(const NodeEditor& node_editor, NodeEditorState& node
                             glm::vec3{node_editor.styling_config.color_picker_luminance_width, size, 1.f}
                     };
 
-                    color_picker_state.popup = Widgets::ColorPickerState::Popup{
-                            .box = popup_box,
-                            .color_wheel = color_wheel,
-                            .luminance_bar = luminance_bar,
-                            .drag_wheel = color_picker_state.popup->drag_wheel,
-                            .drag_luminance_bar = color_picker_state.popup->drag_luminance_bar,
+                    position = glm::vec2{
+                        popup_box.center.x + popup_box.size.x / 2.f - node_editor.styling_config.color_picker_text_box_width - node_editor.styling_config.color_picker_margin_padding,
+                        popup_box.center.y - popup_box.size.y / 2.f + size + 2 * node_editor.styling_config.color_picker_margin_padding
                     };
+
+                    for(int i = 0; i < 3; i++)
+                    {
+                        color_picker_state.popup->channel_input_area[i] = CenteredBox {
+                                .center = position,
+                                .size = {node_editor.styling_config.color_picker_text_box_width, node_editor.styling_config.row_height}
+                        };
+
+                        color_picker_state.popup->channel_input_area[i].center += color_picker_state.popup->channel_input_area[0].size / 2.f;
+                        position.y += node_editor.styling_config.row_height + node_editor.styling_config.color_picker_margin_padding;
+
+                        color_picker_state.popup->channel_text_box[i].text_box = color_picker_state.popup->channel_input_area[i];
+                        color_picker_state.popup->channel_text_box[i].text_box.size.x -= node_editor.styling_config.text_box_margin_padding * 2.f;
+
+                        if(color_picker_state.popup->channel_text_box[i].data.empty())
+                        {
+                            color_picker_state.popup->channel_text_box[i].data = std::to_string(color_picker_state.color[i]);
+                        }
+                    }
+
+                    color_picker_state.popup->box = popup_box;
+                    color_picker_state.popup->color_wheel = color_wheel;
+                    color_picker_state.popup->luminance_bar = luminance_bar;
 
                     node_editor_state.interactive_element_state.push_back(InteractiveElementState{
                             .element = InteractiveElementState::Widget{widget_id},

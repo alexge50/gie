@@ -486,7 +486,7 @@ bool process_text_box(Widgets::TextBoxState& state, const InputEvent& input_even
     return deactivated;
 }
 
-void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& input_event)
+void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& input_event, const Font& font, float text_height)
 {
     auto process_wheel = [&](glm::vec2 mouse_position)
     {
@@ -503,6 +503,11 @@ void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& in
         theta /= 2 * M_PI;
 
         state.color = glm::rgbColor(glm::vec3(theta * 360.f, offset, luminance));
+
+        for(int i = 0; i < 3; i++)
+        {
+            state.popup->channel_text_box[i].data = std::to_string(state.color[i]);
+        }
     };
 
     auto process_luminance = [&](glm::vec2 mouse_position)
@@ -514,6 +519,11 @@ void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& in
         luminance = glm::clamp(luminance, 0.f, 1.f);
         hsv_color.z = luminance;
         state.color = glm::rgbColor(hsv_color);
+
+        for(int i = 0; i < 3; i++)
+        {
+            state.popup->channel_text_box[i].data = std::to_string(state.color[i]);
+        }
     };
 
     if(auto click = std::get_if<InputEvents::Click>(&input_event))
@@ -525,10 +535,26 @@ void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& in
         {
             process_wheel(click->position.get());
         }
-
-        if(contains_point(state.popup->luminance_bar, click->position.get()))
+        else if(contains_point(state.popup->luminance_bar, click->position.get()))
         {
             process_luminance(click->position.get());
+        }
+        else
+        {
+            bool activated = false;
+            for(int i = 0; i < 3; i++)
+            {
+                if(contains_point(state.popup->channel_input_area[i], click->position.get()))
+                {
+                    state.popup->active_text_box = i;
+                    activated = true;
+                }
+            }
+
+            if(!activated)
+            {
+                state.popup->active_text_box = std::nullopt;
+            }
         }
     }
     else if(auto drag_begin = std::get_if<InputEvents::DragBegin>(&input_event))
@@ -541,11 +567,27 @@ void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& in
             state.popup->drag_wheel = true;
             process_wheel(drag_begin->position.get());
         }
-
-        if(contains_point(state.popup->luminance_bar, drag_begin->position.get()))
+        else if(contains_point(state.popup->luminance_bar, drag_begin->position.get()))
         {
             state.popup->drag_luminance_bar = true;
             process_luminance(drag_begin->position.get());
+        }
+        else
+        {
+            bool activated = false;
+            for(int i = 0; i < 3; i++)
+            {
+                if(contains_point(state.popup->channel_input_area[i], drag_begin->position.get()))
+                {
+                    state.popup->active_text_box = i;
+                    activated = true;
+                }
+            }
+
+            if(!activated)
+            {
+                state.popup->active_text_box = std::nullopt;
+            }
         }
     }
     else if(auto drag_sustain = std::get_if<InputEvents::DragSustain>(&input_event))
@@ -564,6 +606,21 @@ void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& in
     {
         state.popup->drag_wheel = false;
         state.popup->drag_luminance_bar = false;
+    }
+    else
+    {
+        if(state.popup->active_text_box)
+        {
+            if(process_text_box(state.popup->channel_text_box[*state.popup->active_text_box], input_event, font, text_height))
+            {
+                state.popup->active_text_box = std::nullopt;
+            }
+
+            for(int i = 0; i < 3; i++)
+            {
+                state.color[i] = std::stof(state.popup->channel_text_box[i].data);
+            }
+        }
     }
 }
 
@@ -600,7 +657,7 @@ void process(NodeEditor& node_editor, const InputEventVector& input, EditorEvent
         }
         else if(auto color_picker = std::get_if<Widgets::ColorPickerState>(&node_editor.state.widget_state[active_widget].state))
         {
-            process_color_picker(*color_picker, widget_input->input_event);
+            process_color_picker(*color_picker, widget_input->input_event, *node_editor.font, node_editor.styling_config.text_height);
         }
     }
 
