@@ -2,8 +2,6 @@
 #include <NodeEditor.h>
 #include <Render.h>
 
-#include <detail/Zip.h>
-
 #include <glm/gtx/color_space.hpp>
 
 static const float OUTLINE_Z_LOCATION = 2.f;
