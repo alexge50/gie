@@ -426,20 +426,92 @@ static std::optional<size_t> find_connection(NodeEditor& node_editor, Port port)
     return std::nullopt;
 }
 
+bool validate_text_box(const Widgets::RealTextBox& widget, Widgets::TextBoxState& state)
+{
+    char* end;
+
+    double result = strtod(state.text.c_str(), &end);
+
+    if(end == state.text.c_str() || *end != '\0')
+    {
+        state.invalid = true;
+        return false;
+    }
+
+    if(!widget.min_bound && result <= *widget.min_bound)
+        result = *widget.min_bound;
+
+    if(!widget.max_bound && result >= *widget.max_bound)
+        result = *widget.max_bound;
+
+    state.data = result;
+    state.text = std::to_string(result);
+
+    state.invalid = false;
+    return true;
+}
+
+bool validate_text_box(const Widgets::IntegerTextBox& widget, Widgets::TextBoxState& state)
+{
+    char* end;
+
+    long long result = strtoll(state.text.c_str(), &end, 10);
+
+    if(end == state.text.c_str() || *end != '\0')
+    {
+        state.invalid = true;
+        return false;
+    }
+
+    if(!widget.min_bound && result <= *widget.min_bound)
+        result = *widget.min_bound;
+
+    if(!widget.max_bound && result >= *widget.max_bound)
+        result = *widget.max_bound;
+
+    state.data = result;
+    state.text = std::to_string(result);
+
+    state.invalid = false;
+    return true;
+}
+
+bool validate_text_box(const Widgets::TextBox&, Widgets::TextBoxState& state)
+{
+    state.data = state.text;
+    return true;
+}
+
+bool validate_widget(const Widget& widget, WidgetState& widget_state)
+{
+    if(auto text_box_state = std::get_if<Widgets::TextBoxState>(&widget_state))
+    {
+        if(auto text_box = std::get_if<Widgets::TextBox>(&widget))
+            return validate_text_box(*text_box, *text_box_state);
+        else if(auto text_box = std::get_if<Widgets::IntegerTextBox>(&widget))
+            return validate_text_box(*text_box, *text_box_state);
+        else if(auto text_box = std::get_if<Widgets::RealTextBox>(&widget))
+            return validate_text_box(*text_box, *text_box_state);
+        return false;
+    }
+
+    return true;
+}
+
 bool process_text_box(Widgets::TextBoxState& state, const InputEvent& input_event, const Font& font, float text_height)
 {
     bool deactivated = false;
 
     if(auto character = std::get_if<InputEvents::Character>(&input_event))
     {
-        state.data.insert(state.data.begin() + state.cursor_position, character->c);
+        state.text.insert(state.text.begin() + state.cursor_position, character->c);
         state.cursor_position += 1;
     }
     else if(auto key = std::get_if<InputEvents::KeyPressed>(&input_event))
     {
         if(key->key == InputEvents::KeyPressed::Key::RIGHT_ARROW)
         {
-            state.cursor_position = std::min(state.cursor_position + 1, state.data.size());
+            state.cursor_position = std::min(state.cursor_position + 1, state.text.size());
         }
         else if(key->key == InputEvents::KeyPressed::Key::LEFT_ARROW)
         {
@@ -452,15 +524,15 @@ bool process_text_box(Widgets::TextBoxState& state, const InputEvent& input_even
         {
             if(state.cursor_position != 0)
             {
-                state.data.erase(state.data.begin() + (state.cursor_position - 1));
+                state.text.erase(state.text.begin() + (state.cursor_position - 1));
                 state.cursor_position -= 1;
             }
         }
         else if(key->key == InputEvents::KeyPressed::Key::DELETE)
         {
-            if(state.cursor_position != state.data.size())
+            if(state.cursor_position != state.text.size())
             {
-                state.data.erase(state.data.begin() + (state.cursor_position));
+                state.text.erase(state.text.begin() + (state.cursor_position));
             }
         }
         else if(key->key == InputEvents::KeyPressed::Key::ENTER)
@@ -470,7 +542,7 @@ bool process_text_box(Widgets::TextBoxState& state, const InputEvent& input_even
     }
 
     float cursor_position = font.compute_bounding_box(
-            std::string_view{state.data.data(), std::min(state.data.size(), state.cursor_position)},
+            std::string_view{state.text.data(), std::min(state.text.size(), state.cursor_position)},
             text_height
     ).x;
 
@@ -506,7 +578,9 @@ void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& in
 
         for(int i = 0; i < 3; i++)
         {
-            state.popup->channel_text_box[i].data = std::to_string(state.color[i]);
+            state.popup->channel_text_box[i].text = std::to_string(state.color[i]);
+            state.popup->channel_text_box[i].data = state.color[i];
+            state.popup->channel_text_box[i].invalid = false;
         }
     };
 
@@ -522,7 +596,9 @@ void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& in
 
         for(int i = 0; i < 3; i++)
         {
-            state.popup->channel_text_box[i].data = std::to_string(state.color[i]);
+            state.popup->channel_text_box[i].text = std::to_string(state.color[i]);
+            state.popup->channel_text_box[i].data = state.color[i];
+            state.popup->channel_text_box[i].invalid = false;
         }
     };
 
@@ -618,7 +694,12 @@ void process_color_picker(Widgets::ColorPickerState& state, const InputEvent& in
 
             for(int i = 0; i < 3; i++)
             {
-                state.color[i] = std::stof(state.popup->channel_text_box[i].data);
+                validate_text_box(Widgets::RealTextBox{0.0, 1.0}, state.popup->channel_text_box[i]);
+
+                if(auto value = std::get_if<double>(&state.popup->channel_text_box[i].data))
+                {
+                    state.color[i] = *value;
+                }
             }
         }
     }
@@ -663,9 +744,12 @@ void process(NodeEditor& node_editor, const InputEventVector& input, EditorEvent
 
     for(auto widget_deactivated: filter_events<EditorEvents::WidgetDeactivated>(output))
     {
-        output.add(EditorEvents::WidgetValueChanged{
-            widget_deactivated->widget
-        });
+        if(validate_widget(node_editor.state.widget_state[widget_deactivated->widget].widget, node_editor.state.widget_state[widget_deactivated->widget].state))
+        {
+            output.add(EditorEvents::WidgetValueChanged{
+                    widget_deactivated->widget
+            });
+        }
 
         if([[maybe_unused]]auto* color_picker = std::get_if<Widgets::ColorPickerState>(&node_editor.state.widget_state[widget_deactivated->widget].state))
         {

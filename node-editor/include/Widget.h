@@ -18,13 +18,27 @@ namespace Widgets
         int max_text_length = 16;
     };
 
+    struct RealTextBox
+    {
+        std::optional<double> min_bound = std::nullopt;
+        std::optional<double> max_bound = std::nullopt;
+    };
+
+    struct IntegerTextBox
+    {
+        std::optional<long long> min_bound = std::nullopt;
+        std::optional<long long> max_bound = std::nullopt;
+    };
+
     struct TextBoxState
     {
-        std::string data{};
+        std::string text{};
+        std::variant<std::string, long long, double> data = std::string{};
         size_t cursor_position = 0;
         float view_position = 0.f;
 
         CenteredBox text_box;
+        bool invalid;
     };
 
     struct ColorPicker
@@ -55,7 +69,7 @@ namespace Widgets
     {};
 }
 
-using Widget = std::variant<Widgets::TextBox, Widgets::ColorPicker, Widgets::None>;
+using Widget = std::variant<Widgets::TextBox, Widgets::IntegerTextBox, Widgets::RealTextBox, Widgets::ColorPicker, Widgets::None>;
 using WidgetState = std::variant<Widgets::TextBoxState, Widgets::ColorPickerState, Widgets::None>;
 
 #endif //GIE_WIDGET_H

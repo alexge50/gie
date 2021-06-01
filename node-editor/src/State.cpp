@@ -171,7 +171,9 @@ static void compute_widgets(const NodeEditor& node_editor, NodeEditorState& node
     {
         if(!std::holds_alternative<Widgets::None>(widget.widget))
         {
-            if(std::get_if<Widgets::TextBox>(&widget.widget))
+            if(std::get_if<Widgets::TextBox>(&widget.widget) ||
+                    std::get_if<Widgets::RealTextBox>(&widget.widget) ||
+                    std::get_if<Widgets::IntegerTextBox>(&widget.widget))
             {
                 if(!std::get_if<Widgets::TextBoxState>(&widget.state))
                     widget.state = Widgets::TextBoxState{};
@@ -239,9 +241,9 @@ static void compute_widgets(const NodeEditor& node_editor, NodeEditorState& node
                         color_picker_state.popup->channel_text_box[i].text_box = color_picker_state.popup->channel_input_area[i];
                         color_picker_state.popup->channel_text_box[i].text_box.size.x -= node_editor.styling_config.text_box_margin_padding * 2.f;
 
-                        if(color_picker_state.popup->channel_text_box[i].data.empty())
+                        if(color_picker_state.popup->channel_text_box[i].text.empty())
                         {
-                            color_picker_state.popup->channel_text_box[i].data = std::to_string(color_picker_state.color[i]);
+                            color_picker_state.popup->channel_text_box[i].text = std::to_string(color_picker_state.color[i]);
                         }
                     }
 

@@ -36,7 +36,7 @@ static void compute_render_data_widget(
     cache.quad_outlines.push_back(RenderData::QuadOutline{
             glm::vec3(box.center, order * STRIDE_Z_LOCATION + TEXT_BOX_OUTLINE_Z_LOCATION),
             glm::vec3(box.size, 1.f),
-            glm::vec4{active ? config.text_box_widget_outline_active_color : config.text_box_widget_outline_color, 1.f}
+            glm::vec4{active ? config.text_box_widget_outline_active_color : (state.invalid ? config.text_box_widget_outline_invalid_color : config.text_box_widget_outline_color), 1.f}
     });
 
     float max_height = font.max_height(config.text_height);
@@ -44,7 +44,7 @@ static void compute_render_data_widget(
     cache.stencil_texts.push_back(RenderData::StencilText{
             glm::vec3{state.text_box.center - glm::vec2{state.text_box.size.x / 2.f + state.view_position, -max_height / 2.f + max_sub_line}, order * STRIDE_Z_LOCATION + TEXT_BOX_TEXT_Z_LOCATION},
             glm::vec4{config.text_box_widget_text_color, 1.f},
-            state.data,
+            state.text,
             config.text_height,
             compute_bounding_box(state.text_box.center, state.text_box.size)
     });
@@ -52,7 +52,7 @@ static void compute_render_data_widget(
     if(active)
     {
         float cursor_position = font.compute_bounding_box(
-            std::string_view{state.data.data(), std::min(state.data.size(), state.cursor_position)},
+            std::string_view{state.text.data(), std::min(state.text.size(), state.cursor_position)},
             config.text_height
         ).x;
 
